@@ -17,6 +17,10 @@
 npm run build
 ```
 
+**IMPORTANT**: Do NOT use `npx vitepress build`. This is a Vite + React app, not VitePress.
+
+If Cloudflare auto-detects the wrong command, manually override it in the dashboard.
+
 #### Build Output Directory
 ```
 dist
@@ -159,6 +163,17 @@ export default defineConfig({
 
 ## Troubleshooting
 
+### Wrong Build Command Detected
+**Problem**: Cloudflare runs `npx vitepress build` instead of `npm run build`
+
+**Solution**: 
+1. Go to **Settings** → **Builds & deployments** in your Cloudflare Pages project
+2. Override the build command to: `npm run build`
+3. Verify output directory is: `dist`
+4. Retry the deployment
+
+The `wrangler.toml` file in your project should prevent this, but if it persists, manually override in dashboard.
+
 ### Build Fails with "Module not found"
 - Ensure all dependencies are in `dependencies`, not `devDependencies`
 - Run `npm install` locally to verify
@@ -171,7 +186,20 @@ export default defineConfig({
 ### Routing Issues (404 on refresh)
 Create a `public/_redirects` file:
 ```
-/*    /index.html   200
+/* /index.html 200
+```
+
+**Note**: Ensure there are no extra spaces in the redirect rule, or it may cause infinite loop warnings.
+
+For Cloudflare Pages specifically, you can also use the _routes.json approach if _redirects doesn't work:
+
+Create `public/_routes.json`:
+```json
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": []
+}
 ```
 
 Or create `public/_headers` for better performance:
