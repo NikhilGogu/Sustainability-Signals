@@ -5,10 +5,10 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 
-export default function MonthlyTarget() {
+export default function SustainabilityGoal() {
   const series = [75.55];
   const options: ApexOptions = {
-    colors: ["#465FFF"],
+    colors: ["#10b981"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "radialBar",
@@ -47,7 +47,7 @@ export default function MonthlyTarget() {
     },
     fill: {
       type: "solid",
-      colors: ["#465FFF"],
+      colors: ["#10b981"],
     },
     stroke: {
       lineCap: "round",
@@ -69,10 +69,10 @@ export default function MonthlyTarget() {
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Monthly Target
+              Sustainability Goal
             </h3>
             <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-              Target you’ve set for each month
+              Progress toward your monthly sustainability target
             </p>
           </div>
           <div className="relative inline-block">

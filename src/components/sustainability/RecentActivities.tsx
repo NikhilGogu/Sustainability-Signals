@@ -23,52 +23,52 @@ interface Product {
 const tableData: Product[] = [
   {
     id: 1,
-    name: "MacBook Pro 13”",
+    name: "Item A",
     variants: "2 Variants",
-    category: "Laptop",
+    category: "Category 1",
     price: "$2399.00",
     status: "Delivered",
-    image: "/images/product/product-01.jpg", // Replace with actual image URL
+    image: "",
   },
   {
     id: 2,
-    name: "Apple Watch Ultra",
+    name: "Item B",
     variants: "1 Variant",
-    category: "Watch",
+    category: "Category 2",
     price: "$879.00",
     status: "Pending",
-    image: "/images/product/product-02.jpg", // Replace with actual image URL
+    image: "",
   },
   {
     id: 3,
-    name: "iPhone 15 Pro Max",
+    name: "Item C",
     variants: "2 Variants",
-    category: "SmartPhone",
+    category: "Category 1",
     price: "$1869.00",
     status: "Delivered",
-    image: "/images/product/product-03.jpg", // Replace with actual image URL
+    image: "",
   },
   {
     id: 4,
-    name: "iPad Pro 3rd Gen",
+    name: "Item D",
     variants: "2 Variants",
-    category: "Electronics",
+    category: "Category 3",
     price: "$1699.00",
     status: "Canceled",
-    image: "/images/product/product-04.jpg", // Replace with actual image URL
+    image: "",
   },
   {
     id: 5,
-    name: "AirPods Pro 2nd Gen",
+    name: "Item E",
     variants: "1 Variant",
-    category: "Accessories",
+    category: "Category 4",
     price: "$240.00",
     status: "Delivered",
-    image: "/images/product/product-05.jpg", // Replace with actual image URL
+    image: "",
   },
 ];
 
-export default function RecentOrders() {
+export default function RecentActivities() {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -161,12 +161,8 @@ export default function RecentOrders() {
               <TableRow key={product.id} className="">
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <img
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
+                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md bg-brand-500 flex items-center justify-center text-white font-medium">
+                      {product.name.charAt(0)}
                     </div>
                     <div>
                       <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">

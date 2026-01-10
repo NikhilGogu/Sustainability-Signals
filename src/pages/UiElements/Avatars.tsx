@@ -7,51 +7,51 @@ export default function Avatars() {
   return (
     <>
       <PageMeta
-        title="React.js Avatars Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Avatars Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="Avatars | Sustainability Signals"
+        description="Avatars page for Sustainability Signals"
       />
       <PageBreadcrumb pageTitle="Avatars" />
       <div className="space-y-5 sm:space-y-6">
         <ComponentCard title="Default Avatar">
           {/* Default Avatar (No Status) */}
           <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
-            <Avatar src="/images/user/user-01.jpg" size="xsmall" />
-            <Avatar src="/images/user/user-01.jpg" size="small" />
-            <Avatar src="/images/user/user-01.jpg" size="medium" />
-            <Avatar src="/images/user/user-01.jpg" size="large" />
-            <Avatar src="/images/user/user-01.jpg" size="xlarge" />
-            <Avatar src="/images/user/user-01.jpg" size="xxlarge" />
+            <Avatar initial="A" size="xsmall" />
+            <Avatar initial="B" size="small" />
+            <Avatar initial="C" size="medium" />
+            <Avatar initial="D" size="large" />
+            <Avatar initial="E" size="xlarge" />
+            <Avatar initial="F" size="xxlarge" />
           </div>
         </ComponentCard>
         <ComponentCard title="Avatar with online indicator">
           <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="A"
               size="xsmall"
               status="online"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="B"
               size="small"
               status="online"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="C"
               size="medium"
               status="online"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="D"
               size="large"
               status="online"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="E"
               size="xlarge"
               status="online"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="F"
               size="xxlarge"
               status="online"
             />
@@ -60,32 +60,32 @@ export default function Avatars() {
         <ComponentCard title="Avatar with Offline indicator">
           <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="A"
               size="xsmall"
               status="offline"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="B"
               size="small"
               status="offline"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="C"
               size="medium"
               status="offline"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="D"
               size="large"
               status="offline"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="E"
               size="xlarge"
               status="offline"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="F"
               size="xxlarge"
               status="offline"
             />
@@ -94,24 +94,24 @@ export default function Avatars() {
         <ComponentCard title="Avatar with busy indicator">
           <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="A"
               size="xsmall"
               status="busy"
             />
-            <Avatar src="/images/user/user-01.jpg" size="small" status="busy" />
+            <Avatar initial="B" size="small" status="busy" />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="C"
               size="medium"
               status="busy"
             />
-            <Avatar src="/images/user/user-01.jpg" size="large" status="busy" />
+            <Avatar initial="D" size="large" status="busy" />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="E"
               size="xlarge"
               status="busy"
             />
             <Avatar
-              src="/images/user/user-01.jpg"
+              initial="F"
               size="xxlarge"
               status="busy"
             />

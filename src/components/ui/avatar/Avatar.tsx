@@ -1,8 +1,9 @@
 interface AvatarProps {
-  src: string; // URL of the avatar image
+  src?: string; // URL of the avatar image
   alt?: string; // Alt text for the avatar
   size?: "xsmall" | "small" | "medium" | "large" | "xlarge" | "xxlarge"; // Avatar size
   status?: "online" | "offline" | "busy" | "none"; // Status indicator
+  initial?: string; // Initial to display when no image
 }
 
 const sizeClasses = {
@@ -12,6 +13,15 @@ const sizeClasses = {
   large: "h-12 w-12 max-w-12",
   xlarge: "h-14 w-14 max-w-14",
   xxlarge: "h-16 w-16 max-w-16",
+};
+
+const textSizeClasses = {
+  xsmall: "text-xs",
+  small: "text-sm",
+  medium: "text-base",
+  large: "text-lg",
+  xlarge: "text-xl",
+  xxlarge: "text-2xl",
 };
 
 const statusSizeClasses = {
@@ -34,11 +44,18 @@ const Avatar: React.FC<AvatarProps> = ({
   alt = "User Avatar",
   size = "medium",
   status = "none",
+  initial = "U",
 }) => {
   return (
     <div className={`relative  rounded-full ${sizeClasses[size]}`}>
-      {/* Avatar Image */}
-      <img src={src} alt={alt} className="object-cover rounded-full" />
+      {/* Avatar Image or Initial */}
+      {src ? (
+        <img src={src} alt={alt} className="object-cover rounded-full" />
+      ) : (
+        <div className={`${sizeClasses[size]} rounded-full bg-brand-500 flex items-center justify-center text-white font-medium ${textSizeClasses[size]}`}>
+          {initial}
+        </div>
+      )}
 
       {/* Status Indicator */}
       {status !== "none" && (

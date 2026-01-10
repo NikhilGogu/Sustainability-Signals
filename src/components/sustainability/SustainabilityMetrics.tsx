@@ -6,19 +6,19 @@ import {
 } from "../../icons";
 import Badge from "../ui/badge/Badge";
 
-export default function EcommerceMetrics() {
+export default function SustainabilityMetrics() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
+        <div className="flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl dark:bg-emerald-900/20">
+          <GroupIcon className="text-emerald-600 size-6 dark:text-emerald-400" />
         </div>
 
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Customers
+              Carbon Offset (tons)
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
               3,782
@@ -34,21 +34,21 @@ export default function EcommerceMetrics() {
 
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <BoxIconLine className="text-gray-800 size-6 dark:text-white/90" />
+        <div className="flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl dark:bg-emerald-900/20">
+          <BoxIconLine className="text-emerald-600 size-6 dark:text-emerald-400" />
         </div>
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Orders
+              Renewable Energy %
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              5,359
+              67.3%
             </h4>
           </div>
 
-          <Badge color="error">
-            <ArrowDownIcon />
+          <Badge color="success">
+            <ArrowUpIcon />
             9.05%
           </Badge>
         </div>

@@ -26,7 +26,7 @@ export default function UserAddressCard() {
                   Country
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  United States.
+                  Country
                 </p>
               </div>
 
@@ -35,7 +35,7 @@ export default function UserAddressCard() {
                   City/State
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Phoenix, Arizona, United States.
+                  City, State
                 </p>
               </div>
 
@@ -97,22 +97,22 @@ export default function UserAddressCard() {
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
                   <Label>Country</Label>
-                  <Input type="text" value="United States" />
+                  <Input type="text" placeholder="Country" />
                 </div>
 
                 <div>
                   <Label>City/State</Label>
-                  <Input type="text" value="Arizona, United States." />
+                  <Input type="text" placeholder="City, State" />
                 </div>
 
                 <div>
                   <Label>Postal Code</Label>
-                  <Input type="text" value="ERT 2489" />
+                  <Input type="text" placeholder="Postal code" />
                 </div>
 
                 <div>
                   <Label>TAX ID</Label>
-                  <Input type="text" value="AS4568384" />
+                  <Input type="text" placeholder="Tax ID" />
                 </div>
               </div>
             </div>

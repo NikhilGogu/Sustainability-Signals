@@ -5,7 +5,7 @@ import flatpickr from "flatpickr";
 import ChartTab from "../common/ChartTab";
 import { CalenderIcon } from "../../icons";
 
-export default function StatisticsChart() {
+export default function EnergyUsageChart() {
   const datePickerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function StatisticsChart() {
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#465FFF", "#9CB9FF"], // Define line colors
+    colors: ["#10b981", "#6ee7b7"], // Define line colors with green sustainability theme
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,
@@ -135,11 +135,11 @@ export default function StatisticsChart() {
 
   const series = [
     {
-      name: "Sales",
+      name: "Energy Consumption (kWh)",
       data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
     },
     {
-      name: "Revenue",
+      name: "Renewable Energy (kWh)",
       data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];
@@ -148,10 +148,10 @@ export default function StatisticsChart() {
       <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
         <div className="w-full">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Statistics
+            Energy Usage Statistics
           </h3>
           <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-            Target you've set for each month
+            Track your energy consumption and renewable energy usage
           </p>
         </div>
         <div className="flex items-center gap-3 sm:justify-end">
