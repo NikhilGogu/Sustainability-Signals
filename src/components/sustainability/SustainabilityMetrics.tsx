@@ -1,5 +1,4 @@
 import {
-  ArrowDownIcon,
   ArrowUpIcon,
   BoxIconLine,
   GroupIcon,

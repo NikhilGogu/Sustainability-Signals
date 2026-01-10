@@ -113,7 +113,6 @@ export default function UserInfoCard() {
                     <Input
                       type="text"
                       placeholder="https://www.linkedin.com/in/nikhilgogu/"
-                      defaultValue="https://www.linkedin.com/in/nikhilgogu/"
                     />
                   </div>
 
@@ -122,7 +121,6 @@ export default function UserInfoCard() {
                     <Input
                       type="text"
                       placeholder="https://www.nikhil.chat/"
-                      defaultValue="https://www.nikhil.chat/"
                     />
                   </div>
                 </div>

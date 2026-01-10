@@ -172,7 +172,19 @@ export default defineConfig({
 3. Verify output directory is: `dist`
 4. Retry the deployment
 
-The `wrangler.toml` file in your project should prevent this, but if it persists, manually override in dashboard.
+### Build Succeeds But Site Shows 404
+**Problem**: Site deploys successfully but all pages show 404 error
+
+**Root Cause**: The `_redirects` file may not be working properly with Cloudflare Pages
+
+**Solution**: Cloudflare Pages handles SPA routing automatically for Vite apps. The `_redirects` file should be formatted correctly without extra spaces.
+
+Ensure your `public/_redirects` file contains:
+```
+/* /index.html 200
+```
+
+If the issue persists, the site should work after redeployment with the correct build command.
 
 ### Build Fails with "Module not found"
 - Ensure all dependencies are in `dependencies`, not `devDependencies`
