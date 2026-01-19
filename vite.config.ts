@@ -9,7 +9,6 @@ export default defineConfig({
     svgr({
       svgrOptions: {
         icon: true,
-        // This will transform your SVG to a React component
         exportType: "named",
         namedExport: "ReactComponent",
       },
@@ -22,15 +21,6 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router'],
           'charts': ['apexcharts', 'react-apexcharts'],
-          'calendar': [
-            '@fullcalendar/core',
-            '@fullcalendar/daygrid',
-            '@fullcalendar/interaction',
-            '@fullcalendar/list',
-            '@fullcalendar/react',
-            '@fullcalendar/timegrid'
-          ],
-          'maps': ['@react-jvectormap/core', '@react-jvectormap/world'],
         },
       },
     },
