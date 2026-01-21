@@ -208,5 +208,5 @@ MIT
 
 ## Contact
 
-- Email: hello@sustainabilitysignals.com
+- Email: gogunikhil@gmail.com
 - Website: [sustainabilitysignals.com](https://sustainabilitysignals.com)
