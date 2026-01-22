@@ -18,6 +18,15 @@ export default defineConfig({
       name: 'local-proxy',
       configureServer(server) {
         server.middlewares.use('/proxy', async (req: Connect.IncomingMessage, res: ServerResponse, _next: Connect.NextFunction) => {
+          // Handle CORS Preflight
+          if (req.method === 'OPTIONS') {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range, User-Agent, X-Requested-With');
+            res.end();
+            return;
+          }
+
           try {
             // @ts-ignore
             const protocol = req.headers['x-forwarded-proto'] || 'http';

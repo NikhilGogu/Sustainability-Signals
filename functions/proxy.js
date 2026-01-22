@@ -1,4 +1,15 @@
 export async function onRequest(context) {
+    // Handle CORS Preflight
+    if (context.request.method === 'OPTIONS') {
+        return new Response(null, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Range, User-Agent, X-Requested-With',
+            }
+        });
+    }
+
     const url = new URL(context.request.url);
     const targetUrl = url.searchParams.get('url');
 
