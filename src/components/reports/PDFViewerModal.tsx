@@ -18,9 +18,25 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     const [scale, setScale] = useState<number>(1.2);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState<number>(0);
 
     const startPage = report?.pageStart || 1;
     const endPage = report?.pageEnd || numPages;
+
+    // Ordered list of proxies to try
+    // 1. CodeTabs: good for binaries
+    // 2. CORS Proxy IO: reliable fallback
+    // 3. CORS Anywhere: standard fallback
+    const getProxiedUrl = (url: string, attempt: number) => {
+        switch (attempt) {
+            case 0: return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+            case 1: return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            case 2: return `https://cors-anywhere.herokuapp.com/${url}`;
+            default: return url;
+        }
+    };
+
+    const currentUrl = report?.reportUrl ? getProxiedUrl(report.reportUrl, retryCount) : null;
 
     const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
         setNumPages(numPages);
@@ -30,9 +46,16 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     }, [report?.pageStart]);
 
     const onDocumentLoadError = useCallback(() => {
-        setLoading(false);
-        setError('Unable to load PDF. The document may be restricted or unavailable.');
-    }, []);
+        if (retryCount < 2) {
+            console.log(`Proxy attempt ${retryCount + 1} failed, trying next proxy...`);
+            setRetryCount(prev => prev + 1);
+            setLoading(true);
+        } else {
+            console.error('All proxies failed');
+            setLoading(false);
+            setError('Unable to load PDF directly. trying to open externally...');
+        }
+    }, [retryCount]);
 
     const goToPage = (page: number) => {
         const validPage = Math.max(startPage, Math.min(page, endPage));
@@ -42,7 +65,7 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 2.5));
     const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.6));
 
-    if (!report || !report.reportUrl) return null;
+    if (!report || !report.reportUrl || !currentUrl) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -134,7 +157,9 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center">
                                 <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-4" />
-                                <p className="text-gray-600 dark:text-gray-400">Loading PDF...</p>
+                                <p className="text-gray-600 dark:text-gray-400">
+                                    {retryCount > 0 ? `Trying proxy ${retryCount + 1}...` : 'Loading PDF...'}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -147,26 +172,28 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cannot Load PDF</h3>
-                                <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
-                                <a
-                                    href={`${report.reportUrl}#page=${startPage}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors"
-                                >
-                                    Open PDF Externally
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                </a>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{error}</h3>
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-sm text-gray-500 text-center mb-2">The proxy server may be blocked or busy.</p>
+                                    <a
+                                        href={`${report.reportUrl}#page=${startPage}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors justify-center"
+                                    >
+                                        Open PDF Externally
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {!error && (
                         <Document
-                            file={report.reportUrl}
+                            file={currentUrl}
                             onLoadSuccess={onDocumentLoadSuccess}
                             onLoadError={onDocumentLoadError}
                             loading={null}
