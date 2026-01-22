@@ -67,9 +67,9 @@ export function Methodology() {
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <h3 className="font-medium text-gray-900 dark:text-white mb-2">Features</h3>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• AI-powered chat assistant</li>
                 <li>• In-app PDF viewer</li>
                 <li>• Opens at exact sustainability section</li>
-                <li>• Zoom and page navigation</li>
                 <li>• Filter by country, sector, industry</li>
               </ul>
             </div>
@@ -131,9 +131,9 @@ export function Methodology() {
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <h3 className="font-medium text-gray-900 dark:text-white mb-2">AI Insights</h3>
+              <h3 className="font-medium text-gray-900 dark:text-white mb-2">Advanced Analytics</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Natural language explanations of complex ESG data powered by GPT.
+                Comparative analysis, trend detection, and portfolio-level ESG insights.
               </p>
             </div>
           </div>

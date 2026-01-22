@@ -5,11 +5,11 @@ import { useReportsCount } from '../utils/reportsCount';
 
 const features = [
   {
-    title: 'Market Signals',
-    description: 'Real-time ESG momentum tracking across sectors. Identify emerging trends before they hit mainstream.',
+    title: 'AI Chat Assistant',
+    description: 'Ask questions about any report and get instant, accurate answers. Extract insights, compare metrics, and understand complex sustainability data effortlessly.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
       </svg>
     )
   },
@@ -39,7 +39,7 @@ export function Landing() {
   // Update features with dynamic count
   const dynamicFeatures = features.map(f =>
     f.title === 'Reports Library'
-      ? { ...f, description: `Access ${reportsCount} CSRD-compliant sustainability reports with our integrated PDF viewer and AI-powered chat.` }
+      ? { ...f, description: `Browse ${reportsCount} CSRD-compliant sustainability reports. View PDFs in-app and chat with our AI to extract insights instantly.` }
 
       : f
   );
@@ -62,12 +62,11 @@ export function Landing() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white tracking-tight animate-fade-up-delay-1">
-              ESG Intelligence for{' '}
-              <span className="text-brand-600">Smarter Decisions</span>
+              AI-Powered Insights for{' '}
+              <span className="text-brand-600">Sustainability Reports</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl animate-fade-up-delay-2">
-              Track sustainability signals, analyze ESG momentum, and access <strong>{reportsCount} CSRD-compliant reports</strong> with AI-powered insights. Data-driven insights for responsible investing.
-
+              Access <strong>{reportsCount} CSRD-compliant reports</strong> with AI-powered insights. Ask questions, extract key metrics, and analyze sustainability data instantly.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-fade-up-delay-2">
               <Button to="/reports" size="lg">
@@ -117,15 +116,17 @@ export function Landing() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-sm font-medium mb-4">
-                  <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  New Feature
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-900/20 dark:to-indigo-900/20 text-brand-700 dark:text-brand-400 rounded-full text-sm font-medium mb-4">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  AI-Powered
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {reportsCount} Sustainability Reports
+                  Chat with {reportsCount} Sustainability Reports
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 max-w-xl">
-                  Browse CSRD-compliant sustainability disclosures from European companies. Get specific insights instantly via the AI-powered chat.
+                  Ask our AI assistant anything about CSRD-compliant sustainability reports. Extract key metrics, compare data, and understand complex disclosures in seconds.
 
 
                 </p>
@@ -182,7 +183,7 @@ export function Landing() {
             Start Exploring
           </h2>
           <p className="text-lg text-brand-100 max-w-2xl mx-auto mb-8">
-            Browse {reportsCount} sustainability reports or explore our ESG methodology. Click on any company to view their full disclosure directly in the app.
+            Chat with {reportsCount} sustainability reports using AI. Ask questions, extract insights, and analyze ESG data instantly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button to="/reports" variant="secondary" size="lg">

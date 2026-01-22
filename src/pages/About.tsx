@@ -71,8 +71,9 @@ export function About() {
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Access {reportsCount} CSRD-compliant sustainability reports from European companies with an in-app PDF viewer that opens at the exact sustainability section.
+                Access {reportsCount} CSRD-compliant sustainability reports with an AI-powered chat assistant. Ask questions, extract insights, and analyze complex data instantly.
               </p>
+
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-60">
               <div className="flex items-center gap-2 mb-2">

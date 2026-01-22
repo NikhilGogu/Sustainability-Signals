@@ -124,13 +124,13 @@ export function Reports() {
             <div className="bg-gradient-to-br from-brand-50 via-white to-brand-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-                        Sustainability Reports
+                        Chat with Sustainability Reports
                     </h1>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                        Download, query, and <strong>chat</strong> with <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> sustainability reports
+                        Ask our AI assistant about <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> CSRD-compliant reports
                     </p>
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
-                        This list contains CSRD-compliant reports for fiscal years starting 01/01/2024. Use the AI assistant to instantly extract insights from any report.
+                        Open any report and use the AI chat to extract insights, compare metrics, and understand complex sustainability data instantly.
                     </p>
 
                 </div>
