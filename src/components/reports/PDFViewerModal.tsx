@@ -3,6 +3,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type { SustainabilityReport } from '../../types';
+import { ChatSidebar, ChatMessage } from './ChatSidebar';
+
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -14,12 +16,21 @@ interface PDFViewerModalProps {
 
 export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     const [numPages, setNumPages] = useState<number>(0);
+
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [scale, setScale] = useState<number>(1.2);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState<number>(0);
     const [useGoogleViewer, setUseGoogleViewer] = useState<boolean>(false);
+
+    // Chat State
+    const [chatOpen, setChatOpen] = useState(false);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [isLoadingChat, setIsLoadingChat] = useState(false);
+    const [pdfDocument, setPdfDocument] = useState<pdfjs.PDFDocumentProxy | null>(null);
+
+
 
     const startPage = report?.pageStart || 1;
     const endPage = report?.pageEnd || numPages;
@@ -39,12 +50,86 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
 
     const currentUrl = report?.reportUrl ? getProxiedUrl(report.reportUrl, retryCount) : null;
 
-    const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-        setNumPages(numPages);
+    const onDocumentLoadSuccess = useCallback((pdf: pdfjs.PDFDocumentProxy) => {
+        setNumPages(pdf.numPages);
+        setPdfDocument(pdf);
+
+
         setCurrentPage(report?.pageStart || 1);
         setLoading(false);
         setError(null);
     }, [report?.pageStart]);
+
+    const extractTextFromPages = async () => {
+        if (!pdfDocument) return '';
+
+        const start = startPage;
+        const end = endPage;
+        let extractedText = '';
+
+        try {
+            // Limit extracted pages to avoid huge payloads (e.g., max 50 pages or just the section)
+            // For now, we extract the target section
+            for (let i = start; i <= end; i++) {
+                const page = await pdfDocument.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items
+                    .map((item) => 'str' in item ? item.str : '')
+                    .join(' ');
+
+                extractedText += `Page ${i}:\n${pageText}\n\n`;
+
+            }
+        } catch (err) {
+            console.error('Error extracting text:', err);
+        }
+        return extractedText;
+    };
+
+    const handleSendMessage = async (content: string) => {
+        const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content };
+        setMessages(prev => [...prev, userMsg]);
+        setIsLoadingChat(true);
+
+        try {
+            // Extract text if not already done or if context is dynamic
+            const context = await extractTextFromPages();
+
+            // Adjust API URL if needed (e.g., absolute path for dev vs prod handling)
+            // On Cloudflare Pages, /chat maps to functions/chat.js
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+                    context
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch response');
+            }
+
+            const data = await response.json();
+            const aiMsg: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: data.response
+            };
+            setMessages(prev => [...prev, aiMsg]);
+        } catch (error) {
+            console.error(error);
+            const errorMsg: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: "I'm sorry, I encountered an error. Please try again."
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setIsLoadingChat(false);
+        }
+    };
+
 
     const onDocumentLoadError = useCallback(() => {
         if (retryCount < 2) { // Allow trying 0, 1, 2 (3 attempts)
@@ -262,6 +347,17 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                     </div>
                 )}
             </div>
+            {/* Chat Sidebar */}
+            {!useGoogleViewer && !error && !loading && (
+                <ChatSidebar
+                    isOpen={chatOpen}
+                    onToggle={() => setChatOpen(!chatOpen)}
+                    messages={messages}
+                    onSendMessage={handleSendMessage}
+                    isLoading={isLoadingChat}
+                />
+            )}
         </div>
+
     );
 }
