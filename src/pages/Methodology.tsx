@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { useReportsCount } from '../utils/reportsCount';
 
 export function Methodology() {
+  const { formatted: reportsCount } = useReportsCount();
   return (
     <>
       <Helmet>
@@ -50,13 +52,13 @@ export function Methodology() {
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The database contains 963+ CSRD-compliant sustainability reports from European companies:
+            The database contains {reportsCount} CSRD-compliant sustainability reports from European companies:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <h3 className="font-medium text-gray-900 dark:text-white mb-2">Coverage</h3>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• 963+ sustainability reports</li>
+                <li>• {reportsCount} sustainability reports</li>
                 <li>• 30+ European countries</li>
                 <li>• 15+ industry sectors</li>
                 <li>• Fiscal year 2024 data</li>

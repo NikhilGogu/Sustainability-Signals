@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { useReportsCount } from '../utils/reportsCount';
 
 export function About() {
+  const { formatted: reportsCount } = useReportsCount();
   return (
     <>
       <Helmet>
@@ -69,7 +71,7 @@ export function About() {
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Access 963+ CSRD-compliant sustainability reports from European companies with an in-app PDF viewer that opens at the exact sustainability section.
+                Access {reportsCount} CSRD-compliant sustainability reports from European companies with an in-app PDF viewer that opens at the exact sustainability section.
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-60">

@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { useReportsCount } from '../utils/reportsCount';
 
 const features = [
   {
@@ -14,7 +15,7 @@ const features = [
   },
   {
     title: 'Reports Library',
-    description: 'Access 963+ CSRD-compliant sustainability reports with our integrated PDF viewer opening at exact sections.',
+    description: null, // Will be populated dynamically in component
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -33,11 +34,20 @@ const features = [
 ];
 
 export function Landing() {
+  const { formatted: reportsCount } = useReportsCount();
+
+  // Update features with dynamic count
+  const dynamicFeatures = features.map(f =>
+    f.title === 'Reports Library'
+      ? { ...f, description: `Access ${reportsCount} CSRD-compliant sustainability reports with our integrated PDF viewer opening at exact sections.` }
+      : f
+  );
+
   return (
     <>
       <Helmet>
         <title>SustainabilitySignals - ESG Market Intelligence</title>
-        <meta name="description" content="Track ESG momentum, analyze company sustainability profiles, and access 963+ CSRD-compliant reports. Data-driven insights for responsible investing." />
+        <meta name="description" content={`Track ESG momentum, analyze company sustainability profiles, and access ${reportsCount} CSRD-compliant reports. Data-driven insights for responsible investing.`} />
         <meta property="og:title" content="SustainabilitySignals - ESG Market Intelligence" />
         <meta property="og:description" content="Track ESG momentum, analyze company sustainability profiles, and make informed investment decisions." />
         <meta property="og:type" content="website" />
@@ -55,7 +65,7 @@ export function Landing() {
               <span className="text-brand-600">Smarter Decisions</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl animate-fade-up-delay-2">
-              Track sustainability signals, analyze ESG momentum, and access <strong>963+ CSRD-compliant reports</strong> with the integrated PDF viewer. Data-driven insights for responsible investing.
+              Track sustainability signals, analyze ESG momentum, and access <strong>{reportsCount} CSRD-compliant reports</strong> with the integrated PDF viewer. Data-driven insights for responsible investing.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-fade-up-delay-2">
               <Button to="/reports" size="lg">
@@ -82,7 +92,7 @@ export function Landing() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature) => (
+            {dynamicFeatures.map((feature) => (
               <Card key={feature.title} padding="lg" hover className="animate-fade-up">
                 <div className="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4">
                   {feature.icon}
@@ -110,7 +120,7 @@ export function Landing() {
                   New Feature
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  963+ Sustainability Reports
+                  {reportsCount} Sustainability Reports
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 max-w-xl">
                   Browse CSRD-compliant sustainability disclosures from European companies. View reports directly in-app with our PDF viewer that opens at the exact sustainability section.
@@ -168,7 +178,7 @@ export function Landing() {
             Start Exploring
           </h2>
           <p className="text-lg text-brand-100 max-w-2xl mx-auto mb-8">
-            Browse 963+ sustainability reports or explore our ESG methodology. Click on any company to view their full disclosure directly in the app.
+            Browse {reportsCount} sustainability reports or explore our ESG methodology. Click on any company to view their full disclosure directly in the app.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button to="/reports" variant="secondary" size="lg">
