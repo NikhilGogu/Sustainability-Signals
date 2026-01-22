@@ -41,6 +41,9 @@ export default defineConfig({
               }
             });
 
+            // Set status code
+            res.statusCode = response.status;
+
             // Copy headers
             response.headers.forEach((value: string, key: string) => {
               // Strip blocking headers
@@ -53,19 +56,11 @@ export default defineConfig({
             // Add CORS
             res.setHeader('Access-Control-Allow-Origin', '*');
 
-            // Pipe body
-            if (response.body) {
-              // @ts-ignore - ReadableStream/Node stream mismatch
-              const reader = response.body.getReader();
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                res.write(value);
-              }
-              res.end();
-            } else {
-              res.end();
-            }
+            // Write body
+            const buffer = await response.arrayBuffer();
+            res.write(Buffer.from(buffer));
+            res.end();
+
           } catch (error) {
             console.error('Proxy error:', error);
             res.statusCode = 500;
