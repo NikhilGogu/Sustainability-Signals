@@ -8,7 +8,7 @@ export function Header() {
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/reports', label: 'Reports' },
     { to: '/methodology', label: 'Methodology' },
     { to: '/about', label: 'About' }
   ];
@@ -55,11 +55,10 @@ export function Header() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(link.to)
-                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(link.to)
+                  ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -69,10 +68,10 @@ export function Header() {
           {/* CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              to="/dashboard"
+              to="/reports"
               className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors"
             >
-              Open Dashboard
+              Browse Reports
             </Link>
             <button
               onClick={toggleDarkMode}
@@ -136,21 +135,20 @@ export function Header() {
                   key={link.to}
                   to={link.to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.to)
-                      ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(link.to)
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                    }`}
                 >
                   {link.label}
                 </Link>
               ))}
               <Link
-                to="/dashboard"
+                to="/reports"
                 onClick={() => setMobileMenuOpen(false)}
                 className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors text-center"
               >
-                Open Dashboard
+                Browse Reports
               </Link>
             </div>
           </nav>

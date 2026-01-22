@@ -97,3 +97,16 @@ export interface ApiResponse<T> {
   error?: string;
   timestamp: string;
 }
+
+// Sustainability Report for CSRD-compliant reports
+export interface SustainabilityReport {
+  id: string;
+  company: string;
+  country: string;
+  sector: string;
+  industry: string;
+  pageStart: number | null;
+  pageEnd: number | null;
+  reportUrl: string | null;  // May be null for some historical reports
+  publishedYear: number;
+}
