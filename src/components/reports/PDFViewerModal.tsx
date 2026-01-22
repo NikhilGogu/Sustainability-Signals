@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -65,6 +65,18 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
 
     const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 2.5));
     const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.6));
+
+    // Timeout handling to prevent hanging on proxies
+    useEffect(() => {
+        if (!loading || !currentUrl || useGoogleViewer) return;
+
+        const timer = setTimeout(() => {
+            console.log(`Timeout waiting for ${currentUrl}, triggering error fallback...`);
+            onDocumentLoadError();
+        }, 10000); // 10 second timeout
+
+        return () => clearTimeout(timer);
+    }, [currentUrl, loading, useGoogleViewer, onDocumentLoadError]);
 
     if (!report || !report.reportUrl) return null;
 
