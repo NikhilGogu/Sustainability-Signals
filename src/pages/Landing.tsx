@@ -39,7 +39,8 @@ export function Landing() {
   // Update features with dynamic count
   const dynamicFeatures = features.map(f =>
     f.title === 'Reports Library'
-      ? { ...f, description: `Access ${reportsCount} CSRD-compliant sustainability reports with our integrated PDF viewer opening at exact sections.` }
+      ? { ...f, description: `Access ${reportsCount} CSRD-compliant sustainability reports with our integrated PDF viewer and AI-powered chat.` }
+
       : f
   );
 
@@ -65,7 +66,8 @@ export function Landing() {
               <span className="text-brand-600">Smarter Decisions</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl animate-fade-up-delay-2">
-              Track sustainability signals, analyze ESG momentum, and access <strong>{reportsCount} CSRD-compliant reports</strong> with the integrated PDF viewer. Data-driven insights for responsible investing.
+              Track sustainability signals, analyze ESG momentum, and access <strong>{reportsCount} CSRD-compliant reports</strong> with AI-powered insights. Data-driven insights for responsible investing.
+
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-fade-up-delay-2">
               <Button to="/reports" size="lg">
@@ -123,7 +125,9 @@ export function Landing() {
                   {reportsCount} Sustainability Reports
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 max-w-xl">
-                  Browse CSRD-compliant sustainability disclosures from European companies. View reports directly in-app with our PDF viewer that opens at the exact sustainability section.
+                  Browse CSRD-compliant sustainability disclosures from European companies. Get specific insights instantly via the AI-powered chat.
+
+
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">

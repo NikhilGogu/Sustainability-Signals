@@ -127,11 +127,12 @@ export function Reports() {
                         Sustainability Reports
                     </h1>
                     <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-                        Download and query <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> sustainability reports
+                        Download, query, and <strong>chat</strong> with <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> sustainability reports
                     </p>
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
-                        This list contains CSRD-compliant reports for fiscal years starting 01/01/2024. Reports are in English and downloadable as PDF.
+                        This list contains CSRD-compliant reports for fiscal years starting 01/01/2024. Use the AI assistant to instantly extract insights from any report.
                     </p>
+
                 </div>
             </div>
 

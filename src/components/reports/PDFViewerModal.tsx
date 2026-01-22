@@ -81,8 +81,9 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
 
             }
         } catch (err) {
-            console.error('Error extracting text:', err);
+            // console.error('Error extracting text:', err);
         }
+
         return extractedText;
     };
 
@@ -107,8 +108,23 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch response');
+                let errorMessage = `API Error (${response.status})`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) {
+                    // Fallback to text if not JSON
+                    const text = await response.text();
+                    if (response.status === 404 && text.includes('DOCTYPE')) {
+                        errorMessage = 'Backend function not found. Please ensure you are running "npm run dev:functions" and using port 8788.';
+                    } else {
+                        errorMessage = text || response.statusText;
+                    }
+                }
+                throw new Error(errorMessage);
             }
+
+
 
             const data = await response.json();
             const aiMsg: ChatMessage = {
@@ -122,8 +138,9 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
             const errorMsg: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: "I'm sorry, I encountered an error. Please try again."
+                content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
+
             setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsLoadingChat(false);
@@ -133,13 +150,15 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
 
     const onDocumentLoadError = useCallback(() => {
         if (retryCount < 2) { // Allow trying 0, 1, 2 (3 attempts)
-            console.log(`Proxy attempt ${retryCount + 1} failed, trying next proxy...`);
+            // console.log(`Proxy attempt ${retryCount + 1} failed, trying next proxy...`);
             setRetryCount(prev => prev + 1);
+
             setLoading(true);
         } else {
-            console.log('All proxies failed, switching to Google Docs Viewer fallback');
+            // console.log('All proxies failed, switching to Google Docs Viewer fallback');
             setUseGoogleViewer(true);
             setLoading(true); // Will be set to false when iframe loads
+
         }
     }, [retryCount]);
 
@@ -155,9 +174,11 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     useEffect(() => {
         if (!loading || !currentUrl || useGoogleViewer) return;
 
+
         const timer = setTimeout(() => {
-            console.log(`Timeout waiting for ${currentUrl}, triggering error fallback...`);
+            // console.log(`Timeout waiting for ${currentUrl}, triggering error fallback...`);
             onDocumentLoadError();
+
         }, 10000); // 10 second timeout
 
         return () => clearTimeout(timer);
@@ -352,10 +373,13 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                 <ChatSidebar
                     isOpen={chatOpen}
                     onToggle={() => setChatOpen(!chatOpen)}
+                    onClose={() => setChatOpen(false)}
+                    onClearHistory={() => setMessages([])}
                     messages={messages}
                     onSendMessage={handleSendMessage}
                     isLoading={isLoadingChat}
                 />
+
             )}
         </div>
 

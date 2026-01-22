@@ -20,6 +20,10 @@ export async function onRequest(context) {
         const apiKey = context.env.GOOGLE_API_KEY;
 
         if (!apiKey) {
+
+
+
+            console.error("Missing API Key");
             return new Response('Missing API Key configuration', { status: 500 });
         }
 
@@ -28,18 +32,20 @@ export async function onRequest(context) {
         }
 
         // 3. Construct Gemini API Request
-        // We use gemini-1.5-flash for speed and large context window
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Using "gemini-flash-latest" alias as it was verified to work
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+
+
+
+
 
         // Prepare the conversation history
-        // Gemini expects: contents: [{ role: 'user'|'model', parts: [{ text: '...' }] }]
         const contents = messages.map(msg => ({
             role: msg.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: msg.content }]
         }));
 
-        // Add the PDF context as a system instruction or correctly injected context
-        // For Gemini 1.5, we can use the `system_instruction` field for the context + persona
+        // Add the PDF context as a system instruction
         const systemInstruction = {
             parts: [{
                 text: `You are an intelligent assistant helping a user analyze a sustainability report. 
@@ -57,7 +63,7 @@ Answer their questions based MAINLY on this document. If the specific answer isn
             contents,
             system_instruction: systemInstruction,
             generationConfig: {
-                temperature: 0.3, // Lower temperature for more factual responses
+                temperature: 0.3,
             }
         };
 
@@ -68,10 +74,20 @@ Answer their questions based MAINLY on this document. If the specific answer isn
             body: JSON.stringify(payload)
         });
 
+
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Gemini API Error: ${response.status} ${errorText}`);
+            let helpfulMessage = `Gemini API Error: ${response.status} ${errorText}`;
+
+            if (response.status === 404 && errorText.includes('not found')) {
+                helpfulMessage = "Error: Model not found. The configured model version may not be available for your API key.";
+            } else if (response.status === 429) {
+                helpfulMessage = "Error: Rate limit exceeded (Quota). Please wait a moment or check your Google AI Studio quota limits.";
+            }
+
+            throw new Error(helpfulMessage);
         }
+
 
         const data = await response.json();
         const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
