@@ -22,6 +22,10 @@ export async function onRequest(context) {
         const newHeaders = new Headers(response.headers);
         newHeaders.set('Access-Control-Allow-Origin', '*');
 
+        // Strip headers that block embedding
+        newHeaders.delete('X-Frame-Options');
+        newHeaders.delete('Content-Security-Policy');
+
         return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
