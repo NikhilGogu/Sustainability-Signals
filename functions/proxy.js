@@ -55,6 +55,11 @@ export async function onRequest(context) {
         newHeaders.delete('Cross-Origin-Opener-Policy');
         newHeaders.delete('Cross-Origin-Resource-Policy');
 
+        // Strip compression/transfer headers to avoid mismatch
+        newHeaders.delete('Content-Encoding');
+        newHeaders.delete('Content-Length');
+        newHeaders.delete('Transfer-Encoding');
+
         const buffer = await response.arrayBuffer();
 
         return new Response(buffer, {
