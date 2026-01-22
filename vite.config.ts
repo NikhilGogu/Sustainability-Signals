@@ -1,7 +1,7 @@
 import { defineConfig, type Connect } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
-import { IncomingMessage, ServerResponse } from "http";
+import { ServerResponse } from "http";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,7 +17,7 @@ export default defineConfig({
     {
       name: 'local-proxy',
       configureServer(server) {
-        server.middlewares.use('/proxy', async (req: Connect.IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
+        server.middlewares.use('/proxy', async (req: Connect.IncomingMessage, res: ServerResponse, _next: Connect.NextFunction) => {
           try {
             // @ts-ignore
             const protocol = req.headers['x-forwarded-proto'] || 'http';
