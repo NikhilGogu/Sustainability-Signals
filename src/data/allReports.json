@@ -234,7 +234,7 @@
     "y": "2024"
   },
   {
-    "c": "ÄEZ, a.s.",
+    "c": "\u00c4\u008cEZ, a.s.",
     "ct": "Czech Republic",
     "s": "Infrastructure",
     "i": "Electric Utilities & Power Generators",
@@ -327,7 +327,7 @@
     "c": "Aker BP",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "33-139",
     "u": "https://akerbp.com/wp-content/uploads/2025/04/annual-report-2024.pdf",
     "y": "2024"
@@ -345,7 +345,7 @@
     "c": "Aker Solutions",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "18-106",
     "u": "https://www.akersolutions.com/globalassets/investors/agm/2025/akso---annual-report-2024.pdf",
     "y": "2024"
@@ -597,7 +597,7 @@
     "c": "ANDRITZ AG",
     "ct": "Austria",
     "s": "Resource Transformation",
-    "i": "Unknown",
+    "i": "Industrial Machinery & Goods",
     "p": "1-184",
     "u": "https://www.andritz.com/resource/blob/620974/e66acf15517f7bab56818dbc86194b84/andritz-non-financial-statement-2024-e-data.pdf",
     "y": "2024"
@@ -768,7 +768,7 @@
     "c": "Aspo OYJ",
     "ct": "Finland",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "41-95",
     "u": "https://www.aspo.com/hubfs/Attachments/EN/Shareholders-Meeting/2025/Aspo-Annual-Report-2024.pdf",
     "y": "2024"
@@ -1080,7 +1080,7 @@
     "y": "2024"
   },
   {
-    "c": "Banco BPM Società  per Azioni",
+    "c": "Banco BPM Societ\u00e0\u00a0 per Azioni",
     "ct": "Italy",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -1089,7 +1089,7 @@
     "y": "2024"
   },
   {
-    "c": "Banco Comercial Português",
+    "c": "Banco Comercial Portugu\u00eas",
     "ct": "Portugal",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -1260,7 +1260,7 @@
     "y": "2024"
   },
   {
-    "c": "Bausparkasse Schwäbisch Hall",
+    "c": "Bausparkasse Schw\u00e4bisch Hall",
     "ct": "Germany",
     "s": "Financials",
     "i": "Consumer Finance",
@@ -1497,7 +1497,7 @@
     "c": "Bonheur ASA",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "19-92",
     "u": "https://bonheur.no/media/jp3fkayp/annual-report-2024.pdf",
     "y": "2024"
@@ -1683,7 +1683,7 @@
     "y": "2024"
   },
   {
-    "c": "Caixa Geral de Depósitos",
+    "c": "Caixa Geral de Dep\u00f3sitos",
     "ct": "Portugal",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -2079,7 +2079,7 @@
     "y": "2024"
   },
   {
-    "c": "Crédit Agricole",
+    "c": "Cr\u00e9dit Agricole",
     "ct": "France",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -2088,7 +2088,7 @@
     "y": "2024"
   },
   {
-    "c": "Crédit agricole assurances",
+    "c": "Cr\u00e9dit agricole assurances",
     "ct": "France",
     "s": "Financials",
     "i": "Insurance",
@@ -2097,7 +2097,7 @@
     "y": "2024"
   },
   {
-    "c": "Crédit Mutuel Arkéa",
+    "c": "Cr\u00e9dit Mutuel Ark\u00e9a",
     "ct": "France",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -2214,7 +2214,7 @@
     "y": "2024"
   },
   {
-    "c": "Dassault Systèmes",
+    "c": "Dassault Syst\u00e8mes",
     "ct": "France",
     "s": "Technology & Communications",
     "i": "Software & IT Services",
@@ -2322,22 +2322,13 @@
     "y": "2024"
   },
   {
-    "c": "Deutsche Börse",
+    "c": "Deutsche B\u00f6rse",
     "ct": "Germany",
     "s": "Financials",
     "i": "Security & Commodity Exchange",
     "p": "78-142",
     "u": "https://www.deutsche-boerse.com/resource/blob/4171106/7a5fad7ee1436604fd073bb0b73df2d0/data/DBG-annual-report-2024.pdf",
     "y": "2024"
-  },
-  {
-    "c": "Deutsche Lufthansa",
-    "ct": "Germany",
-    "s": "Transportation",
-    "i": "Airlines",
-    "p": null,
-    "u": null,
-    "y": "2022"
   },
   {
     "c": "Deutsche Pfandbriefbank",
@@ -2451,7 +2442,7 @@
     "c": "DNO",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "18-43",
     "u": "https://ml-eu.globenewswire.com/Resource/Download/d1c27997-1f96-4d97-9200-8362ba818b8c",
     "y": "2024"
@@ -2478,7 +2469,7 @@
     "c": "DOF Subea",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "31-104",
     "u": "https://cdn.prod.website-files.com/629f1b36bee3b058907852a0/67ef84024b10161969f6bf73_DOF%20Integrated%20Report%202024%20V1.00%20WebRes.pdf",
     "y": "2024"
@@ -2529,7 +2520,7 @@
     "y": "2024"
   },
   {
-    "c": "Dürr",
+    "c": "D\u00fcrr",
     "ct": "Germany",
     "s": "Resource Transformation",
     "i": "Industrial Machinery & Goods",
@@ -2610,7 +2601,7 @@
     "y": "2024"
   },
   {
-    "c": "EDP Renováveis",
+    "c": "EDP Renov\u00e1veis",
     "ct": "Portugal",
     "s": "Infrastructure",
     "i": "Electric Utilities & Power Generators",
@@ -2730,7 +2721,7 @@
     "c": "Enagas",
     "ct": "Spain",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Midstream",
+    "i": "Oil & Gas \u2013 Midstream",
     "p": "21-238",
     "u": "https://www.enagas.es/content/dam/enagas/en/files/enagas-communication-room/publications/informe-anual/Annual-Report-2024-Enagas.pdf",
     "y": "2024"
@@ -2811,7 +2802,7 @@
     "c": "Eni",
     "ct": "Italy",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "138-277",
     "u": "https://www.eni.com/content/dam/enicom/documents/eng/reports/2024/ar-2024/Annual-Report-2024.pdf",
     "y": "2024"
@@ -2838,7 +2829,7 @@
     "c": "Equinor",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "82-184",
     "u": "https://cdn.equinor.com/files/h61q9gi9/global/16ccbc5a098c3b971979118420c4f83ddee18fb4.pdf?annual-report-2024-equinor.pdf",
     "y": "2024"
@@ -2901,7 +2892,7 @@
     "c": "Etablissements Maurel et Prom",
     "ct": "France",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "120-178",
     "u": "https://www.maureletprom.fr/en/documents/download/1782/2024-universal-registration-document",
     "y": "2024"
@@ -3243,7 +3234,7 @@
     "c": "Fluxys",
     "ct": "Belgium",
     "s": "Infrastructure",
-    "i": "Unknown",
+    "i": "Gas Utilities & Distributors",
     "p": "48-83",
     "u": "https://www.fluxys.com/en/about-us/fluxys-belgium/investors#documentPreview=24",
     "y": "2024"
@@ -3342,7 +3333,7 @@
     "c": "Fugro",
     "ct": "Netherlands",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "41-103",
     "u": "https://annualreport.fugro.com/wp-content/uploads/2025/03/Fugro-Annual-Report-2024.pdf",
     "y": "2024"
@@ -3369,7 +3360,7 @@
     "c": "GALP Energia SGPS",
     "ct": "Portugal",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "52-99",
     "u": "https://www.galp.com/corp/Portals/0/Recursos/Investidores/IMR2024/AnnualIntegratedReport2024.pdf",
     "y": "2024"
@@ -3807,15 +3798,6 @@
     "y": "2024"
   },
   {
-    "c": "Heidelberg Materials",
-    "ct": "Germany",
-    "s": "Extractives & Minerals Processing",
-    "i": "Construction Materials",
-    "p": null,
-    "u": null,
-    "y": "2024"
-  },
-  {
     "c": "Heidelberger Druckmaschinen AG",
     "ct": "Germany",
     "s": "Resource Transformation",
@@ -3864,7 +3846,7 @@
     "c": "HELLENiQ ENERGY Holdings",
     "ct": "Greece",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "112-286",
     "u": "https://www.helleniqenergy.gr/sites/default/files/2025-04/2024-annual-financial-report-en.pdf?_gl=1*v2e22s*_up*MQ..*_ga*MTE1NTUwMTE1MC4xNzQ2NjEyMDA1*_ga_BV7HGJPB33*czE3NDY2MTIwMDUkbzEkZzEkdDE3NDY2MTIwMTkkajAkbDAkaDA.",
     "y": "2024"
@@ -4158,7 +4140,7 @@
     "y": "2024"
   },
   {
-    "c": "ING BANK ŚLĄSKI",
+    "c": "ING BANK \u015aL\u0104SKI",
     "ct": "Poland",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -4269,7 +4251,7 @@
     "c": "Italgas",
     "ct": "Italy",
     "s": "Infrastructure",
-    "i": "Unknown",
+    "i": "Gas Utilities & Distributors",
     "p": "92-186",
     "u": "https://www.italgas.it/wp-content/uploads/sites/2/2025/03/Italgas-Integrated-Annual-Report-2024.pdf",
     "y": "2024"
@@ -4356,7 +4338,7 @@
     "y": "2024"
   },
   {
-    "c": "Jerónimo Martins SGPS",
+    "c": "Jer\u00f3nimo Martins SGPS",
     "ct": "Portugal",
     "s": "Food & Beverage",
     "i": "Food Retailers & Distributors",
@@ -4599,7 +4581,7 @@
     "y": "2024"
   },
   {
-    "c": "KomerÄnÃ­ banka, a.s.",
+    "c": "Komer\u00c4\u008dn\u00c3\u00ad banka, a.s.",
     "ct": "Czech Republic",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -4674,7 +4656,7 @@
     "c": "Koninklijke Vopak",
     "ct": "Netherlands",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Midstream",
+    "i": "Oil & Gas \u2013 Midstream",
     "p": "72-202",
     "u": "https://www.vopak.com/system/files/Vopak%20Annual%20Report%202024.pdf",
     "y": "2024"
@@ -4707,7 +4689,7 @@
     "y": "2024"
   },
   {
-    "c": "Kreditanstalt für Wiederaufbau (KfW)",
+    "c": "Kreditanstalt f\u00fcr Wiederaufbau (KfW)",
     "ct": "Germany",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -4752,7 +4734,7 @@
     "y": "2024"
   },
   {
-    "c": "L’Oréal",
+    "c": "L\u2019Or\u00e9al",
     "ct": "France",
     "s": "Consumer Goods",
     "i": "Household & Personal Products",
@@ -4818,7 +4800,7 @@
     "c": "Latvenergo",
     "ct": "Latvia",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Midstream",
+    "i": "Oil & Gas \u2013 Midstream",
     "p": "71-175",
     "u": "https://latvenergo.lv/storage/app/media/parskati/2024/Latvenergo_Annual_Report_2024.pdf",
     "y": "2024"
@@ -4995,7 +4977,7 @@
     "y": "2024"
   },
   {
-    "c": "Mærsk",
+    "c": "M\u00e6rsk",
     "ct": "Denmark",
     "s": "Transportation",
     "i": "Marine Transportation",
@@ -5175,7 +5157,7 @@
     "y": "2024"
   },
   {
-    "c": "Metsä",
+    "c": "Mets\u00e4",
     "ct": "Finland",
     "s": "Renewable Resources & Alternative Energy",
     "i": "Pulp & Paper Products",
@@ -5232,7 +5214,7 @@
     "c": "MOL Hungarian Oil & Gas",
     "ct": "Hungary",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "138-293",
     "u": "https://molgroup.info/storage/documents/publications/annual_reports/2024/integrated-annual-report-2024-eng.pdf",
     "y": "2024"
@@ -5268,7 +5250,7 @@
     "c": "Motor Oil Hellas Corinth Refineries SA",
     "ct": "Greece",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "31-314",
     "u": "https://www.moh.gr/wp-content/uploads/2025/04/Full-Year-Financial-Report-2024-3.pdf",
     "y": "2024"
@@ -5283,7 +5265,7 @@
     "y": "2024"
   },
   {
-    "c": "MT Højgaard Holding",
+    "c": "MT H\u00f8jgaard Holding",
     "ct": "Denmark",
     "s": "Infrastructure",
     "i": "Engineering & Construction Services",
@@ -5358,7 +5340,7 @@
     "c": "Naturgy Energy Group",
     "ct": "Spain",
     "s": "Infrastructure",
-    "i": "Unknown",
+    "i": "Gas Utilities & Distributors",
     "p": "269-628",
     "u": "https://stproportalcorporativo.blob.core.windows.net/uploads/2025/03/PACK_CONSO_2024_CNMV_ENG.pdf",
     "y": "2024"
@@ -5376,7 +5358,7 @@
     "c": "Neste",
     "ct": "Finland",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "100-149",
     "u": "https://www.neste.com/files/pdf/3kFaGuHcQk8hRDLS6tlvqF-Neste_Annual_Report_2024.pdf",
     "y": "2024"
@@ -5709,7 +5691,7 @@
     "c": "Odfjell Drilling",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "23-64",
     "u": "https://www.odfjelldrilling.com/wp-content/uploads/2025/04/odfjell-drilling-ltd-annual-report-2024.pdf",
     "y": "2024"
@@ -5745,7 +5727,7 @@
     "c": "OMV",
     "ct": "Austria",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "96-423",
     "u": "https://reports.omv.com/en/annual-report/2024/_assets/downloads/entire-omv-ar24.pdf?h=AXaBFK3e",
     "y": "2024"
@@ -5754,7 +5736,7 @@
     "c": "OMV Petrom",
     "ct": "Romania",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "76-238",
     "u": "https://www.omvpetrom.com/services/downloads/00/omvpetrom.com/1522266925972/omv-petrom-group-2024-annual-report-including-consolidated-financial-statements.pdf",
     "y": "2024"
@@ -5877,7 +5859,7 @@
     "y": "2024"
   },
   {
-    "c": "Ørsted",
+    "c": "\u00d8rsted",
     "ct": "Denmark",
     "s": "Infrastructure",
     "i": "Electric Utilities & Power Generators",
@@ -6060,7 +6042,7 @@
     "c": "Polski Koncern Naftowy ORLEN SA",
     "ct": "Poland",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "118-276",
     "u": "https://www.orlen.pl/content/dam/internet/orlen/pl/en/investor-relations/reports-and-publications/financial-results/2024/fy-2024/ORLEN_GROUP_FY24_Consolidated_PDF.zip.coredownload.zip",
     "y": "2024"
@@ -6336,7 +6318,7 @@
     "y": "2024"
   },
   {
-    "c": "Redeia (ex. Red Eléctrica de España)",
+    "c": "Redeia (ex. Red El\u00e9ctrica de Espa\u00f1a)",
     "ct": "Spain",
     "s": "Infrastructure",
     "i": "Electric Utilities & Power Generators",
@@ -6402,7 +6384,7 @@
     "c": "Repsol",
     "ct": "Spain",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "236-410",
     "u": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.repsol.com/content/dam/repsol-corporate/es/accionistas-e-inversores/rif/2025/rif20022025-2024-repsol-group-annual-financial-report.pdf&ved=2ahUKEwjc_t3DpeKPAxX5VvEDHSgGKFgQFnoECBsQAQ&usg=AOvVaw0_b-vBgj2_bGAt1aYAgSxC",
     "y": "2024"
@@ -6444,7 +6426,7 @@
     "y": "2024"
   },
   {
-    "c": "Ringkjøbing Landbobank",
+    "c": "Ringkj\u00f8bing Landbobank",
     "ct": "Denmark",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -6519,7 +6501,7 @@
     "c": "Rubis",
     "ct": "France",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Refining & Marketing",
+    "i": "Oil & Gas \u2013 Refining & Marketing",
     "p": "75-257",
     "u": "https://www.rubis.fr/en/wp-content/uploads/sites/2/2025/05/RUB2024_URD_VA_MEL_25-05-05.pdf",
     "y": "2024"
@@ -6586,15 +6568,6 @@
     "p": "325-448",
     "u": "https://www.safran-group.com/download/media/447681",
     "y": "2024"
-  },
-  {
-    "c": "Saint-Gobain",
-    "ct": "France",
-    "s": "Extractives & Minerals Processing",
-    "i": "Construction Materials",
-    "p": null,
-    "u": null,
-    "y": "2022"
   },
   {
     "c": "Salini Impregilo SpA",
@@ -6753,7 +6726,7 @@
     "c": "SBM Offshore",
     "ct": "Netherlands",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "80-163",
     "u": "https://2024.annualreport.sbmoffshore.com/",
     "y": "2024"
@@ -6816,7 +6789,7 @@
     "c": "Schoeller-Bleckmann Oilfield Equipment",
     "ct": "Austria",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "64-267",
     "u": "https://a.storyblok.com/f/321294/x/79d92ecb9f/ar-24_en_final.pdf",
     "y": "2024"
@@ -6942,7 +6915,7 @@
     "c": "Shelf Drilling Holdings",
     "ct": "United Arab Emirates",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "38-122",
     "u": "https://www.shelfdrilling.com/wp-content/uploads/2025/04/Shelf-Drilling-2024-Annual-Report.pdf",
     "y": "2024"
@@ -6951,7 +6924,7 @@
     "c": "Shell",
     "ct": "United Kingdom",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "343-442",
     "u": "https://www.shell.com/investors/results-and-reporting/annual-report/_jcr_content/root/main/section_2113846431/link_list/links/item0.stream/1742873115632/6c20b8111738b9a590ba145f0d1c4fa0e530dae0/shell-annual-report-2024.pdf",
     "y": "2024"
@@ -7068,7 +7041,7 @@
     "c": "Snam",
     "ct": "Italy",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "107-489",
     "u": "https://www.snam.it/content/dam/snam/pages-attachments-search/en/documenti/bilanci-annuali/2024/annual_report_2024.pdf",
     "y": "2024"
@@ -7110,7 +7083,7 @@
     "y": "2024"
   },
   {
-    "c": "Société Générale",
+    "c": "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale",
     "ct": "France",
     "s": "Financials",
     "i": "Commercial Banks",
@@ -7281,15 +7254,6 @@
     "y": "2024"
   },
   {
-    "c": "SSAB",
-    "ct": "Sweden",
-    "s": "Extractives & Minerals Processing",
-    "i": "Iron & Steel Producers",
-    "p": null,
-    "u": null,
-    "y": "2022"
-  },
-  {
     "c": "Statkraft",
     "ct": "Norway",
     "s": "Infrastructure",
@@ -7401,7 +7365,7 @@
     "c": "Subsea 7",
     "ct": "Luxembourg",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "67-123",
     "u": "https://www.subsea7.com/content/dam/subsea7-corporate2018/annual-report-2024/annual-report-2024.pdf",
     "y": "2024"
@@ -7659,7 +7623,7 @@
     "y": "2024"
   },
   {
-    "c": "Telefónica",
+    "c": "Telef\u00f3nica",
     "ct": "Spain",
     "s": "Technology & Communications",
     "i": "Telecommunication Services",
@@ -7668,7 +7632,7 @@
     "y": "2024"
   },
   {
-    "c": "Telefónica Deutschland",
+    "c": "Telef\u00f3nica Deutschland",
     "ct": "Germany",
     "s": "Technology & Communications",
     "i": "Telecommunication Services",
@@ -7776,15 +7740,6 @@
     "y": "2024"
   },
   {
-    "c": "TEST-Victor Dez25",
-    "ct": "Unknown",
-    "s": "Unknown",
-    "i": "Unknown",
-    "p": null,
-    "u": null,
-    "y": "2024"
-  },
-  {
     "c": "TF1",
     "ct": "France",
     "s": "Services",
@@ -7797,7 +7752,7 @@
     "c": "TGS NOPEC Geophysical Co",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Services",
+    "i": "Oil & Gas \u2013 Services",
     "p": "46-136",
     "u": "https://www.tgs.com/hubfs/Financial%20Reports/Annual%20Reports/2024%20Annual%20Report/TGS%202024%20Annual%20Report.pdf",
     "y": "2024"
@@ -7923,7 +7878,7 @@
     "c": "TORM",
     "ct": "United Kingdom",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Midstream",
+    "i": "Oil & Gas \u2013 Midstream",
     "p": "40-153",
     "u": "https://s202.q4cdn.com/126069760/files/doc_financials/2024/ar/TORM-Annual-Report-2024.pdf",
     "y": "2024"
@@ -7932,7 +7887,7 @@
     "c": "TotalEnergies",
     "ct": "France",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "275-420",
     "u": "https://totalenergies.com/system/files/documents/totalenergies_universal-registration-document-2024_2025_en.pdf",
     "y": "2024"
@@ -8202,7 +8157,7 @@
     "c": "Var Energi",
     "ct": "Norway",
     "s": "Extractives & Minerals Processing",
-    "i": "Oil & Gas – Exploration & Production",
+    "i": "Oil & Gas \u2013 Exploration & Production",
     "p": "52-180",
     "u": "https://mb.cision.com/Main/21086/4135588/3388247.pdf",
     "y": "2024"
@@ -8379,15 +8334,6 @@
     "y": "2024"
   },
   {
-    "c": "Voestalpine",
-    "ct": "Austria",
-    "s": "Extractives & Minerals Processing",
-    "i": "Iron & Steel Producers",
-    "p": null,
-    "u": null,
-    "y": "2022"
-  },
-  {
     "c": "Volkswagen",
     "ct": "Germany",
     "s": "Transportation",
@@ -8478,7 +8424,7 @@
     "y": "2024"
   },
   {
-    "c": "Wärtsilä",
+    "c": "W\u00e4rtsil\u00e4",
     "ct": "Finland",
     "s": "Consumer Goods",
     "i": "Appliance Manufacturing",
@@ -8512,15 +8458,6 @@
     "p": "55-172",
     "u": "https://ir-api.eqs.com/media/document/b7b0ae33-7a26-40de-8917-5cc8fe4da4b8/assets/Westwing_GB_2024_EN.pdf?disposition=inline",
     "y": "2024"
-  },
-  {
-    "c": "Wienerberger",
-    "ct": "Austria",
-    "s": "Extractives & Minerals Processing",
-    "i": "Construction Materials",
-    "p": null,
-    "u": null,
-    "y": "2022"
   },
   {
     "c": "Wilh Wilhelmsen Holding ASA",
