@@ -26,8 +26,13 @@ export async function onRequest(context) {
         newHeaders.delete('X-Frame-Options');
         newHeaders.delete('Content-Security-Policy');
         newHeaders.delete('Content-Disposition');
+        newHeaders.delete('Content-Security-Policy-Report-Only');
+        newHeaders.delete('Cross-Origin-Opener-Policy');
+        newHeaders.delete('Cross-Origin-Resource-Policy');
 
-        return new Response(response.body, {
+        const buffer = await response.arrayBuffer();
+
+        return new Response(buffer, {
             status: response.status,
             statusText: response.statusText,
             headers: newHeaders
