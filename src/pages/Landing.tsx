@@ -50,13 +50,6 @@ export function Landing() {
         <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl animate-float" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <div className="max-w-3xl">
-            <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1 bg-white/80 dark:bg-gray-900/70 border border-gray-200/60 dark:border-gray-700/60 rounded-full text-xs font-medium text-gray-600 dark:text-gray-300 mb-6 animate-fade-up">
-              Student project · Built by Nikhil Reddy Gogu
-              <span className="text-gray-300">•</span>
-              <span>Master in Finance + MBA (Financial Services)</span>
-              <span className="text-gray-300">•</span>
-              <a className="text-brand-600 hover:text-brand-700" href="https://nikhil.chat">nikhil.chat</a>
-            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white tracking-tight animate-fade-up-delay-1">
               ESG Intelligence for{' '}
               <span className="text-brand-600">Smarter Decisions</span>

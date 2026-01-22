@@ -21,7 +21,7 @@ export function Footer() {
               ESG market intelligence for informed investment decisions. Track sustainability signals, analyze company profiles, and stay ahead of ESG trends.
             </p>
             <p className="text-xs text-gray-500 mt-3">
-              Student-built project by Nikhil Reddy Gogu · Portfolio: <a className="underline hover:text-white" href="https://nikhil.chat">nikhil.chat</a> · LinkedIn: <a className="underline hover:text-white" href="https://linkedin.com/in/nikhilgogu">linkedin.com/in/nikhilgogu</a>
+              Student project · Built by Nikhil Reddy Gogu • Master in Finance + MBA (Financial Services) • <a className="underline hover:text-white" href="https://nikhil.chat">nikhil.chat</a>
             </p>
           </div>
 
