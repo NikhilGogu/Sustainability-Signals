@@ -29,6 +29,7 @@ export async function onRequest(context) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'identity', // Force uncompressed
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
         'Sec-Fetch-Site': 'none',
@@ -41,11 +42,15 @@ export async function onRequest(context) {
 
     try {
         const response = await fetch(targetUrl, {
-            headers: headers
+            headers: headers,
+            redirect: 'follow'
         });
 
         const newHeaders = new Headers(response.headers);
         newHeaders.set('Access-Control-Allow-Origin', '*');
+        newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate'); // Prevent caching errors
+
+        // Strip headers that block embedding or force download
 
         // Strip headers that block embedding or force download
         newHeaders.delete('X-Frame-Options');
