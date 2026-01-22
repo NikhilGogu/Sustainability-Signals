@@ -17,7 +17,7 @@ export function Methodology() {
             Methodology
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            How we collect, organize, and present sustainability data
+            How data is collected, organized, and presented
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function Methodology() {
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Our database contains 963+ CSRD-compliant sustainability reports from European companies:
+            The database contains 963+ CSRD-compliant sustainability reports from European companies:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
@@ -107,7 +107,7 @@ export function Methodology() {
             Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            We're working on expanding the platform with additional features:
+            The roadmap includes implementing additional features:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">

@@ -55,7 +55,7 @@ export function Landing() {
               <span className="text-brand-600">Smarter Decisions</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl animate-fade-up-delay-2">
-              Track sustainability signals, analyze ESG momentum, and access <strong>963+ CSRD-compliant reports</strong> with our integrated PDF viewer. Data-driven insights for responsible investing.
+              Track sustainability signals, analyze ESG momentum, and access <strong>963+ CSRD-compliant reports</strong> with the integrated PDF viewer. Data-driven insights for responsible investing.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-fade-up-delay-2">
               <Button to="/reports" size="lg">
@@ -74,7 +74,7 @@ export function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-              What We Offer
+              Key Features
             </h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Comprehensive ESG monitoring and sustainability research tools
@@ -143,7 +143,7 @@ export function Landing() {
                   Premium Data Sources
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 max-w-xl">
-                  We're integrating institutional-grade ESG data from Refinitiv and other leading providers. Currently showing demo signals to showcase capabilities.
+                  The platform integrates institutional-grade ESG data from Refinitiv and other leading providers. Currently showing demo signals to showcase capabilities.
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
@@ -175,7 +175,7 @@ export function Landing() {
               Browse Reports
             </Button>
             <Button to="/methodology" variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-              Our Methodology
+              Methodology
             </Button>
           </div>
         </div>

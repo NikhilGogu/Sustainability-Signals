@@ -60,7 +60,7 @@ export function About() {
         {/* What We Provide */}
         <Card className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            What We Provide
+            Platform Features
           </h2>
           <div className="space-y-4">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
@@ -69,7 +69,7 @@ export function About() {
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Access 963+ CSRD-compliant sustainability reports from European companies with our in-app PDF viewer that opens at the exact sustainability section.
+                Access 963+ CSRD-compliant sustainability reports from European companies with an in-app PDF viewer that opens at the exact sustainability section.
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-60">
