@@ -187,69 +187,63 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
     if (!report || !report.reportUrl) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-6">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"
                 onClick={onClose}
             />
 
             {/* Modal */}
-            <div className="relative z-10 w-[95vw] max-w-6xl h-[90vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="relative z-10 w-full h-[100dvh] sm:h-[90vh] max-w-6xl bg-white dark:bg-gray-900 sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-brand-50 to-green-50 dark:from-gray-800 dark:to-gray-800">
-                    <div className="flex-1 min-w-0">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white truncate">
-                            {report.company}
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl z-20">
+                    <div className="flex-1 min-w-0 pr-2 sm:pr-4">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
+                            {report?.company}
                         </h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                            {report.sector} • {report.country} • {report.publishedYear}
-                        </p>
+                        <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
+                            <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400">
+                                {report?.publishedYear}
+                            </span>
+                            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                                {report?.sector} • {report?.country}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-3 ml-4">
-                        {/* Page info badge - Only show if using native viewer or if we want to show info regardless */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Page info badge - Only if not Google Viewer */}
                         {!useGoogleViewer && (
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
                                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                    Sustainability Section:
+                                    Section:
                                 </span>
                                 <span className="text-sm font-bold text-brand-600 dark:text-brand-400">
-                                    pg. {startPage} - {endPage}
+                                    {startPage}-{endPage}
                                 </span>
                             </div>
                         )}
 
-                        {useGoogleViewer && (
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-900 rounded-lg shadow-sm">
-                                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                                    Target Page:
-                                </span>
-                                <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
-                                    {startPage}
-                                </span>
-                            </div>
-                        )}
-
-                        {/* Zoom controls - Only for React PDF */}
+                        {/* Zoom controls - Only for React PDF - Hidden on mobile */}
                         {!useGoogleViewer && (
-                            <div className="flex items-center bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                            <div className="hidden sm:flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <button
                                     onClick={zoomOut}
-                                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-l-lg transition-colors"
+                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-l-lg transition-colors"
                                     title="Zoom out"
                                 >
                                     <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                                     </svg>
                                 </button>
-                                <span className="px-2 text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[3rem] text-center">
+                                <span className="px-2 text-xs font-medium text-gray-700 dark:text-gray-300 min-w-[3rem] text-center">
                                     {Math.round(scale * 100)}%
                                 </span>
                                 <button
                                     onClick={zoomIn}
-                                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-r-lg transition-colors"
+                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-r-lg transition-colors"
                                     title="Zoom in"
                                 >
                                     <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,26 +253,43 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                             </div>
                         )}
 
-                        {/* Open externally */}
+                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
+
+                        {/* Chat Toggle Button */}
+                        <button
+                            onClick={() => setChatOpen(!chatOpen)}
+                            className={`
+                                flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 border
+                                ${chatOpen
+                                    ? 'bg-brand-50 border-brand-200 text-brand-700 dark:bg-brand-900/30 dark:border-brand-800 dark:text-brand-400'
+                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                }
+                            `}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                            <span className="font-medium text-sm">Ask AI</span>
+                        </button>
+
                         <a
-                            href={`${report.reportUrl}#page=${startPage}`}
+                            href={`${report?.reportUrl}#page=${startPage}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                            className="hidden sm:inline-block p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
                             title="Open in new tab"
                         >
-                            <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </a>
 
-                        {/* Close button */}
                         <button
                             onClick={onClose}
-                            className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                            className="p-1.5 sm:p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-900/30 transition-all text-gray-500 dark:text-gray-400"
                             title="Close"
                         >
-                            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -286,12 +297,12 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                 </div>
 
                 {/* PDF Content */}
-                <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-800 p-4 relative">
+                <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-800/50 p-2 sm:p-4 relative custom-scrollbar flex flex-col items-center">
                     {loading && (
-                        <div className="flex items-center justify-center h-full absolute inset-0 z-10 bg-gray-100 dark:bg-gray-800">
+                        <div className="flex items-center justify-center absolute inset-0 z-10 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm">
                             <div className="text-center">
                                 <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-4" />
-                                <p className="text-gray-600 dark:text-gray-400">
+                                <p className="text-gray-600 dark:text-gray-400 font-medium">
                                     {useGoogleViewer ? 'Loading fallback viewer...' : retryCount > 0 ? `Trying proxy ${retryCount + 1}...` : 'Loading PDF...'}
                                 </p>
                             </div>
@@ -300,10 +311,10 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
 
                     {useGoogleViewer ? (
                         <iframe
-                            src={`https://docs.google.com/gview?url=${encodeURIComponent(report.reportUrl)}&embedded=true`}
-                            className="w-full h-full relative z-0 rounded-lg shadow-inner bg-white"
+                            src={`https://docs.google.com/gview?url=${encodeURIComponent(report?.reportUrl || '')}&embedded=true`}
+                            className="w-full h-full relative z-0 rounded-xl shadow-lg bg-white"
                             onLoad={() => setLoading(false)}
-                            title={`${report.company} Sustainability Report`}
+                            title={`${report?.company} Sustainability Report`}
                             allowFullScreen
                         />
                     ) : (
@@ -313,75 +324,75 @@ export function PDFViewerModal({ report, onClose }: PDFViewerModalProps) {
                                 onLoadSuccess={onDocumentLoadSuccess}
                                 onLoadError={onDocumentLoadError}
                                 loading={null}
-                                error={null} // Suppress default text error, we handle it
-                                className="flex flex-col items-center gap-4"
+                                error={null}
+                                className="flex flex-col items-center gap-6 max-w-full"
                             >
                                 <Page
                                     pageNumber={currentPage}
                                     scale={scale}
-                                    className="shadow-xl rounded-lg overflow-hidden"
+                                    className="shadow-2xl rounded-sm overflow-hidden max-w-full"
                                     renderTextLayer={true}
                                     renderAnnotationLayer={true}
+                                    width={window.innerWidth < 640 ? window.innerWidth - 32 : undefined}
                                 />
                             </Document>
                         )
                     )}
                 </div>
 
-                {/* Footer - Page Navigation (Only for React PDF) */}
+                {/* Footer - Page Navigation */}
                 {!useGoogleViewer && !error && numPages > 0 && (
-                    <div className="flex items-center justify-center gap-4 px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                    <div className="flex items-center justify-center gap-4 px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-20">
                         <button
                             onClick={() => goToPage(currentPage - 1)}
                             disabled={currentPage <= startPage}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-400"
                         >
-                            <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
 
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Page</span>
-                            <input
-                                type="number"
-                                min={startPage}
-                                max={endPage}
-                                value={currentPage}
-                                onChange={(e) => goToPage(parseInt(e.target.value) || startPage)}
-                                className="w-16 px-2 py-1 text-center text-sm font-medium bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                            />
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                of {endPage} <span className="text-gray-400 dark:text-gray-500">(section: {startPage}-{endPage})</span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Page</span>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min={startPage}
+                                    max={endPage}
+                                    value={currentPage}
+                                    onChange={(e) => goToPage(parseInt(e.target.value) || startPage)}
+                                    className="w-16 px-2 py-1 text-center text-sm font-bold bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
+                                />
+                            </div>
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                of {endPage}
                             </span>
                         </div>
 
                         <button
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage >= endPage}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-400"
                         >
-                            <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
                     </div>
                 )}
             </div>
+
             {/* Chat Sidebar */}
-            {!useGoogleViewer && !error && !loading && (
-                <ChatSidebar
-                    isOpen={chatOpen}
-                    onToggle={() => setChatOpen(!chatOpen)}
-                    onClose={() => setChatOpen(false)}
-                    onClearHistory={() => setMessages([])}
-                    messages={messages}
-                    onSendMessage={handleSendMessage}
-                    isLoading={isLoadingChat}
-                />
-
-            )}
+            <ChatSidebar
+                isOpen={chatOpen}
+                onToggle={() => setChatOpen(!chatOpen)}
+                onClose={() => setChatOpen(false)}
+                onClearHistory={() => setMessages([])}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isLoading={isLoadingChat}
+            />
         </div>
-
     );
 }

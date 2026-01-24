@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { SustainabilityReport } from '../../types';
 import { PDFViewerModal } from './PDFViewerModal';
 
@@ -146,11 +147,12 @@ export function ReportsTable({ reports, sortBy, sortOrder, onSort }: ReportsTabl
             </div>
 
             {/* PDF Viewer Modal */}
-            {selectedReport && (
+            {selectedReport && createPortal(
                 <PDFViewerModal
                     report={selectedReport}
                     onClose={() => setSelectedReport(null)}
-                />
+                />,
+                document.body
             )}
         </>
     );

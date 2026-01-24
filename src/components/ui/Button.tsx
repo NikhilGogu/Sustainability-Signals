@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 interface ButtonProps {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   href?: string;
   to?: string;
   onClick?: () => void;
@@ -22,7 +22,8 @@ const variants = {
 const sizes = {
   sm: 'px-3 py-1.5 text-sm',
   md: 'px-5 py-2.5 text-base',
-  lg: 'px-8 py-3.5 text-lg'
+  lg: 'px-8 py-3.5 text-lg',
+  xl: 'px-8 py-4 text-xl'
 };
 
 export function Button({

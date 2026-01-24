@@ -12,16 +12,23 @@ export function Methodology() {
         <meta name="description" content="Learn how SustainabilitySignals collects and presents sustainability report data." />
       </Helmet>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Methodology
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            How data is collected, organized, and presented
-          </p>
+      <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-100/40 via-gray-50 to-gray-50 dark:from-brand-900/20 dark:via-gray-900 dark:to-gray-950" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight mb-4 animate-fade-up">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-500 dark:from-brand-400 dark:to-teal-400">
+                Methodology
+              </span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed animate-fade-up-delay-1 max-w-2xl mx-auto">
+              How data is collected, organized, and presented
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         <Card className="mb-8">
           <div className="flex items-start gap-4">

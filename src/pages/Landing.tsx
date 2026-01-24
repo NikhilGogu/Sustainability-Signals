@@ -56,24 +56,44 @@ export function Landing() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-50 to-white dark:from-gray-900 dark:to-gray-800" />
-        <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl animate-float" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white tracking-tight animate-fade-up-delay-1">
-              AI-Powered Insights for{' '}
-              <span className="text-brand-600">Sustainability Reports</span>
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-100/50 via-gray-50 to-gray-50 dark:from-brand-900/20 dark:via-gray-900 dark:to-gray-950" />
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-400/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm animate-fade-up">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+              </span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                Now tracking {reportsCount} sustainability reports
+              </span>
+            </div>
+
+            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-gray-900 dark:text-white animate-fade-up-delay-1">
+              AI-Powered Insights for <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-500 dark:from-brand-400 dark:to-teal-400">
+                Sustainability Reports
+              </span>
             </h1>
-            <p className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl animate-fade-up-delay-2">
-              Access <strong>{reportsCount} CSRD-compliant reports</strong> with AI-powered insights. Ask questions, extract key metrics, and analyze sustainability data instantly.
+
+            <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-2">
+              Extract key metrics, compare data, and analyze over <strong>{reportsCount} CSRD-compliant reports</strong> instantly with our advanced AI assistant.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-fade-up-delay-2">
-              <Button to="/reports" size="lg">
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-fade-up-delay-2">
+              <Button to="/reports" size="xl" className="shadow-xl shadow-brand-500/20 hover:shadow-brand-500/30 transition-all hover:-translate-y-1">
                 Browse Reports
+                <svg className="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </Button>
-              <Button to="/methodology" variant="outline" size="lg">
-                Methodology
+              <Button to="/methodology" variant="outline" size="xl" className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:bg-white/80 dark:hover:bg-gray-800 transition-all hover:-translate-y-1">
+                View Methodology
               </Button>
             </div>
           </div>
@@ -81,62 +101,86 @@ export function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white dark:bg-gray-800">
+      <section className="py-24 bg-white dark:bg-gray-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-              Key Features
+            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              Intelligence at Scale
             </h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Comprehensive ESG monitoring and sustainability research tools
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Our platform combines advanced AI processing with comprehensive ESG data to deliver actionable insights.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {dynamicFeatures.map((feature) => (
-              <Card key={feature.title} padding="lg" hover className="animate-fade-up">
-                <div className="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {feature.description}
-                </p>
-              </Card>
+              <div key={feature.title} className="group relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-brand-500 to-teal-500 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500 blur" />
+                <Card className="relative h-full bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-gradient-to-br from-brand-50 to-teal-50 dark:from-brand-900/30 dark:to-teal-900/30 rounded-xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6 group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Reports Highlight Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-900/20 dark:to-indigo-900/20 text-brand-700 dark:text-brand-400 rounded-full text-sm font-medium mb-4">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  AI-Powered
+      <section className="py-24 bg-gray-50/50 dark:bg-gray-950/50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/50 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden">
+            <div className="grid md:grid-cols-2 gap-12 p-8 sm:p-16 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 rounded-full text-sm font-semibold">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                  </span>
+                  Live Beta
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Chat with {reportsCount} Sustainability Reports
+                <h3 className="text-4xl font-bold text-gray-900 dark:text-white">
+                  Chat with your data
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-xl">
-                  Ask our AI assistant anything about CSRD-compliant sustainability reports. Extract key metrics, compare data, and understand complex disclosures in seconds.
-
-
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  Stop searching through hundreds of pages. Open any report and ask our AI assistant to instantly find disclosure policies, emission data, and governance structures.
                 </p>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">30+ Countries</span>
+                <div className="flex flex-wrap gap-3 pt-4">
+                  {['Scope 1, 2, 3', 'GRI Standards', 'TCFD', 'SASB'].map((tag) => (
+                    <span key={tag} className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium">
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">15+ Sectors</span>
+              </div>
+
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-brand-500 to-blue-500 opacity-20 blur-xl rounded-full" />
+                <div className="relative bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center text-brand-600 flex-shrink-0">
+                      AI
+                    </div>
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
+                      <p className="text-gray-800 dark:text-gray-200 text-sm">
+                        Based on the 2024 report, the company has reduced Scope 1 emissions by 15% through renewable energy adoption...
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end">
+                    <div className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-brand-600/20">
+                      What are the Scope 3 targets?
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -145,30 +189,27 @@ export function Landing() {
       </section>
 
       {/* Data Sources Section */}
-      <section className="py-20 bg-white dark:bg-gray-800">
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-brand-50 to-green-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 rounded-full text-sm font-medium mb-4">
-                  <span className="w-2 h-2 bg-brand-500 rounded-full animate-pulse" />
-                  Coming Soon
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Premium Data Sources
+          <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-8 sm:p-12 shadow-xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+              <div className="max-w-2xl">
+                <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  Institutional-Grade Data
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-xl">
-                  The platform integrates institutional-grade ESG data from Refinitiv and other leading providers. Currently showing demo signals to showcase capabilities.
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  In addition to our analyzed reports, we are integrating premium data feeds from leading providers to offer comprehensive market signals.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 rounded-lg">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">Refinitiv</span>
-                  <span className="text-xs text-gray-500">(planned)</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 rounded-lg">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">Public Sources</span>
-                  <span className="text-xs text-gray-500">(planned)</span>
+              <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex items-center gap-3 px-6 py-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-default">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-900 dark:text-white">Refinitiv</div>
+                    <div className="text-xs text-gray-500">Coming Soon</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -177,20 +218,24 @@ export function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-brand-600 animate-shimmer">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            Start Exploring
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-brand-600">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-8 tracking-tight">
+            Ready to dive in?
           </h2>
-          <p className="text-lg text-brand-100 max-w-2xl mx-auto mb-8">
-            Chat with {reportsCount} sustainability reports using AI. Ask questions, extract insights, and analyze ESG data instantly.
+          <p className="text-xl text-brand-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Join the community of analysts and sustainability professionals using our platform to make data-driven decisions.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button to="/reports" variant="secondary" size="lg">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
+            <Button to="/reports" variant="secondary" size="xl" className="shadow-xl shadow-black/10">
               Browse Reports
             </Button>
-            <Button to="/methodology" variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-              Methodology
+            <Button to="/methodology" variant="outline" size="xl" className="border-white text-white hover:bg-white/10">
+              Read Methodology
             </Button>
           </div>
         </div>

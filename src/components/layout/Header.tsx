@@ -34,18 +34,18 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+    <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+          <Link to="/" className="flex items-center gap-2.5 overflow-hidden">
+            <div className="flex-shrink-0 w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/20">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900 dark:text-white hidden sm:block">
-              SustainabilitySignals
+            <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white whitespace-nowrap truncate">
+              Sustainability Signals
             </span>
           </Link>
 
@@ -55,8 +55,8 @@ export function Header() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(link.to)
-                  ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isActive(link.to)
+                  ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-400'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
                   }`}
               >
@@ -69,13 +69,13 @@ export function Header() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/reports"
-              className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors"
+              className="px-5 py-2 bg-brand-600 text-white text-sm font-medium rounded-full hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-600/30 transition-all duration-200"
             >
               Browse Reports
             </Link>
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className="p-2 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
               aria-label="Toggle dark mode"
               aria-pressed={isDarkMode}
               title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -93,10 +93,10 @@ export function Header() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="md:hidden flex items-center gap-2 ml-2">
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className="p-2 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
               aria-label="Toggle dark mode"
               aria-pressed={isDarkMode}
             >
@@ -112,7 +112,7 @@ export function Header() {
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-all"
               aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,28 +128,30 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-4 border-t border-gray-200 dark:border-gray-800">
-            <div className="flex flex-col gap-2">
+          <nav className="md:hidden py-4 border-t border-gray-200 dark:border-gray-800 animate-fade-up">
+            <div className="flex flex-col gap-2 p-2">
               {navLinks.map(link => (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(link.to)
-                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                  className={`px-4 py-3 rounded-xl text-base font-medium transition-all ${isActive(link.to)
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800/50'
                     }`}
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/reports"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mt-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors text-center"
-              >
-                Browse Reports
-              </Link>
+              <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800">
+                <Link
+                  to="/reports"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center w-full px-4 py-3 bg-brand-600 text-white text-base font-medium rounded-xl hover:bg-brand-700 shadow-brand-600/20 hover:shadow-lg hover:shadow-brand-600/30 transition-all active:scale-[0.98]"
+                >
+                  Browse Reports
+                </Link>
+              </div>
             </div>
           </nav>
         )}
