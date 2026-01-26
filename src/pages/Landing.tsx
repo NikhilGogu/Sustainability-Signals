@@ -39,7 +39,7 @@ export function Landing() {
   // Update features with dynamic count
   const dynamicFeatures = features.map(f =>
     f.title === 'Reports Library'
-      ? { ...f, description: `Browse ${reportsCount} CSRD-compliant sustainability reports. View PDFs in-app and chat with our AI to extract insights instantly.` }
+      ? { ...f, description: `Browse ${reportsCount} CSRD-compliant sustainability reports. View PDFs in-app and chat with the AI to extract insights instantly.` }
 
       : f
   );
@@ -82,7 +82,7 @@ export function Landing() {
             </h1>
 
             <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-2">
-              Extract key metrics, compare data, and analyze over <strong>{reportsCount} CSRD-compliant reports</strong> instantly with our advanced AI assistant.
+              Extract key metrics, compare data, and analyze over <strong>{reportsCount} CSRD-compliant reports</strong> instantly with the advanced AI assistant.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-fade-up-delay-2">
@@ -108,7 +108,7 @@ export function Landing() {
               Intelligence at Scale
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Our platform combines advanced AI processing with comprehensive ESG data to deliver actionable insights.
+              This platform combines advanced AI processing with comprehensive ESG data to deliver actionable insights.
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export function Landing() {
                   Chat with your data
                 </h3>
                 <p className="text-lg text-gray-600 dark:text-gray-400">
-                  Stop searching through hundreds of pages. Open any report and ask our AI assistant to instantly find disclosure policies, emission data, and governance structures.
+                  Stop searching through hundreds of pages. Open any report and ask the AI assistant to instantly find disclosure policies, emission data, and governance structures.
                 </p>
                 <div className="flex flex-wrap gap-3 pt-4">
                   {['Scope 1, 2, 3', 'GRI Standards', 'TCFD', 'SASB'].map((tag) => (
@@ -198,7 +198,7 @@ export function Landing() {
                   Institutional-Grade Data
                 </h3>
                 <p className="text-lg text-gray-600 dark:text-gray-400">
-                  In addition to our analyzed reports, we are integrating premium data feeds from leading providers to offer comprehensive market signals.
+                  In addition to analyzed reports, I am integrating premium data feeds from leading providers to offer comprehensive market signals.
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-4">
@@ -228,7 +228,7 @@ export function Landing() {
             Ready to dive in?
           </h2>
           <p className="text-xl text-brand-100 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Join the community of analysts and sustainability professionals using our platform to make data-driven decisions.
+            Join the community of analysts and sustainability professionals using this platform to make data-driven decisions.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <Button to="/reports" variant="secondary" size="xl" className="shadow-xl shadow-black/10">

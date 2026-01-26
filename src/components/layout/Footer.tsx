@@ -42,7 +42,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link to="/reports" className="text-sm text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Browse Reports</Link></li>
               <li><Link to="/methodology" className="text-sm text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Methodology</Link></li>
-              <li><Link to="/about" className="text-sm text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">About Us</Link></li>
+              <li><Link to="/about" className="text-sm text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">About</Link></li>
             </ul>
           </div>
 
@@ -68,7 +68,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Student Project</h3>
             <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Built by Nikhil Reddy Gogu as part of the Master in Finance program at Antwerp Management School.
+                Built by Nikhil Reddy Gogu as a personal project.
               </p>
               <a href="https://nikhil.chat" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
                 View Portfolio &rarr;

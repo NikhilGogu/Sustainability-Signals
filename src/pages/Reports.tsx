@@ -129,7 +129,7 @@ export function Reports() {
                             Chat with <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-500 dark:from-brand-400 dark:to-teal-400">Sustainability Reports</span>
                         </h1>
                         <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed animate-fade-up-delay-1">
-                            Access <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> CSRD-compliant reports. Open any report to chat with our AI, extract key metrics, and analyze sustainability data instantly.
+                            Access <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> CSRD-compliant reports. Open any report to chat with the AI, extract key metrics, and analyze sustainability data instantly.
                         </p>
                     </div>
                 </div>
