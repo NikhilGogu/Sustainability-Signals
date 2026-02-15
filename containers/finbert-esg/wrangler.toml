@@ -1,0 +1,21 @@
+name = "finbert-esg-container"
+main = "worker.js"
+compatibility_date = "2026-02-13"
+
+# LEGACY: Cloudflare Containers deployment for FinBERT.
+# The project now prefers hosting this Docker image on Azure Container Apps.
+# See DEPLOY_AZURE.md.
+
+# Cloudflare Container (Durable Object) configuration
+[[containers]]
+class_name = "FinBERTContainer"
+image = "./Dockerfile"
+max_instances = 3
+
+[[durable_objects.bindings]]
+name = "FINBERT_CONTAINER"
+class_name = "FinBERTContainer"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FinBERTContainer"]

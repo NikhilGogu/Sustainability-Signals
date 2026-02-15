@@ -1,0 +1,23 @@
+name = "sustainability-signals"
+compatibility_date = "2026-02-13"
+pages_build_output_dir = "dist"
+
+# Cloudflare Pages Functions pick up bindings from this file when using Wrangler.
+# If you deploy via the Pages dashboard Git integration, add the same bindings there.
+
+[ai]
+binding = "AI"
+
+[[r2_buckets]]
+binding = "REPORTS_BUCKET"
+bucket_name = "sustainability-signals"
+
+[[vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "sustainability-signals-index"
+
+# FinBERT-ESG-9 routing (external HTTP service)
+#
+# Configure these in the Pages dashboard (or via Wrangler):
+# - FINBERT_URL: base URL of your hosted inference server (e.g. Azure Container Apps)
+# - FINBERT_API_KEY: optional; if set, Pages Functions will send `x-api-key` header

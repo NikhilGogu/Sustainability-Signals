@@ -1,0 +1,14 @@
+.git
+.gitignore
+
+.venv
+node_modules
+dist
+.wrangler
+
+reports_artifacts
+ml/.venv
+ml/data
+ml/models
+
+*.log

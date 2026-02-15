@@ -1,212 +1,135 @@
-# SustainabilitySignals
+# Sustainability Signals
 
-ESG market intelligence platform for tracking sustainability signals, analyzing company profiles, and making informed investment decisions.
+Sustainability report library with in-app PDF viewing, AI chat, and Disclosure Quality scoring (with evidence highlights).
 
-🌐 **Live Demo**: [sustainabilitysignals.com](https://sustainabilitysignals.com)
+## Architecture
 
-## Features
-
-- **Dashboard**: Real-time ESG momentum tracking, sector heatmaps, and signal alerts
-- **Company Profiles**: Deep-dive ESG analysis with score breakdowns and risk factors
-- **AI Insights**: GPT-powered explanations of ESG data (mock mode available)
-- **Responsive Design**: Mobile-first, professional "Bloomberg-lite" interface
-
-## Tech Stack
-
-- **Framework**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS 4
-- **Charts**: ApexCharts
-- **Routing**: React Router 7
-- **SEO**: React Helmet Async
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── company/       # Company page components (charts, gauges)
-│   ├── dashboard/     # Dashboard components (KPIs, tables, heatmaps)
-│   ├── layout/        # Header, Footer, Layout wrapper
-│   └── ui/            # Reusable UI components (Button, Card, Modal)
-├── data/
-│   └── mockData.ts    # Mock data for demo mode
-├── pages/
-│   ├── Landing.tsx    # Homepage
-│   ├── Dashboard.tsx  # Main dashboard
-│   ├── Company.tsx    # Company profile page
-│   ├── About.tsx      # About page
-│   └── Methodology.tsx # Methodology page
-├── providers/
-│   ├── refinitiv.ts   # Refinitiv data provider (mock + real)
-│   ├── openai.ts      # OpenAI provider (mock + real)
-│   └── index.ts       # Provider exports
-├── types/
-│   └── index.ts       # TypeScript interfaces
-└── App.tsx            # Main app with routing
-```
+- PDFs (sustainability-only extracts) live in Cloudflare R2.
+- PDFs are served same-origin via Cloudflare Pages Functions at `/r2/reports/...` (supports `Range` for fast PDF rendering).
+- AI chat runs in a Pages Function at `/chat` using Cloudflare Workers AI.
 
 ## Local Development
 
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Setup
-
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/sustainability-signals.git
-cd sustainability-signals
-
-# Install dependencies
 npm install
 
-# Start development server
+# Frontend only
 npm run dev
+
+# Frontend + Pages Functions (R2 + AI bindings)
+npm run dev:functions
 ```
 
-The app will be available at `http://localhost:5173`
-
-### Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-
-## Environment Variables
-
-Copy `.env.example` to `.env.local`:
+## Docker (Local)
 
 ```bash
-cp .env.example .env.local
+# Frontend-only (Vite) on http://localhost:5174
+docker compose up
 ```
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_REFINITIV_API_KEY` | No | Refinitiv API key for real data |
-| `VITE_OPENAI_API_KEY` | No | OpenAI API key for GPT features |
-| `VITE_OPENAI_MODEL` | No | OpenAI model (default: gpt-4-turbo-preview) |
-
-**Note**: The app runs fully with mock data when API keys are not configured.
-
-## Deployment
-
-### Cloudflare Pages (Recommended)
-
-1. Push to GitHub/GitLab
-2. Connect repository to Cloudflare Pages
-3. Set build command: `npm run build`
-4. Set output directory: `dist`
-5. Add environment variables in dashboard
-
-### Vercel
+Full-stack (Vite + Pages Functions via Wrangler) requires a Cloudflare API token:
 
 ```bash
-npm i -g vercel
-vercel
+CLOUDFLARE_API_TOKEN=... docker compose up
+# http://localhost:8788
 ```
 
-### Netlify
+PowerShell equivalent:
+
+```powershell
+$env:CLOUDFLARE_API_TOKEN = "..."
+docker compose up
+```
+
+Optional: run the FinBERT inference server locally and wire it into Pages dev:
 
 ```bash
-npm i -g netlify-cli
-netlify deploy --prod --dir=dist
+# Starts the FinBERT container too (first build can take a while).
+CLOUDFLARE_API_TOKEN=... FINBERT_URL=http://finbert:8080 docker compose --profile finbert up --build
 ```
 
-### Manual Deployment
+PowerShell equivalent:
+
+```powershell
+$env:CLOUDFLARE_API_TOKEN = "..."
+$env:FINBERT_URL = "http://finbert:8080"
+docker compose --profile finbert up --build
+```
+
+## Deploy (CLI)
 
 ```bash
-npm run build
-# Upload contents of `dist/` to any static host
+npm run deploy
 ```
 
-## Replacing Mock Providers with Real APIs
+## Cloudflare Setup
 
-### Refinitiv Integration
+- R2 bucket: `sustainability-signals`
+- Bindings (Pages dashboard or via `wrangler.toml`):
+  - `REPORTS_BUCKET` (R2) -> `sustainability-signals`
+  - `AI` (Workers AI binding)
+- Optional (Vectorize semantic search across PDFs):
+  - Vectorize index: `sustainability-signals-index`
+  - Binding: `VECTORIZE_INDEX`
+- Optional Worker env var:
+  - `AI_MODEL` (default: `@cf/meta/llama-3-8b-instruct`)
+  - `AI_EMBEDDING_MODEL` (default: `@cf/baai/bge-small-en-v1.5`)
+  - `AI_EMBEDDING_POOLING` (`mean` or `cls`, default: `cls`)
+  - `AI_LORA` (optional finetune id/name when using a `*-lora` model)
+  - `AI_LORA_RAW` (`true`/`false`, default: `true` when `AI_LORA` is set)
 
-Edit `src/providers/refinitiv.ts`:
+## FinBERT Service (Azure Container Apps)
 
-1. Set `VITE_REFINITIV_API_KEY` in your environment
-2. Implement the TODO sections in each function
-3. The app automatically switches from mock to real data when API key is present
+This repo includes a Dockerized inference server for the real `yiyanghkust/finbert-esg-9-categories` model under `containers/finbert-esg/`.
 
-```typescript
-// Example: fetchCompanySnapshot implementation
-export async function fetchCompanySnapshot(ticker: string) {
-  if (!REFINITIV_API_KEY) {
-    // Returns mock data
-  }
-  
-  // TODO: Implement real API call
-  const response = await fetch(`https://api.refinitiv.com/data/company/${ticker}`, {
-    headers: { 'Authorization': `Bearer ${REFINITIV_API_KEY}` }
-  });
-  return transformRefinitivResponse(await response.json());
-}
+Run it anywhere (local Docker, Azure Container Apps, etc.) and point Pages Functions at it:
+
+- `FINBERT_URL`: base URL of the hosted inference server (e.g. `https://<app>.azurecontainerapps.io`)
+- `FINBERT_API_KEY` (optional): if set, Pages Functions send `x-api-key`, and the server requires it
+
+### Deploy To Azure Container Apps (CLI)
+
+Prereqs: Azure CLI + Docker.
+
+See `containers/finbert-esg/DEPLOY_AZURE.md` for the up-to-date deployment steps (EU region example: `germanywestcentral`).
+
+Then configure `FINBERT_URL` (and `FINBERT_API_KEY` if used) in your Cloudflare Pages project environment variables.
+
+## Reports Index
+
+The UI reads `src/data/reportsIndex.json` (online-only reports that exist in R2). Issuer URLs and offline file paths are not shipped to the browser.
+
+Classification: `s` = GICS Sector, `i` = GICS Industry Group. Legacy/source labels are preserved as `ss`/`si`.
+
+To sync the UI index with the latest successful R2 uploads:
+
+```bash
+npm run generate:reports-index
 ```
 
-### OpenAI Integration
+## Endpoints
 
-Edit `src/providers/openai.ts`:
+- `GET /r2/reports/...` serves PDF bytes from R2
+- `POST /chat` runs Workers AI chat grounded on extracted PDF text
+  - If `VECTORIZE_INDEX` is bound, the chat endpoint will also (1) query relevant excerpts from Vectorize and (2) opportunistically index the extracted page text sent from the PDF viewer.
+  - Vectorize works on extracted text (chunks/embeddings), not raw PDF bytes. If you need full-report Q&A without manually paging through the PDF, you should pre-index the report text (or extract/index it in a background job).
+- `POST /score/disclosure-quality` computes a Disclosure Quality score (complete/consistent/assured) for a report and caches it in R2.
+  - Optional: include a `text` field (extracted report text) to score without server-side PDF -> Markdown conversion.
 
-1. Set `VITE_OPENAI_API_KEY` in your environment
-2. Implement the TODO sections
-3. Consider adding response caching to reduce API costs
+In the UI:
+- Reports table has a `Disclosure Quality` toggle to surface cached Disclosure Quality scores.
+- PDF viewer has a `Quality` panel (next to `Ask AI`) with a score breakdown and evidence highlights.
 
-```typescript
-// Example: summarizeSignal implementation
-export async function summarizeSignal(signal: Signal) {
-  if (!OPENAI_API_KEY) {
-    // Returns mock data
-  }
-  
-  // TODO: Implement real API call
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: 'system', content: 'You are an ESG analyst...' },
-        { role: 'user', content: JSON.stringify(signal) }
-      ]
-    })
-  });
-  return parseGPTResponse(await response.json());
-}
+To trigger Cloudflare-side full-report indexing via CLI (PDF -> Markdown -> Vectorize), run:
+
+```bash
+npm run cf:preindex -- --chat-url https://<your-pages-domain>/chat --concurrency 2
 ```
 
-## Type Definitions
+To batch-compute Disclosure Quality scores via CLI, run:
 
-All data interfaces are defined in `src/types/index.ts`:
+```bash
+npm run cf:score:disclosure -- --score-url https://<your-pages-domain>/score/disclosure-quality --concurrency 2 --out-ndjson reports_artifacts/manifests/disclosure-quality.ndjson
+```
 
-- `Signal` - Market/ESG signal events
-- `CompanySnapshot` - Company ESG profile
-- `MomentumPoint` - Time series data point
-- `SectorScore` - Sector-level ESG metrics
-- `KPIData` - Dashboard KPI cards
-- `GPTExplanation` - AI analysis response
-
-## Browser Support
-
-- Chrome 90+
-- Firefox 90+
-- Safari 14+
-- Edge 90+
-
-## License
-
-MIT
-
-## Contact
-
-- Email: gogunikhil@gmail.com
-- Website: [sustainabilitysignals.com](https://sustainabilitysignals.com)
+Tip: run `npm run cf:preindex` first to cache `toMarkdown` output, otherwise scoring may need to convert PDFs on-demand.

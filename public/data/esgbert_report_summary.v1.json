@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-13T21:29:23.097Z",
+  "count": 2,
+  "byReportId": {
+    "report-957": {
+      "reportKey": "reports/2024/prosus/sustainability-pp47-75.pdf",
+      "pillar_share": {
+        "E": 0.3204867987009789,
+        "S": 0.20003824995200234,
+        "G": 0.4794749513470188
+      },
+      "top_issues": [
+        {
+          "issue": "Management_Of_Legal_And_Regulatory_Framework",
+          "score": 21.32687522470951,
+          "pillar": "G"
+        },
+        {
+          "issue": "Data_Security",
+          "score": 19.945840269327164,
+          "pillar": "G"
+        },
+        {
+          "issue": "Business_Ethics",
+          "score": 15.632152289152145,
+          "pillar": "G"
+        },
+        {
+          "issue": "Waste_And_Hazardous_Materials_Management",
+          "score": 10.266734898090363,
+          "pillar": "E"
+        },
+        {
+          "issue": "Employee_Engagement_Inclusion_And_Diversity",
+          "score": 10.262204721570015,
+          "pillar": "S"
+        },
+        {
+          "issue": "Human_Rights_And_Community_Relations",
+          "score": 7.119612604379654,
+          "pillar": "S"
+        },
+        {
+          "issue": "Physical_Impacts_Of_Climate_Change",
+          "score": 6.954410374164581,
+          "pillar": "E"
+        }
+      ]
+    },
+    "report-958": {
+      "reportKey": "reports/2024/safran/sustainability-pp325-450.pdf",
+      "pillar_share": {
+        "E": 0.3658948206117457,
+        "S": 0.3723437925379762,
+        "G": 0.26176138685027805
+      },
+      "top_issues": [
+        {
+          "issue": "Business_Ethics",
+          "score": 48.35455384850502,
+          "pillar": "G"
+        },
+        {
+          "issue": "Employee_Engagement_Inclusion_And_Diversity",
+          "score": 44.75672772526741,
+          "pillar": "S"
+        },
+        {
+          "issue": "Labor_Practices",
+          "score": 38.746688693761826,
+          "pillar": "S"
+        },
+        {
+          "issue": "Physical_Impacts_Of_Climate_Change",
+          "score": 36.890270218253136,
+          "pillar": "E"
+        },
+        {
+          "issue": "Supply_Chain_Management",
+          "score": 32.914289236068726,
+          "pillar": "S"
+        },
+        {
+          "issue": "Energy_Management",
+          "score": 26.608373552560806,
+          "pillar": "E"
+        },
+        {
+          "issue": "Air_Quality",
+          "score": 25.89926341176033,
+          "pillar": "E"
+        }
+      ]
+    }
+  }
+}

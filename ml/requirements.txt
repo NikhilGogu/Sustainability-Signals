@@ -1,0 +1,14 @@
+# Keep this small; the repo uses `--system-site-packages` so torch/pymupdf may already exist.
+transformers>=5.0.0
+tokenizers>=0.22.0
+regex>=2025.0.0
+tqdm>=4.0.0
+numpy>=1.24.0
+huggingface-hub>=0.20.0
+safetensors>=0.4.0
+accelerate>=1.1.0
+
+# LangExtract (structured ESG entity extraction via LLMs)
+langextract>=1.1.0
+requests>=2.28.0
+python-dotenv>=1.0.0

@@ -116,30 +116,32 @@ export function Reports() {
     return (
         <>
             <Helmet>
-                <title>Sustainability Reports - SustainabilitySignals</title>
-                <meta name="description" content="Download and query CSRD-compliant sustainability reports from companies worldwide." />
+                <title>Coverage - SustainabilitySignals</title>
+                <meta name="description" content="Explore the coverage universe and open any disclosure to run Disclosure Quality scoring and extract structured ESG entities." />
             </Helmet>
 
             {/* Hero Section */}
-            <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-100/40 via-gray-50 to-gray-50 dark:from-brand-900/20 dark:via-gray-900 dark:to-gray-950" />
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
+            <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800/60">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-50/50 via-gray-50 to-gray-50 dark:from-brand-900/10 dark:via-gray-950 dark:to-gray-950" />
+                <div className="absolute inset-0 dot-grid opacity-40" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 relative">
                     <div className="max-w-3xl">
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight mb-4 animate-fade-up">
-                            Chat with <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-500 dark:from-brand-400 dark:to-teal-400">Sustainability Reports</span>
+                        <p className="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-widest uppercase mb-3 animate-fade-up">Coverage Universe</p>
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4 animate-fade-up-delay-1">
+                            Company <span className="gradient-text">Coverage</span>
                         </h1>
-                        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed animate-fade-up-delay-1">
-                            Access <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> CSRD-compliant reports. Open any report to chat with the AI, extract key metrics, and analyze sustainability data instantly.
+                        <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed animate-fade-up-delay-2">
+                            Explore <span className="font-semibold text-brand-600 dark:text-brand-400">{SUSTAINABILITY_REPORTS.length}</span> source disclosures. Open any report to run Disclosure Quality scoring and extract structured ESG entities (FinBERT-9 + LangExtract).
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 pb-20">
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-200/60 dark:border-gray-700/60 shadow-xl overflow-hidden animate-fade-up-delay-2">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10 pb-20">
+                <div className="glass-panel-strong rounded-2xl shadow-xl overflow-hidden animate-fade-up-delay-3">
                     {/* Controls Header */}
-                    <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-                        <div className="flex flex-col gap-6">
+                    <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800/60 bg-gray-50/30 dark:bg-gray-900/30">
+                        <div className="flex flex-col gap-5">
                             {/* Search Bar */}
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -150,10 +152,10 @@ export function Reports() {
                                 <input
                                     id="company-search"
                                     type="text"
-                                    placeholder="Search companies, reports, or keywords..."
+                                    placeholder="Search companies..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="block w-full pl-11 pr-4 py-4 bg-white dark:bg-gray-800 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-gray-800 transition-all shadow-sm"
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-white dark:bg-gray-900 border-0 ring-1 ring-gray-200 dark:ring-gray-700/60 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-500 transition-all shadow-sm text-sm"
                                 />
                             </div>
 
@@ -168,18 +170,18 @@ export function Reports() {
                                         searchPlaceholder="Search country..."
                                     />
                                     <FilterDropdown
-                                        label="Sector"
+                                        label="GICS Sector"
                                         options={REPORT_SECTORS}
                                         selected={selectedSectors}
                                         onChange={setSelectedSectors}
-                                        searchPlaceholder="Search sector..."
+                                        searchPlaceholder="Search GICS sector..."
                                     />
                                     <FilterDropdown
-                                        label="Industry"
+                                        label="GICS Industry Group"
                                         options={REPORT_INDUSTRIES}
                                         selected={selectedIndustries}
                                         onChange={setSelectedIndustries}
-                                        searchPlaceholder="Search industry..."
+                                        searchPlaceholder="Search GICS industry group..."
                                     />
                                     <FilterDropdown
                                         label="Year"
@@ -200,11 +202,12 @@ export function Reports() {
                                             Clear Filters
                                         </button>
                                     )}
+
                                 </div>
 
                                 <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                     <span className="font-medium text-gray-900 dark:text-white">{filteredReports.length}</span>
-                                    <span>results found</span>
+                                    <span>companies found</span>
                                 </div>
                             </div>
                         </div>

@@ -1,0 +1,16 @@
+FROM node:25-bookworm-slim
+
+WORKDIR /app
+
+# Install deps first for layer caching.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy the repo (useful for "docker run" without bind-mount).
+COPY . .
+
+EXPOSE 8788
+
+# Run the full Pages dev stack: Vite (static assets) + Pages Functions.
+# Wrangler no longer supports "proxy command" mode, so we run Vite ourselves.
+CMD ["sh", "-lc", "EXTRA=\"\"; if [ -n \"$FINBERT_URL\" ]; then EXTRA=\"$EXTRA --binding FINBERT_URL=$FINBERT_URL\"; fi; if [ -n \"$FINBERT_API_KEY\" ]; then EXTRA=\"$EXTRA --binding FINBERT_API_KEY=$FINBERT_API_KEY\"; fi; npm run dev -- --host 0.0.0.0 & exec npx wrangler pages dev --ip 0.0.0.0 --port 8788 --proxy 5174 --show-interactive-dev-session false $EXTRA"]

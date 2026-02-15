@@ -1,32 +1,10 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories
-node_modules/
-
-# Optional eslint cache
-.eslintcache
-
-# dotenv environment variables file
-.env
-.env.*
-!.env.example
-.dev.vars
-
-# Cloudflare Pages / Wrangler
-.wrangler/
-dist/
-
-# OS metadata
-.DS_Store
-Thumbs.db
+node_modules
+dist
+.wrangler
+_worker.bundle
+worker-configuration.d.ts
+Sustainability-Signals-old
+reports_artifacts
+ml/.venv
+ml/data
+ml/models

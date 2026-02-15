@@ -55,7 +55,7 @@ export function FilterDropdown({
           flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border
           ${selected.length > 0
                         ? 'bg-brand-50 border-brand-200 text-brand-700 dark:bg-brand-900/30 dark:border-brand-800 dark:text-brand-400 shadow-sm'
-                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-800'
                     }
           ${isOpen ? 'ring-2 ring-brand-500/20 border-brand-500/50' : ''}
         `}
@@ -77,16 +77,16 @@ export function FilterDropdown({
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl shadow-gray-200/50 dark:shadow-black/50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-left">
+                <div className="absolute z-50 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-left">
                     {/* Search */}
-                    <div className="p-3 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm">
+                    <div className="p-3 border-b border-gray-100 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm">
                         <div className="relative">
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder={searchPlaceholder}
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-950 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
                             />
                             <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -107,13 +107,13 @@ export function FilterDropdown({
                             filteredOptions.map(option => (
                                 <label
                                     key={option}
-                                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors group"
+                                    className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors group"
                                 >
                                     <div className={`
                                         flex items-center justify-center w-5 h-5 rounded border transition-all duration-200
                                         ${selected.includes(option)
                                             ? 'bg-brand-600 border-brand-600 text-white'
-                                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 group-hover:border-brand-400'
+                                            : 'bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 group-hover:border-brand-400'
                                         }
                                     `}>
                                         <svg className={`w-3.5 h-3.5 transform transition-transform ${selected.includes(option) ? 'scale-100' : 'scale-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export function FilterDropdown({
 
                     {/* Clear button */}
                     {selected.length > 0 && (
-                        <div className="p-2 border-t border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50">
+                        <div className="p-2 border-t border-gray-100 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-900/50">
                             <button
                                 onClick={clearAll}
                                 className="w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center gap-2"

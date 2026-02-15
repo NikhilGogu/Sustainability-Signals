@@ -9,27 +9,26 @@ export function About() {
     <>
       <Helmet>
         <title>About - SustainabilitySignals</title>
-        <meta name="description" content="Learn about SustainabilitySignals and the team behind the platform." />
+        <meta name="description" content="Learn about SustainabilitySignals, the Disclosure Quality engine, and the roadmap to transparent ESG ratings." />
       </Helmet>
 
-      <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-100/40 via-gray-50 to-gray-50 dark:from-brand-900/20 dark:via-gray-900 dark:to-gray-950" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
+      <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-50/50 via-gray-50 to-gray-50 dark:from-brand-900/10 dark:via-gray-950 dark:to-gray-950" />
+        <div className="absolute inset-0 dot-grid opacity-40" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight mb-4 animate-fade-up">
-              About <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-500 dark:from-brand-400 dark:to-teal-400">
-                Sustainability Signals
-              </span>
+            <p className="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-widest uppercase mb-3 animate-fade-up">About</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4 animate-fade-up-delay-1">
+              Sustainability<span className="gradient-text">Signals</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed animate-fade-up-delay-1 max-w-2xl mx-auto">
-              Making sustainability research accessible
+            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed animate-fade-up-delay-2 max-w-2xl mx-auto">
+              Building transparent ESG ratings from disclosure evidence
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 
         {/* Student Note */}
         <Card className="mb-8">
@@ -75,27 +74,45 @@ export function About() {
           <div className="space-y-4">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-medium text-gray-900 dark:text-white">Reports Library</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white">Disclosure Quality</h3>
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Access {reportsCount} CSRD-compliant sustainability reports with an AI-powered chat assistant. Ask questions, extract insights, and analyze complex data instantly.
+                A transparent score across completeness, consistency, assurance, and transparency, with evidence highlights grounded in the source text.
               </p>
 
             </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-60">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg opacity-60">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-medium text-gray-900 dark:text-white">ESG Signal Tracking</h3>
-                <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">Coming Soon</span>
+                <h3 className="font-medium text-gray-900 dark:text-white">ESG Ratings</h3>
+                <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">In Development</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Monitor rating changes, controversies, and disclosure events across companies.
+                Building toward transparent, evidence-grounded ESG ratings using Disclosure Quality, extracted entities, and model signals.
               </p>
             </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-60">
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-white">Entity Extraction</h3>
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                FinBERT-ESG-9 routes report chunks by category, then LangExtract extracts structured ESG entities (emissions, targets, policies, metrics) with evidence spans.
+              </p>
+            </div>
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-white">Coverage Universe</h3>
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">Live</span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Explore {reportsCount} CSRD-aligned disclosures as the evidence base. Open PDFs in-app, chat with AI, and drill into scoring inputs.
+              </p>
+            </div>
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg opacity-60">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="font-medium text-gray-900 dark:text-white">Company Profiles</h3>
-                <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">Coming Soon</span>
+                <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">Planned</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Deep-dive ESG profiles with score breakdowns, risk factors, and insights.

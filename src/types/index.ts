@@ -101,10 +101,16 @@ export interface ApiResponse<T> {
 // Sustainability Report for CSRD-compliant reports
 export interface SustainabilityReport {
   id: string;
+  slug: string; // URL-friendly identifier, e.g. "accenture-2024"
   company: string;
   country: string;
-  sector: string;
-  industry: string;
+  // GICS (Global Industry Classification Standard) classification.
+  sector: string;   // GICS Sector
+  industry: string; // GICS Industry Group
+
+  // Optional source classification (legacy dataset used SASB SICS).
+  sourceSector?: string;
+  sourceIndustry?: string;
   pageStart: number | null;
   pageEnd: number | null;
   reportUrl: string | null;  // May be null for some historical reports
