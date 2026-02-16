@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 5174 --strictPort",
     "dev:functions": "node scripts/dev_functions.mjs",
-    "build": "tsc -b && vite build",
+    "generate:sitemap": "node scripts/generate_sitemap.mjs",
+    "build": "npm run generate:sitemap && tsc -b && vite build",
     "deploy": "npm run build && wrangler pages deploy dist --project-name sustainability-signals --branch main --commit-dirty=true",
     "lint": "eslint .",
     "cf:preindex": "node scripts/cf_preindex_reports.mjs",

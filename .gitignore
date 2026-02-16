@@ -8,3 +8,5 @@ reports_artifacts
 ml/.venv
 ml/data
 ml/models
+__pycache__/
+*.pyc

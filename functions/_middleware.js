@@ -17,8 +17,8 @@ import { safeString, clampInt } from "./_lib/utils.js";
 
 // ── Endpoint classification ────────────────────────────────────────────────
 // Endpoints that trigger AI inference or writes need authentication + stricter rate limits.
-const PROTECTED_ENDPOINTS = ["/chat", "/score/disclosure-quality", "/score/entity-extract"];
-const HEAVY_ENDPOINTS     = ["/chat"]; // AI inference — tighter rate limit
+const PROTECTED_ENDPOINTS = ["/chat", "/score/disclosure-quality", "/score/entity-extract", "/api/reports/ingest", "/api/reports/suggest-metadata"];
+const HEAVY_ENDPOINTS     = ["/chat", "/api/reports/ingest", "/api/reports/suggest-metadata"]; // AI inference — tighter rate limit
 
 function matchesEndpoint(pathname, endpoints) {
   return endpoints.some((ep) => pathname === ep || pathname.startsWith(ep + "/") || pathname.startsWith(ep + "?"));
@@ -42,6 +42,9 @@ function getRateLimitPreset(pathname, method) {
 // ── CORS method map ────────────────────────────────────────────────────────
 function getAllowedMethods(pathname) {
   if (pathname.startsWith("/r2/")) return "GET, HEAD, OPTIONS";
+  if (pathname === "/api/reports/uploads") return "GET, OPTIONS";
+  if (pathname === "/api/reports/ingest") return "POST, OPTIONS";
+  if (pathname === "/api/reports/suggest-metadata") return "POST, OPTIONS";
   if (pathname.includes("disclosure-quality-batch")) return "POST, OPTIONS";
   if (pathname.includes("disclosure-quality")) return "GET, POST, OPTIONS";
   if (pathname === "/chat") return "POST, OPTIONS";

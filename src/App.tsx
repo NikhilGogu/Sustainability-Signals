@@ -3,7 +3,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import { lazy, Suspense, Component } from 'react';
 import type { ReactNode } from 'react';
 import { Layout } from './components/layout';
-import { Landing, About, Methodology, Reports, NotFound } from './pages';
+import { AppBackdrop } from './components/layout/AppBackdrop';
+import { Landing, About, Methodology, Reports, Disclosure, PrivacyPolicy, TermsOfService, NotFound } from './pages';
 
 const CompanyReport = lazy(() =>
   import('./pages/CompanyReport').then((m) => ({ default: m.CompanyReport }))
@@ -20,11 +21,14 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-8">
-          <div className="text-center max-w-md space-y-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Something went wrong</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{this.state.error.message}</p>
-            <a href="/reports" className="inline-block text-sm font-medium text-brand-600 hover:underline">&larr; Back to Coverage</a>
+        <div className="ss-shell min-h-screen relative isolate bg-gray-50 dark:bg-gray-950" data-variant="report">
+          <AppBackdrop variant="report" />
+          <div className="relative z-10 min-h-screen flex items-center justify-center p-8">
+            <div className="text-center max-w-md space-y-4">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Something went wrong</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{this.state.error.message}</p>
+              <a href="/reports" className="inline-block text-sm font-medium text-brand-600 hover:underline">&larr; Back to Coverage</a>
+            </div>
           </div>
         </div>
       );
@@ -35,10 +39,13 @@ class ErrorBoundary extends Component<
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+    <div className="ss-shell min-h-screen relative isolate bg-gray-50 dark:bg-gray-950" data-variant="report">
+      <AppBackdrop variant="report" />
+      <div className="relative z-10 min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+        </div>
       </div>
     </div>
   );
@@ -67,6 +74,9 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/methodology" element={<Methodology />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/disclosure" element={<Disclosure />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />

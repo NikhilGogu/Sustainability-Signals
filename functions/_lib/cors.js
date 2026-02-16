@@ -71,7 +71,7 @@ export function corsHeaders(request, allowedOrigins, opts = {}) {
   const headers = {};
   headers["Access-Control-Allow-Origin"] = allowed ? origin : allowedOrigins[0] || "";
   headers["Access-Control-Allow-Methods"] = opts.methods || "GET, POST, OPTIONS";
-  headers["Access-Control-Allow-Headers"] = opts.headers || "Content-Type, Authorization, X-Request-ID";
+  headers["Access-Control-Allow-Headers"] = opts.headers || "Content-Type, Authorization, X-API-Key, X-Request-ID";
   headers["Access-Control-Max-Age"] = String(opts.maxAge ?? 86400);
 
   if (allowed && origin && !allowedOrigins.includes("*")) {

@@ -200,7 +200,7 @@ These scripts call your deployed Pages Functions to do heavy work on Cloudflare 
 - Batch compute Disclosure Quality via `/score/disclosure-quality`:
   - `node scripts/cf_score_disclosure_quality.mjs --score-url https://<site>/score/disclosure-quality --concurrency 2 --out-ndjson reports_artifacts/manifests/disclosure-quality.ndjson` (`scripts/cf_score_disclosure_quality.mjs`)
 
-Other utilities in `scripts/` are mostly data-maintenance helpers (market-cap CSV hygiene, GICS conversion, etc.).
+Other utilities in `scripts/` are mostly data-maintenance helpers (GICS conversion, report reclassification, etc.).
 
 Note: `package.json` currently references scripts that are not present in `scripts/`:
 

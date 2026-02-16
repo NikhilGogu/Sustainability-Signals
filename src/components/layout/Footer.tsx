@@ -1,10 +1,11 @@
 import { Link } from 'react-router';
+import { BrandLogo } from './BrandLogo';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800/60">
+    <footer className="relative bg-white/70 dark:bg-gray-950/70 backdrop-blur-2xl border-t border-gray-100/70 dark:border-gray-800/50">
       {/* Gradient accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent" />
 
@@ -13,11 +14,9 @@ export function Footer() {
           {/* Brand Column */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-shadow">
-                <svg className="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
+              <BrandLogo
+                wrapperClassName="w-9 h-9 rounded-lg overflow-hidden shadow-lg shadow-brand-500/15 ring-1 ring-gray-200/70 dark:ring-gray-700/70 group-hover:shadow-brand-500/30 transition-shadow"
+              />
               <span className="font-bold text-lg text-gray-900 dark:text-white">Sustainability<span className="text-brand-600 dark:text-brand-400">Signals</span></span>
             </Link>
             <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
@@ -46,6 +45,7 @@ export function Footer() {
               <li><Link to="/reports" className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Coverage</Link></li>
               <li><Link to="/methodology" className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Methodology</Link></li>
               <li><Link to="/about" className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">About</Link></li>
+              <li><Link to="/disclosure" className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Disclosure</Link></li>
             </ul>
           </div>
 
@@ -82,12 +82,20 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800/60 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            &copy; {currentYear} SustainabilitySignals. All rights reserved.
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center md:text-left">
+            &copy; {currentYear} SustainabilitySignals. Student project. Not investment, legal, or compliance advice.{' '}
+            <Link to="/disclosure" className="font-semibold text-brand-700 dark:text-brand-300 hover:underline">
+              Disclosure
+            </Link>
+            .
           </p>
           <div className="flex gap-6">
-            <span className="text-xs text-gray-400 dark:text-gray-600">Privacy Policy</span>
-            <span className="text-xs text-gray-400 dark:text-gray-600">Terms of Service</span>
+            <Link to="/privacy" className="text-xs text-gray-400 dark:text-gray-600 hover:text-brand-700 dark:hover:text-brand-300 hover:underline">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="text-xs text-gray-400 dark:text-gray-600 hover:text-brand-700 dark:hover:text-brand-300 hover:underline">
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>

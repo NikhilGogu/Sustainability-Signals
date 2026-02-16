@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
+import { BrandLogo } from './BrandLogo';
 
 export function Header() {
   const location = useLocation();
+  const isHome = location.pathname === '/';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -20,7 +22,8 @@ export function Header() {
     { to: '/', label: 'Home' },
     { to: '/reports', label: 'Coverage' },
     { to: '/methodology', label: 'Methodology' },
-    { to: '/about', label: 'About' }
+    { to: '/about', label: 'About' },
+    { to: '/disclosure', label: 'Disclosure' },
   ];
 
   const isActive = (path: string) => {
@@ -56,7 +59,7 @@ export function Header() {
 
   return (
     <header className={`sticky top-0 z-40 transition-all duration-300 ${
-      scrolled
+      scrolled || !isHome
         ? 'bg-white/85 dark:bg-gray-950/85 backdrop-blur-2xl border-b border-gray-200/60 dark:border-gray-800/60 shadow-[0_1px_3px_rgba(0,0,0,0.05)]'
         : 'bg-transparent border-b border-transparent'
     }`}>
@@ -64,11 +67,10 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 overflow-hidden group">
-            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-brand-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/25 group-hover:shadow-brand-500/40 transition-shadow duration-300">
-              <svg className="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
+            <BrandLogo
+              eager
+              wrapperClassName="flex-shrink-0 w-9 h-9 rounded-lg overflow-hidden shadow-lg shadow-brand-600/20 ring-1 ring-gray-200/70 dark:ring-gray-700/70 group-hover:shadow-brand-500/35 transition-shadow duration-300"
+            />
             <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white whitespace-nowrap truncate">
               Sustainability<span className="text-brand-600 dark:text-brand-400">Signals</span>
             </span>

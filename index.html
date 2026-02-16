@@ -2,25 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sustainability Signals - Disclosure Quality to ESG Ratings</title>
-    <meta name="description" content="Evidence-grounded Disclosure Quality scoring with entity extraction and AI chat. Building toward transparent ESG ratings." />
-    
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://sustainabilitysignals.com/" />
-    <meta property="og:title" content="Sustainability Signals - Disclosure Quality to ESG Ratings" />
-    <meta property="og:description" content="Evidence-grounded Disclosure Quality scoring with entity extraction and AI chat. Building toward transparent ESG ratings." />
-    <meta property="og:image" content="https://sustainabilitysignals.com/og-image.png" />
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Sustainability Signals - Disclosure Quality to ESG Ratings" />
-    <meta name="twitter:description" content="Evidence-grounded Disclosure Quality scoring with entity extraction and AI chat. Building toward transparent ESG ratings." />
-    
+    <title>Sustainability Signals | Evidence-Grounded ESG Ratings</title>
+
     <!-- Theme Color -->
-    <meta name="theme-color" content="#10b981" />
+    <meta name="theme-color" content="#0b0f10" />
+    <style>
+      #ss-fallback-h1 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        border: 0;
+        padding: 0;
+        clip: rect(0 0 0 0);
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    </style>
 
     <script>
       (function () {
@@ -37,6 +41,7 @@
     </script>
   </head>
   <body class="dark:bg-gray-900">
+    <h1 id="ss-fallback-h1">Sustainability Signals</h1>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

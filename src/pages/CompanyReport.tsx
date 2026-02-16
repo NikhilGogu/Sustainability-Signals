@@ -1,15 +1,18 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router';
-import { Helmet } from 'react-helmet-async';
+import { useParams, Link, useNavigate } from 'react-router';
 import { Document, Page, pdfjs } from 'react-pdf';
 import pdfWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { REPORTS_BY_SLUG } from '../data/reportsData';
+import { Seo } from '../components/seo';
 import { ChatSidebar } from '../components/reports/ChatSidebar';
 import { DQLoadingOverlay } from '../components/reports/DQLoadingOverlay';
 import { EntityExtractionPanel, type EntityExtractionResponse } from '../components/reports/EntityExtractionPanel';
+import { AppBackdrop } from '../components/layout/AppBackdrop';
+import { useShellMotion } from '../components/layout/useShellMotion';
 import { getEsgBertSummary, type EsgBertReportSummary } from '../utils/esgBert';
+import { fetchUploadedReports } from '../utils/uploadedReports';
 import type { ChatMessage } from '../components/reports/ChatSidebar';
 import type { SustainabilityReport } from '../types';
 
@@ -221,21 +224,93 @@ const EVIDENCE_ITEMS: Array<{ label: string; key: string; category: string }> = 
 
 export function CompanyReport() {
     const { reportId } = useParams<{ reportId: string }>();
+    const navigate = useNavigate();
 
-    const report = useMemo(
+    const staticReport = useMemo(
         () => REPORTS_BY_SLUG.get(reportId ?? '') ?? null,
         [reportId]
     );
+    const [dynamicReport, setDynamicReport] = useState<SustainabilityReport | null>(null);
+    const [dynamicLoading, setDynamicLoading] = useState(false);
+    const [dynamicError, setDynamicError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!reportId) return;
+        if (staticReport) {
+            setDynamicReport(null);
+            setDynamicLoading(false);
+            setDynamicError(null);
+            return;
+        }
+
+        let mounted = true;
+        setDynamicLoading(true);
+        setDynamicError(null);
+        setDynamicReport(null);
+
+        void fetchUploadedReports({ slug: reportId })
+            .then((rows) => {
+                if (!mounted) return;
+                setDynamicReport(rows[0] ?? null);
+            })
+            .catch((err) => {
+                if (!mounted) return;
+                setDynamicError(err instanceof Error ? err.message : String(err));
+            })
+            .finally(() => {
+                if (mounted) setDynamicLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [reportId, staticReport]);
+
+    const report = staticReport ?? dynamicReport;
+
+    useEffect(() => {
+        if (!reportId || !report?.slug) return;
+        if (report.slug !== reportId) {
+            navigate(`/reports/${report.slug}`, { replace: true });
+        }
+    }, [navigate, reportId, report?.slug]);
+
+    if (!report && dynamicLoading) {
+        return (
+            <>
+                <Seo
+                    title="Loading Disclosure | Sustainability Signals"
+                    description="Loading disclosure metadata."
+                    path={reportId ? `/reports/${reportId}` : '/reports'}
+                    noindex
+                />
+                <div role="status" className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
+                    <div className="w-8 h-8 border-2 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Loading report metadata...</p>
+                </div>
+            </>
+        );
+    }
 
     if (!report) {
         return (
             <>
-                <Helmet><title>Disclosure Not Found | Sustainability Signals</title></Helmet>
+                <Seo
+                    title="Disclosure Not Found | Sustainability Signals"
+                    description="The requested disclosure could not be found."
+                    path={reportId ? `/reports/${reportId}` : '/reports'}
+                    noindex
+                />
                 <div role="alert" className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
                     <svg aria-hidden="true" className="w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <h1 className="text-xl font-bold text-gray-700 dark:text-gray-300">Report not found</h1>
+                    {dynamicError && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md text-center">
+                            {dynamicError}
+                        </p>
+                    )}
                     <Link
                         to="/reports"
                         className="text-brand-600 dark:text-brand-400 hover:underline font-medium text-sm"
@@ -253,6 +328,9 @@ export function CompanyReport() {
 /* ───────────────── Report View ───────────────── */
 
 function ReportView({ report }: { report: SustainabilityReport }) {
+    const shellRef = useRef<HTMLDivElement>(null);
+    useShellMotion(shellRef);
+
     /* ── PDF state ── */
     const [numPages, setNumPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -1060,12 +1138,48 @@ function ReportView({ report }: { report: SustainabilityReport }) {
 
     /* ── sidebar tab state ── */
     const [sidebarTab, setSidebarTab] = useState<'info' | 'dq' | 'entities'>('info');
+    const reportYearLabel = report.publishedYear && report.publishedYear > 0 ? String(report.publishedYear) : 'latest';
+    const reportPath = `/reports/${report.slug || report.id}`;
+    const reportSeoTitle = `${report.company} ${reportYearLabel} Disclosure Quality & Evidence | Sustainability Signals`;
+    const reportSeoDescription = `Review ${report.company}'s ${reportYearLabel} sustainability disclosure with page-grounded evidence, Disclosure Quality scoring, and ESG entity extraction.`;
+    const reportSchema: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'Report',
+        name: `${report.company} sustainability disclosure ${reportYearLabel}`,
+        url: `https://www.sustainabilitysignals.com${reportPath}`,
+        inLanguage: 'en-US',
+        about: [
+            {
+                '@type': 'Thing',
+                name: report.sector,
+            },
+            {
+                '@type': 'Thing',
+                name: report.industry,
+            },
+        ],
+        publisher: {
+            '@type': 'Organization',
+            name: 'Sustainability Signals',
+        },
+    };
+    if (report.publishedYear && report.publishedYear > 0) {
+        reportSchema.datePublished = `${report.publishedYear}-01-01`;
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Helmet>
-                <title>{`${report.company} – ${report.publishedYear} Disclosure Quality & Evidence | Sustainability Signals`}</title>
-            </Helmet>
+        <div ref={shellRef} className="ss-shell min-h-screen relative isolate bg-gray-50 dark:bg-gray-950" data-variant="report">
+            <AppBackdrop variant="report" />
+            <div className="relative z-10 ss-page animate-page-in">
+            <Seo
+                title={reportSeoTitle}
+                description={reportSeoDescription}
+                path={reportPath}
+                type="article"
+                image="/og-image.png"
+                imageAlt={`${report.company} disclosure analysis in Sustainability Signals`}
+                structuredData={reportSchema}
+            />
 
             <a href="#report-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-brand-700 focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-brand-500 focus:text-sm focus:font-semibold">
                 Skip to report content
@@ -1186,7 +1300,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
             {/* ── Main content ── */}
             <div className="flex flex-col lg:flex-row max-w-[1600px] mx-auto relative">
                 {/* Sidebar: company metadata + DQ */}
-                <aside aria-label="Report details" className="lg:w-80 xl:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:overflow-y-auto flex flex-col">
+                <aside aria-label="Report details" className="lg:w-80 xl:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 lg:sticky lg:top-14 lg:h-[calc(100svh_-_3.5rem)] lg:overflow-y-auto flex flex-col">
                     {/* Tab switcher */}
                     <div className="flex border-b border-gray-200 dark:border-gray-800 shrink-0">
                         <button onClick={() => setSidebarTab('info')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${sidebarTab === 'info' ? 'text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
@@ -1522,8 +1636,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                     ) : (
                         <div
                             ref={viewerRef}
-                            className="overflow-auto bg-gray-100 dark:bg-gray-950"
-                            style={{ height: 'calc(100vh - 3.5rem)' }}
+                            className="overflow-auto bg-gray-100 dark:bg-gray-950 custom-scrollbar h-[calc(100svh_-_3.5rem)]"
                         >
                             <Document
                                 key={`${report.id}:${docMode}:${docKey}`}
@@ -1664,6 +1777,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                     isLoading={isLoadingChat}
                 />
             </div>
+        </div>
         </div>
     );
 }

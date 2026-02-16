@@ -10481,5 +10481,38 @@
     "k": "reports/2024/seagate-technology/sustainability-full.pdf",
     "ss": "Technology & Communications",
     "si": "Hardware"
+  },
+  {
+    "id": "report-976",
+    "c": "Emirates NBD Group",
+    "ct": "United Arab Emirates",
+    "s": "Financials",
+    "i": "Banks",
+    "y": 2025,
+    "k": "reports/2025/emirates-nbd-group/sustainability-full.pdf",
+    "ss": "Financials",
+    "si": "Commercial Banks"
+  },
+  {
+    "id": "report-977",
+    "c": "Taaleri Energia",
+    "ct": "Finland",
+    "s": "Financials",
+    "i": "Financial Services",
+    "y": 2025,
+    "k": "reports/2025/taaleri-energia/sustainability-full.pdf",
+    "ss": "Financials",
+    "si": "Asset Management & Custody Activities"
+  },
+  {
+    "id": "report-978",
+    "c": "Lloyds Banking Group",
+    "ct": "United Kingdom",
+    "s": "Financials",
+    "i": "Banks",
+    "y": 2025,
+    "k": "reports/2025/lloyds-banking-group/sustainability-full.pdf",
+    "ss": "Financials",
+    "si": "Commercial Banks"
   }
 ]

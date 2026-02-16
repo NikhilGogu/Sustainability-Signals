@@ -77,7 +77,7 @@ export function FilterDropdown({
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-left">
+                <div className="absolute z-50 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/50 overflow-hidden animate-slide-down origin-top-left">
                     {/* Search */}
                     <div className="p-3 border-b border-gray-100 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm">
                         <div className="relative">

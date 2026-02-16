@@ -23,7 +23,6 @@ export interface CompanySnapshot {
   sector: string;
   industry: string;
   description: string;
-  marketCap: string;
   esgScore: number; // 0-100
   environmentScore: number;
   socialScore: number;

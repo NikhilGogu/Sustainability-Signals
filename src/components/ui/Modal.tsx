@@ -91,7 +91,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         </div>
         
         {/* Content */}
-        <div className="p-5 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="p-5 overflow-y-auto max-h-[calc(90vh_-_80px)]">
           {children}
         </div>
       </div>

@@ -2,4 +2,7 @@ export { Landing } from './Landing';
 export { About } from './About';
 export { Methodology } from './Methodology';
 export { Reports } from './Reports';
+export { Disclosure } from './Disclosure';
+export { PrivacyPolicy } from './PrivacyPolicy';
+export { TermsOfService } from './TermsOfService';
 export { NotFound } from './NotFound';

@@ -1,4 +1,4 @@
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg';
@@ -16,19 +16,26 @@ export function Card({
   children, 
   className = '', 
   padding = 'md',
-  hover = false 
+  hover = false,
+  style,
+  ...rest
 }: CardProps) {
+  const hasCustomPadding = /\b(?:p|px|py|pt|pr|pb|pl)-/.test(className);
+  const paddingClass = hasCustomPadding ? '' : paddings[padding];
   return (
     <div 
+      data-ss-reveal
+      style={style}
       className={`
         bg-white dark:bg-gray-900 
         rounded-2xl 
         border border-gray-100 dark:border-gray-800 
         shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]
         ${hover ? 'hover:shadow-[0_4px_12px_rgba(16,24,40,0.06),0_12px_32px_rgba(16,24,40,0.08)] hover:-translate-y-1 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-300' : ''}
-        ${paddings[padding]}
+        ${paddingClass}
         ${className}
       `}
+      {...rest}
     >
       {children}
     </div>

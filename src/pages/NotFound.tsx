@@ -1,17 +1,18 @@
-import { Helmet } from 'react-helmet-async';
 import { Button } from '../components/ui/Button';
+import { Seo } from '../components/seo';
 
 export function NotFound() {
   return (
     <>
-      <Helmet>
-        <title>Page Not Found - SustainabilitySignals</title>
-      </Helmet>
+      <Seo
+        title="Page Not Found | Sustainability Signals"
+        description="The requested page could not be found."
+        path="/404"
+        noindex
+      />
 
-      <div className="min-h-[70vh] flex items-center justify-center px-4 relative overflow-hidden">
-        <div className="absolute inset-0 mesh-gradient" />
-        <div className="absolute inset-0 dot-grid opacity-30" />
-        <div className="relative text-center">
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div className="text-center max-w-lg glass-panel-strong rounded-3xl p-8 sm:p-10 soft-shadow-xl">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-500/10 to-emerald-500/10 dark:from-brand-500/5 dark:to-emerald-500/5 mb-6">
             <span className="text-5xl font-extrabold gradient-text">404</span>
           </div>
