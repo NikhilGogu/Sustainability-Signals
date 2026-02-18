@@ -13,12 +13,14 @@ import { resolveAllowedOrigins, handlePreflight, corsHeaders } from "./_lib/cors
 import { validateApiKey } from "./_lib/auth.js";
 import { checkRateLimit, rateLimitKey, rateLimitHeaders } from "./_lib/ratelimit.js";
 import { ErrorCode, errorResponse } from "./_lib/errors.js";
-import { safeString, clampInt } from "./_lib/utils.js";
+import { safeString } from "./_lib/utils.js";
 
 // ── Endpoint classification ────────────────────────────────────────────────
-// Endpoints that trigger AI inference or writes need authentication + stricter rate limits.
-const PROTECTED_ENDPOINTS = ["/chat", "/score/disclosure-quality", "/score/entity-extract", "/api/reports/ingest", "/api/reports/suggest-metadata"];
-const HEAVY_ENDPOINTS     = ["/chat", "/api/reports/ingest", "/api/reports/suggest-metadata"]; // AI inference — tighter rate limit
+// Endpoints that trigger AI inference/writes may need auth + stricter rate limits.
+// Coverage ingest endpoints are intentionally public (no API key) and protected by
+// strict validation + tighter rate limiting in their own handlers.
+const API_KEY_PROTECTED_ENDPOINTS = ["/chat", "/score/disclosure-quality", "/score/entity-extract"];
+const HEAVY_ENDPOINTS = ["/chat"];
 
 function matchesEndpoint(pathname, endpoints) {
   return endpoints.some((ep) => pathname === ep || pathname.startsWith(ep + "/") || pathname.startsWith(ep + "?"));
@@ -26,23 +28,34 @@ function matchesEndpoint(pathname, endpoints) {
 
 // ── Rate limit presets ─────────────────────────────────────────────────────
 const RATE_LIMITS = {
-  heavy:   { windowMs: 60_000, maxRequests: 20  },  // /chat: 20 req/min
-  write:   { windowMs: 60_000, maxRequests: 30  },  // /score POST: 30 req/min
-  read:    { windowMs: 60_000, maxRequests: 120 },  // GET endpoints: 120 req/min
-  batch:   { windowMs: 60_000, maxRequests: 10  },  // batch: 10 req/min
+  heavy:          { windowMs: 60_000, maxRequests: 20  },  // /chat: 20 req/min
+  write:          { windowMs: 60_000, maxRequests: 30  },  // /score POST: 30 req/min
+  read:           { windowMs: 60_000, maxRequests: 120 },  // GET endpoints: 120 req/min
+  batch:          { windowMs: 60_000, maxRequests: 10  },  // batch: 10 req/min
+  ingestSuggest:  { windowMs: 60_000, maxRequests: 6   },  // /suggest-metadata: 6 req/min
+  ingestFinalize: { windowMs: 60_000, maxRequests: 12  },  // /ingest: 12 req/min
 };
 
 function getRateLimitPreset(pathname, method) {
   if (pathname.includes("disclosure-quality-batch")) return RATE_LIMITS.batch;
+  if (pathname === "/api/reports/suggest-metadata" && method === "POST") return RATE_LIMITS.ingestSuggest;
+  if (pathname === "/api/reports/ingest" && method === "POST") return RATE_LIMITS.ingestFinalize;
+  if (pathname === "/api/reports/uploads" && method === "DELETE") return RATE_LIMITS.write;
   if (matchesEndpoint(pathname, HEAVY_ENDPOINTS)) return RATE_LIMITS.heavy;
-  if (method === "POST" && matchesEndpoint(pathname, PROTECTED_ENDPOINTS)) return RATE_LIMITS.write;
+  if (method !== "GET" && method !== "HEAD" && matchesEndpoint(pathname, API_KEY_PROTECTED_ENDPOINTS)) return RATE_LIMITS.write;
   return RATE_LIMITS.read;
+}
+
+function requiresApiKey(pathname, method) {
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return false;
+  if (pathname === "/api/reports/uploads") return method === "DELETE";
+  return matchesEndpoint(pathname, API_KEY_PROTECTED_ENDPOINTS);
 }
 
 // ── CORS method map ────────────────────────────────────────────────────────
 function getAllowedMethods(pathname) {
   if (pathname.startsWith("/r2/")) return "GET, HEAD, OPTIONS";
-  if (pathname === "/api/reports/uploads") return "GET, OPTIONS";
+  if (pathname === "/api/reports/uploads") return "GET, DELETE, OPTIONS";
   if (pathname === "/api/reports/ingest") return "POST, OPTIONS";
   if (pathname === "/api/reports/suggest-metadata") return "POST, OPTIONS";
   if (pathname.includes("disclosure-quality-batch")) return "POST, OPTIONS";
@@ -62,6 +75,21 @@ async function middleware(context) {
   const url = new URL(context.request.url);
   const pathname = url.pathname;
   const method = context.request.method;
+  const host = safeString(context.request.headers.get("Host")).toLowerCase().split(":")[0];
+
+  const isAdminHost = host === "admin.sustainabilitysignals.com";
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isGetLike = method === "GET" || method === "HEAD";
+
+  if (isGetLike && !isAdminHost && isAdminPath) {
+    const target = new URL("https://admin.sustainabilitysignals.com/");
+    return Response.redirect(target.toString(), 302);
+  }
+
+  if (isGetLike && isAdminHost && isAdminPath) {
+    const target = new URL("https://admin.sustainabilitysignals.com/");
+    return Response.redirect(target.toString(), 302);
+  }
 
   // Attach context for downstream handlers
   context._requestId = requestId;
@@ -98,7 +126,7 @@ async function middleware(context) {
   }
 
   // ── 3. Authentication (for protected endpoints) ──────────────────────
-  const isProtected = method !== "GET" && method !== "HEAD" && matchesEndpoint(pathname, PROTECTED_ENDPOINTS);
+  const isProtected = requiresApiKey(pathname, method);
   if (isProtected) {
     const auth = validateApiKey(context.request, context.env);
     if (!auth.valid) {

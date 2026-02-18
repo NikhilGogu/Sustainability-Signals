@@ -31,6 +31,7 @@ export function AppBackdrop({ variant }: { variant: BackdropVariant }) {
 
   // Some layers use animation delays; keep them stable across renders.
   const orbBStyle = { animationDelay: '-4s' } satisfies CSSProperties;
+  const orbCStyle = { animationDelay: '-2.5s', animationDuration: '11s' } satisfies CSSProperties;
 
   return (
     <div className="ss-backdrop" aria-hidden="true">
@@ -94,6 +95,9 @@ export function AppBackdrop({ variant }: { variant: BackdropVariant }) {
       </div>
       <div className="ss-backdrop-orb-b-wrap">
         <div className="ss-backdrop-orb-b animate-float" style={orbBStyle} />
+      </div>
+      <div className="ss-backdrop-orb-c-wrap">
+        <div className="ss-backdrop-orb-c animate-float" style={orbCStyle} />
       </div>
 
       <div className="ss-backdrop-vignette" />

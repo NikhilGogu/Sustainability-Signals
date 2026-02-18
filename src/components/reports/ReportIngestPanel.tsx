@@ -225,6 +225,19 @@ export function ReportIngestPanel({ onIngested }: ReportIngestPanelProps) {
                 </span>
               )}
             </div>
+            {suggestion.duplicateCheck?.existingCompanyYear && suggestion.duplicateCheck?.existingRoute && (
+              <div className="mt-2 text-[11px] text-amber-700 dark:text-amber-300">
+                Existing coverage found:{' '}
+                <a
+                  href={suggestion.duplicateCheck.existingRoute}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline hover:no-underline"
+                >
+                  {suggestion.duplicateCheck.existingRoute}
+                </a>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -10,3 +10,19 @@ ml/data
 ml/models
 __pycache__/
 *.pyc
+
+# Pitch deck exports & generated documents
+SustainabilitySignals*.pdf
+SustainabilitySignals*.pptx
+SustainabilitySignals*.mp4
+SustainabilitySignals_TechnicalDescription.*
+templates.zip
+
+# Root-level logo source files (exported copies live in public/)
+New Logo Dark.png
+New Logo White.png
+S Dark.png
+S White.png
+
+# Generated slide images
+scripts/_slide_images/

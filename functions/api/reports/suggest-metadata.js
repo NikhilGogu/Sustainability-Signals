@@ -7,6 +7,8 @@ import { convertPdfToMarkdown, putJsonSafe, putTextSafe } from "../../_lib/index
 import {
   MAX_UPLOAD_BYTES,
   MAX_MARKDOWN_CHARS_FOR_ANALYSIS,
+  isLikelyPdfBytes,
+  readPdfPageCount,
   CLASSIFIER_MODEL_DEFAULT,
   METADATA_MODEL_DEFAULT,
   splitMarkdownIntoPages,
@@ -17,9 +19,16 @@ import {
   sha256Hex,
 } from "../../_lib/report-intake.js";
 import { listUploadedReportRecords, slugifyCompanyName } from "../../_lib/reports-upload.js";
+import {
+  buildRequestFingerprint,
+  validateCoverageRequestSource,
+} from "../../_lib/request-guards.js";
 
 const STAGING_PREFIX = "ingest/staging/";
 const STAGING_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
+const MIN_UPLOAD_BYTES = 1024; // 1KB
+const MIN_MARKDOWN_CHARS = 300;
+const MAX_UPLOAD_PAGES_DEFAULT = 600;
 
 /**
  * @param {string} token
@@ -75,6 +84,17 @@ export async function onRequest(context) {
     return errorResponse(405, ErrorCode.METHOD_NOT_ALLOWED, "Method not allowed");
   }
 
+  const sourceCheck = validateCoverageRequestSource(context.request);
+  if (!sourceCheck.ok) {
+    return errorResponse(
+      403,
+      ErrorCode.FORBIDDEN,
+      safeString(sourceCheck.reason || "Upload request source is not allowed"),
+      { details: sourceCheck.details }
+    );
+  }
+  const requestFingerprint = buildRequestFingerprint(context.request);
+
   const bucket = context.env.REPORTS_BUCKET;
   if (!bucket) {
     return errorResponse(500, ErrorCode.BINDING_MISSING, "R2 binding missing (REPORTS_BUCKET)");
@@ -94,21 +114,52 @@ export async function onRequest(context) {
   if (!(filePart instanceof File)) {
     return errorResponse(400, ErrorCode.MISSING_PARAM, "Missing file field");
   }
-  if (filePart.size <= 0 || filePart.size > MAX_UPLOAD_BYTES) {
+
+  const fileName = safeString(filePart.name).trim();
+  const contentType = safeString(filePart.type).trim().toLowerCase();
+  if (!fileName || !/\.pdf$/i.test(fileName)) {
+    return errorResponse(400, ErrorCode.BAD_REQUEST, "Only .pdf uploads are allowed");
+  }
+  if (contentType && contentType !== "application/pdf") {
+    return errorResponse(400, ErrorCode.BAD_REQUEST, "Unsupported file content type (expected application/pdf)");
+  }
+
+  if (filePart.size < MIN_UPLOAD_BYTES || filePart.size > MAX_UPLOAD_BYTES) {
     return errorResponse(
       413,
       ErrorCode.PAYLOAD_TOO_LARGE,
-      `Invalid file size. Max allowed is ${Math.floor(MAX_UPLOAD_BYTES / (1024 * 1024))}MB`
+      `Invalid file size. Allowed range: ${Math.floor(MIN_UPLOAD_BYTES / 1024)}KB to ${Math.floor(MAX_UPLOAD_BYTES / (1024 * 1024))}MB`
     );
   }
 
   const fileBytes = await filePart.arrayBuffer();
+  if (!isLikelyPdfBytes(fileBytes)) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Uploaded file does not appear to be a valid PDF");
+  }
+
+  const maxPagesEnv = Number.parseInt(safeString(context.env?.INGEST_MAX_UPLOAD_PAGES), 10);
+  const maxUploadPages =
+    Number.isFinite(maxPagesEnv) && maxPagesEnv >= 10
+      ? Math.min(2000, Math.max(10, maxPagesEnv))
+      : MAX_UPLOAD_PAGES_DEFAULT;
+  const pageCount = await readPdfPageCount(fileBytes);
+  if (!Number.isFinite(pageCount) || pageCount <= 0) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Unable to read PDF page count");
+  }
+  if (pageCount > maxUploadPages) {
+    return errorResponse(
+      413,
+      ErrorCode.PAYLOAD_TOO_LARGE,
+      `PDF has too many pages (${pageCount}). Max allowed is ${maxUploadPages}.`
+    );
+  }
+
   const sha256 = await sha256Hex(fileBytes);
 
   const conversion = await convertPdfToMarkdown({
     ai: context.env.AI,
     pdfBlob: new Blob([fileBytes], { type: "application/pdf" }),
-    name: filePart.name || "upload.pdf",
+    name: fileName || "upload.pdf",
   });
   if (!conversion.ok || !conversion.markdown) {
     return errorResponse(
@@ -119,9 +170,19 @@ export async function onRequest(context) {
   }
 
   const markdown = safeString(conversion.markdown).slice(0, MAX_MARKDOWN_CHARS_FOR_ANALYSIS);
+  if (markdown.trim().length < MIN_MARKDOWN_CHARS) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Extracted PDF text is too small for ingestion");
+  }
   const pages = splitMarkdownIntoPages(markdown);
   if (pages.length === 0) {
     return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Could not extract readable page text from PDF");
+  }
+  if (pages.length > maxUploadPages) {
+    return errorResponse(
+      413,
+      ErrorCode.PAYLOAD_TOO_LARGE,
+      `PDF page markers exceed allowed limit (${pages.length}/${maxUploadPages}).`
+    );
   }
 
   const heuristic = analyzeSustainabilityPages(pages);
@@ -151,7 +212,7 @@ export async function onRequest(context) {
     metadataSuggestion = await suggestMetadataWithAi({
       ai: context.env.AI,
       model: metadataModel,
-      fileName: filePart.name || "upload.pdf",
+      fileName: fileName || "upload.pdf",
       totalPages: heuristic.totalPages,
       heuristic,
       classifier,
@@ -184,11 +245,17 @@ export async function onRequest(context) {
   const slugBase = slugifyCompanyName(metadata.company);
   const companyYearPrefix = slugBase ? `reports/${metadata.publishedYear}/${slugBase}/` : "";
   const existingForCompanyYear = companyYearPrefix
-    ? await bucket.list({ prefix: companyYearPrefix, limit: 1 })
+    ? await bucket.list({ prefix: companyYearPrefix, limit: 5 })
     : { objects: [] };
+  const existingKeys = (existingForCompanyYear.objects || [])
+    .map((o) => safeString(o?.key).trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  const existingKey = existingKeys[0] || "";
+  const existingRoute = slugBase ? `/reports/${slugBase}-${metadata.publishedYear}` : "";
   const uploadedRecords = await listUploadedReportRecords(bucket, { limit: 2000 });
   const duplicateHash = uploadedRecords.some((r) => safeString(r?.file?.sha256).toLowerCase() === sha256.toLowerCase());
-  const duplicateLikely = duplicateHash || (existingForCompanyYear.objects || []).length > 0;
+  const duplicateLikely = duplicateHash || existingKeys.length > 0;
 
   const token = makeToken();
   const createdAt = new Date().toISOString();
@@ -200,10 +267,17 @@ export async function onRequest(context) {
     createdAt,
     expiresAt,
     file: {
-      name: filePart.name || "",
+      name: fileName || "",
       size: filePart.size,
       contentType: filePart.type || "application/pdf",
       sha256,
+    },
+    requestFingerprint: {
+      ipHash: requestFingerprint.ipHash,
+      uaHash: requestFingerprint.uaHash,
+      host: requestFingerprint.host,
+      originHost: requestFingerprint.originHost,
+      refererHost: requestFingerprint.refererHost,
     },
     analysis: {
       isSustainabilityReport,
@@ -225,8 +299,11 @@ export async function onRequest(context) {
     duplicateCheck: {
       duplicateLikely,
       duplicateHash,
-      existingCompanyYear: (existingForCompanyYear.objects || []).length > 0,
+      existingCompanyYear: existingKeys.length > 0,
       companyYearPrefix,
+      existingKey,
+      existingKeys,
+      existingRoute,
     },
   };
 

@@ -320,7 +320,7 @@ export function Landing() {
       />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden -mt-16 pt-16 min-h-[100svh]">
+      <section className="relative overflow-hidden -mt-16 pt-16 min-h-[92svh] sm:min-h-[100svh]">
         {/* Keep the hero background consistent with the app-wide layout backdrop (no section "bands"). */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/25 to-transparent dark:from-gray-950/55 dark:via-gray-950/25 dark:to-transparent" />
 
@@ -502,7 +502,7 @@ export function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 sm:py-32 relative overflow-hidden">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div data-ss-reveal className="text-center mb-16">
             <p className="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-widest uppercase mb-3">Capabilities</p>
@@ -622,7 +622,7 @@ export function Landing() {
       </section>
 
       {/* Reports Highlight Section */}
-      <section className="py-24 sm:py-32 relative overflow-hidden">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div data-ss-reveal className="card-surface rounded-3xl overflow-hidden soft-shadow-xl">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 p-8 sm:p-12 lg:p-16 items-center">
@@ -683,7 +683,7 @@ export function Landing() {
       </section>
 
       {/* LangExtract Entities Highlight Section */}
-      <section className="py-24 sm:py-32 relative overflow-hidden">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div data-ss-reveal className="card-surface rounded-3xl overflow-hidden border-emerald-200/40 dark:border-emerald-900/30 soft-shadow-xl">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 p-8 sm:p-12 lg:p-16 items-center">
@@ -695,7 +695,7 @@ export function Landing() {
                   </span>
                   New Feature
                 </div>
-                <h3 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                <h3 className="text-2xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight break-words">
                   LangExtract-style ESG entity extraction
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
@@ -721,7 +721,7 @@ export function Landing() {
               <div className="relative md:order-1">
                 <div className="absolute -inset-6 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 dark:from-emerald-500/8 dark:to-teal-500/8 blur-2xl rounded-full" />
                 <div className="relative bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-600/20">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -733,7 +733,7 @@ export function Landing() {
                         <div className="text-xs text-gray-400 dark:text-gray-500 truncate">Structured from the report text</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800">
                         E
                       </span>
@@ -762,7 +762,7 @@ export function Landing() {
                                   ? 'bg-sky-50 text-sky-800 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-800/40'
                                   : 'bg-violet-50 text-violet-800 border-violet-200 dark:bg-violet-900/20 dark:text-violet-300 dark:border-violet-800/40'
                             }`}>{row.p}</span>
-                            <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{row.cls}</span>
+                            <span className="text-xs font-bold text-gray-700 dark:text-gray-200 break-all">{row.cls}</span>
                           </div>
                           <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800/40 px-2 py-0.5 rounded-md">
                             p.{row.page}
@@ -782,7 +782,7 @@ export function Landing() {
       </section>
 
       {/* Disclosure Quality Highlight Section */}
-      <section className="py-24 sm:py-32 relative overflow-hidden">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div data-ss-reveal className="card-surface rounded-3xl overflow-hidden border-emerald-200/40 dark:border-emerald-900/30 soft-shadow-xl">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 p-8 sm:p-12 lg:p-16 items-center">
@@ -878,7 +878,7 @@ export function Landing() {
       </section>
 
       {/* Data Sources Section */}
-      <section className="py-24 sm:py-32">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div data-ss-reveal className="card-surface bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-900 rounded-3xl p-8 sm:p-12 soft-shadow-lg">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
@@ -908,7 +908,7 @@ export function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 sm:py-32">
+      <section className="cv-auto py-16 sm:py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div data-ss-reveal className="relative overflow-hidden rounded-3xl border border-emerald-200/40 dark:border-emerald-900/30 soft-shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-emerald-600 to-teal-600" aria-hidden="true">

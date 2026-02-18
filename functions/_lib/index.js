@@ -10,3 +10,4 @@ export * from "./ratelimit.js";
 export * from "./validation.js";
 export * from "./reports-upload.js";
 export * from "./report-intake.js";
+export * from "./request-guards.js";

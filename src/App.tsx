@@ -1,10 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
 import { HelmetProvider } from 'react-helmet-async';
 import { lazy, Suspense, Component } from 'react';
 import type { ReactNode } from 'react';
 import { Layout } from './components/layout';
 import { AppBackdrop } from './components/layout/AppBackdrop';
-import { Landing, About, Methodology, Reports, Disclosure, PrivacyPolicy, TermsOfService, NotFound } from './pages';
+import { Landing, About, Methodology, Reports, Admin, Disclosure, PrivacyPolicy, TermsOfService, NotFound } from './pages';
 
 const CompanyReport = lazy(() =>
   import('./pages/CompanyReport').then((m) => ({ default: m.CompanyReport }))
@@ -51,6 +51,37 @@ function PageLoader() {
   );
 }
 
+function isAdminHostname(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return host === 'admin.sustainabilitysignals.com' || host.startsWith('admin.');
+}
+
+function RootEntry() {
+  if (typeof window !== 'undefined') {
+    if (isAdminHostname(window.location.hostname)) {
+      return <Admin />;
+    }
+  }
+
+  return <Landing />;
+}
+
+function AdminRouteEntry() {
+  if (typeof window !== 'undefined') {
+    if (!isAdminHostname(window.location.hostname)) {
+      window.location.replace('https://admin.sustainabilitysignals.com/');
+      return null;
+    }
+
+    return <Navigate to="/" replace />;
+  }
+
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return null;
+}
+
 export default function App() {
   return (
     <HelmetProvider>
@@ -70,10 +101,11 @@ export default function App() {
 
           <Route element={<Layout />}>
             {/* Main Pages */}
-            <Route index element={<Landing />} />
+            <Route index element={<RootEntry />} />
             <Route path="/about" element={<About />} />
             <Route path="/methodology" element={<Methodology />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/admin" element={<AdminRouteEntry />} />
             <Route path="/disclosure" element={<Disclosure />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />

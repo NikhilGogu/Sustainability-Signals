@@ -14,7 +14,11 @@ const PARALLAX_VARS = [
   '--ss-parallax-orb-a-y',
   '--ss-parallax-orb-b-x',
   '--ss-parallax-orb-b-y',
+  '--ss-parallax-orb-c-x',
+  '--ss-parallax-orb-c-y',
 ] as const;
+
+const PARALLAX_EPSILON = 0.012;
 
 function setParallax(el: HTMLElement, nx: number, ny: number) {
   const clamp = (n: number) => Math.max(-1, Math.min(1, n));
@@ -32,6 +36,8 @@ function setParallax(el: HTMLElement, nx: number, ny: number) {
   el.style.setProperty('--ss-parallax-orb-a-y', `${y * 14}px`);
   el.style.setProperty('--ss-parallax-orb-b-x', `${x * -12}px`);
   el.style.setProperty('--ss-parallax-orb-b-y', `${y * -10}px`);
+  el.style.setProperty('--ss-parallax-orb-c-x', `${x * 10}px`);
+  el.style.setProperty('--ss-parallax-orb-c-y', `${y * -8}px`);
 }
 
 function resetParallax(el: HTMLElement) {
@@ -52,33 +58,69 @@ export function useShellMotion(shellRef: RefObject<ShellEl>) {
     }
 
     let raf = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let lastX = 0;
+    let lastY = 0;
+    let viewportWidth = Math.max(1, window.innerWidth);
+    let viewportHeight = Math.max(1, window.innerHeight);
+
+    const updateViewport = () => {
+      viewportWidth = Math.max(1, window.innerWidth);
+      viewportHeight = Math.max(1, window.innerHeight);
+    };
+
+    const queueUpdate = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+
+        if (
+          Math.abs(targetX - lastX) < PARALLAX_EPSILON &&
+          Math.abs(targetY - lastY) < PARALLAX_EPSILON
+        ) {
+          return;
+        }
+
+        lastX = targetX;
+        lastY = targetY;
+        setParallax(shell, targetX, targetY);
+      });
+    };
+
     const onPointerMove = (e: PointerEvent) => {
       if (e.pointerType && e.pointerType !== 'mouse') return;
-      if (!window.innerWidth || !window.innerHeight) return;
-
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setParallax(shell, nx, ny));
+      targetX = (e.clientX / viewportWidth) * 2 - 1;
+      targetY = (e.clientY / viewportHeight) * 2 - 1;
+      queueUpdate();
     };
 
     const reset = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setParallax(shell, 0, 0));
+      targetX = 0;
+      targetY = 0;
+      queueUpdate();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') reset();
     };
 
     // Initialize to a stable baseline.
     setParallax(shell, 0, 0);
+    updateViewport();
 
+    window.addEventListener('resize', updateViewport, { passive: true });
     window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('blur', reset, { passive: true } as AddEventListenerOptions);
-    document.documentElement.addEventListener('mouseleave', reset, { passive: true } as AddEventListenerOptions);
+    window.addEventListener('blur', reset, { passive: true });
+    document.documentElement.addEventListener('mouseleave', reset, { passive: true });
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
-      window.removeEventListener('pointermove', onPointerMove as EventListener);
-      window.removeEventListener('blur', reset as EventListener);
-      document.documentElement.removeEventListener('mouseleave', reset as EventListener);
+      window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('blur', reset);
+      document.documentElement.removeEventListener('mouseleave', reset);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       if (raf) cancelAnimationFrame(raf);
       resetParallax(shell);
     };

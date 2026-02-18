@@ -20,12 +20,33 @@ import {
 import {
   clampPage,
   extractPageRangePdf,
+  isLikelyPdfBytes,
   markdownForRange,
   indexMarkdown,
+  sha256Hex,
   splitMarkdownIntoPages,
 } from "../../_lib/report-intake.js";
+import {
+  buildRequestFingerprint,
+  fingerprintMatches,
+  validateCoverageRequestSource,
+} from "../../_lib/request-guards.js";
 
 const STAGING_PREFIX = "ingest/staging/";
+const REPORT_ID_PATTERN = /^report-(\d+)$/i;
+const STAGE_TOKEN_PATTERN = /^[a-z0-9][a-z0-9-]{15,63}$/i;
+const DEFAULT_REPORT_ID_FLOOR = 10000;
+const LEGACY_REPORT_ID_CUTOFF = 1_000_000;
+
+function parseReportNumber(value) {
+  const m = REPORT_ID_PATTERN.exec(safeString(value).trim());
+  if (!m) return null;
+  const n = Number.parseInt(m[1], 10);
+  if (!Number.isFinite(n) || n < 0) return null;
+  // Ignore legacy timestamp-style IDs so new uploads use compact monotonic IDs.
+  if (n >= LEGACY_REPORT_ID_CUTOFF) return null;
+  return n;
+}
 
 function stagingPdfKey(token) {
   return `${STAGING_PREFIX}${token}.pdf`;
@@ -95,6 +116,17 @@ export async function onRequest(context) {
     return errorResponse(405, ErrorCode.METHOD_NOT_ALLOWED, "Method not allowed");
   }
 
+  const sourceCheck = validateCoverageRequestSource(context.request);
+  if (!sourceCheck.ok) {
+    return errorResponse(
+      403,
+      ErrorCode.FORBIDDEN,
+      safeString(sourceCheck.reason || "Upload request source is not allowed"),
+      { details: sourceCheck.details }
+    );
+  }
+  const requestFingerprint = buildRequestFingerprint(context.request);
+
   const bucket = context.env.REPORTS_BUCKET;
   if (!bucket) {
     return errorResponse(500, ErrorCode.BINDING_MISSING, "R2 binding missing (REPORTS_BUCKET)");
@@ -114,6 +146,9 @@ export async function onRequest(context) {
 
   if (!stageToken) {
     return errorResponse(400, ErrorCode.MISSING_PARAM, "Missing stageToken");
+  }
+  if (!STAGE_TOKEN_PATTERN.test(stageToken)) {
+    return errorResponse(400, ErrorCode.BAD_REQUEST, "Invalid stageToken format");
   }
   if (!metadataConfirmed) {
     return errorResponse(400, ErrorCode.BAD_REQUEST, "metadataConfirmed must be true before ingestion");
@@ -136,6 +171,14 @@ export async function onRequest(context) {
   if (!stage || typeof stage !== "object") {
     return errorResponse(500, ErrorCode.CACHE_CORRUPT, "Staging metadata is corrupted");
   }
+  const stagedToken = safeString(stage?.token).trim();
+  if (stagedToken && stagedToken !== stageToken) {
+    return errorResponse(409, ErrorCode.CONFLICT, "Staging token mismatch. Please upload again.");
+  }
+
+  if (!fingerprintMatches(stage?.requestFingerprint, requestFingerprint)) {
+    return errorResponse(403, ErrorCode.FORBIDDEN, "Staging token does not match the original upload session");
+  }
 
   const expiresAt = Date.parse(safeString(stage.expiresAt));
   if (Number.isFinite(expiresAt) && Date.now() > expiresAt) {
@@ -151,10 +194,22 @@ export async function onRequest(context) {
     return errorResponse(404, ErrorCode.NOT_FOUND, "Staged PDF is missing. Please upload again.");
   }
   const stagedBytes = await stagedPdf.arrayBuffer();
+  if (!isLikelyPdfBytes(stagedBytes)) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Staged file does not appear to be a valid PDF");
+  }
+
+  const stagedHash = await sha256Hex(stagedBytes);
+  const stagedHashFromMeta = safeString(stage?.file?.sha256).toLowerCase();
+  if (stagedHashFromMeta && stagedHashFromMeta !== stagedHash) {
+    return errorResponse(409, ErrorCode.CONFLICT, "Staged PDF integrity check failed. Please upload again.");
+  }
+  const sha256 = stagedHashFromMeta || stagedHash;
+
   const stagedMarkdownObj = await bucket.get(stagingMarkdownKey(stageToken));
   const stagedMarkdown = stagedMarkdownObj ? await stagedMarkdownObj.text().catch(() => "") : "";
-
-  const sha256 = safeString(stage?.file?.sha256).toLowerCase();
+  if (!stagedMarkdown.trim()) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Staged extracted text is missing. Please upload again.");
+  }
 
   // Duplicate guard by hash across uploaded records.
   const existingRecords = await listUploadedReportRecords(bucket, { limit: 2000 });
@@ -171,14 +226,34 @@ export async function onRequest(context) {
     return errorResponse(400, ErrorCode.BAD_REQUEST, "Unable to derive slug from metadata.company");
   }
   const companyYearPrefix = `reports/${metadata.publishedYear}/${slugBase}/`;
-  const existingForCompanyYear = await bucket.list({ prefix: companyYearPrefix, limit: 1 });
-  if ((existingForCompanyYear.objects || []).length > 0) {
-    return errorResponse(409, ErrorCode.DUPLICATE_REPORT, "A report for this company/year already exists", {
-      details: { company: metadata.company, publishedYear: metadata.publishedYear },
-    });
+  const existingForCompanyYear = await bucket.list({ prefix: companyYearPrefix, limit: 5 });
+  const existingKeys = (existingForCompanyYear.objects || [])
+    .map((o) => safeString(o?.key).trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  if (existingKeys.length > 0) {
+    const existingKey = existingKeys[0];
+    const existingRoute = `/reports/${slugBase}-${metadata.publishedYear}`;
+    return errorResponse(
+      409,
+      ErrorCode.DUPLICATE_REPORT,
+      `A report for this company/year already exists in coverage (${existingKey})`,
+      {
+        details: {
+          company: metadata.company,
+          publishedYear: metadata.publishedYear,
+          existingKey,
+          existingKeys,
+          existingRoute,
+        },
+      }
+    );
   }
 
   const pages = splitMarkdownIntoPages(stagedMarkdown);
+  if (pages.length === 0) {
+    return errorResponse(422, ErrorCode.INVALID_REPORT_TYPE, "Staged text does not contain valid page markers");
+  }
   const { start, end, fullUpload } = decideRange(stage, body.options || {});
   const totalPages = Number(stage?.analysis?.totalPages) || Math.max(1, pages.length);
   const spanLength = end - start + 1;
@@ -205,10 +280,23 @@ export async function onRequest(context) {
     }
   }
 
-  // Allocate numeric report ID to remain compatible with existing endpoints.
+  // Allocate a monotonic numeric report ID (index-friendly + compact).
+  const configuredFloor = Number.parseInt(safeString(context.env?.REPORT_ID_FLOOR), 10);
+  const reportIdFloor =
+    Number.isFinite(configuredFloor) && configuredFloor >= 1
+      ? Math.trunc(configuredFloor)
+      : DEFAULT_REPORT_ID_FLOOR;
+
+  let maxNum = reportIdFloor - 1;
+  for (const rec of existingRecords) {
+    const n = parseReportNumber(rec?.report?.id);
+    if (n != null && n > maxNum) maxNum = n;
+  }
+
   let reportId = "";
-  for (let i = 0; i < 5; i++) {
-    const candidate = `report-${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`;
+  for (let i = 0; i < 16; i++) {
+    const candidateNum = maxNum + 1 + i;
+    const candidate = `report-${candidateNum}`;
     const exists = await bucket.get(uploadedReportRecordKey(candidate));
     if (!exists) {
       reportId = candidate;

@@ -25,6 +25,15 @@ export function Layout() {
     const els = Array.from(root.querySelectorAll<HTMLElement>('[data-ss-reveal]'));
     if (!els.length) return;
 
+    const lightweightMotion =
+      window.matchMedia?.(
+        '(max-width: 768px), (hover: none) and (pointer: coarse), (prefers-reduced-motion: reduce)'
+      )?.matches ?? false;
+    if (lightweightMotion) {
+      for (const el of els) el.dataset.ssRevealed = 'true';
+      return;
+    }
+
     const vh = window.innerHeight || 0;
     for (const el of els) {
       if (el.dataset.ssRevealed === 'true') continue;

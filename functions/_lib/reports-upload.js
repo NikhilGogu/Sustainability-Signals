@@ -79,40 +79,67 @@ export function safeJsonParse(text) {
 
 /**
  * List uploaded report records from R2.
+ * One R2 page at a time (cursor-based).
+ * @param {R2Bucket} bucket
+ * @param {{ limit?: number; cursor?: string }} [opts]
+ * @returns {Promise<{ records: any[]; nextCursor: string | null; hasMore: boolean }>}
+ */
+export async function listUploadedReportRecordsPage(bucket, opts = {}) {
+  if (!bucket) return { records: [], nextCursor: null, hasMore: false };
+
+  const limit = Math.max(1, Math.min(Number(opts.limit) || 200, 1000));
+  const cursorRaw = safeString(opts.cursor || "").trim();
+  const cursor = cursorRaw || undefined;
+
+  const page = await bucket.list({
+    prefix: UPLOADED_REPORT_PREFIX,
+    cursor,
+    limit,
+  });
+
+  const records = [];
+  for (const obj of page.objects || []) {
+    const key = safeString(obj?.key || "");
+    if (!key.endsWith(".json")) continue;
+    const raw = await bucket.get(key);
+    if (!raw) continue;
+    const parsed = safeJsonParse(await raw.text().catch(() => ""));
+    if (!parsed || typeof parsed !== "object") continue;
+    records.push(parsed);
+  }
+
+  const nextCursor = page.truncated && page.cursor ? safeString(page.cursor).trim() : null;
+  return {
+    records,
+    nextCursor,
+    hasMore: Boolean(nextCursor),
+  };
+}
+
+/**
+ * List uploaded report records from R2.
  * @param {R2Bucket} bucket
  * @param {{ limit?: number }} [opts]
  * @returns {Promise<any[]>}
  */
 export async function listUploadedReportRecords(bucket, opts = {}) {
   if (!bucket) return [];
-  const limit = Math.max(1, Math.min(Number(opts.limit) || 200, 2000));
+  const limit = Math.max(1, Math.min(Number(opts.limit) || 200, 20000));
 
   const out = [];
-  let cursor = undefined;
+  let cursor = safeString(opts.cursor || "").trim() || null;
 
   while (out.length < limit) {
-    const page = await bucket.list({
-      prefix: UPLOADED_REPORT_PREFIX,
-      cursor,
+    const page = await listUploadedReportRecordsPage(bucket, {
       limit: Math.min(1000, limit - out.length),
+      cursor: cursor || undefined,
     });
-
-    for (const obj of page.objects || []) {
-      if (out.length >= limit) break;
-      const key = safeString(obj.key || "");
-      if (!key.endsWith(".json")) continue;
-      const raw = await bucket.get(key);
-      if (!raw) continue;
-      const parsed = safeJsonParse(await raw.text().catch(() => ""));
-      if (!parsed || typeof parsed !== "object") continue;
-      out.push(parsed);
-    }
-
-    if (!page.truncated || !page.cursor) break;
-    cursor = page.cursor;
+    if (page.records.length > 0) out.push(...page.records);
+    if (!page.hasMore || !page.nextCursor) break;
+    cursor = page.nextCursor;
   }
 
-  return out;
+  return out.slice(0, limit);
 }
 
 /**

@@ -1,82 +1,80 @@
-/**
- * Reports Count Utility - Enhanced with Auto-refresh
- * Provides dynamic report count that auto-updates when data changes
- */
-
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SUSTAINABILITY_REPORTS } from '../data/reportsData';
+import { fetchUploadedReports } from './uploadedReports';
 
-/**
- * Get the current count of sustainability reports
- * @returns The total number of reports in the database
- */
-export function getReportsCount(): number {
-    return SUSTAINABILITY_REPORTS.length;
+const STATIC_REPORT_IDS = new Set(SUSTAINABILITY_REPORTS.map((r) => r.id));
+const STATIC_REPORT_COUNT = STATIC_REPORT_IDS.size;
+
+function formatCount(count: number): string {
+  return `${count}+`;
+}
+
+function countWithUploaded(uploadedIds: string[]): number {
+  const seen = new Set(STATIC_REPORT_IDS);
+  for (const id of uploadedIds) seen.add(id);
+  return seen.size;
+}
+
+async function fetchLiveReportsCount(): Promise<number> {
+  try {
+    const uploaded = await fetchUploadedReports();
+    return countWithUploaded(uploaded.map((r) => r.id));
+  } catch {
+    // Graceful fallback when uploads endpoint is unavailable.
+    return STATIC_REPORT_COUNT;
+  }
 }
 
 /**
- * Get a formatted string of the reports count with "+" suffix
- * @returns Formatted report count string (e.g., "976+")
- */
-export function getReportsCountFormatted(): string {
-    return `${getReportsCount()}+`;
-}
-
-/**
- * React hook for accessing reports count with auto-refresh capability
- * This ensures components re-render if the reports data changes
- * 
- * @param options - Configuration options
- * @param options.autoRefresh - Enable auto-refresh polling (default: true)
- * @param options.refreshInterval - Interval in milliseconds for auto-refresh (default: 60000 = 1 minute)
- * @returns Object containing count and formatted count
+ * Returns a live report count = static index + uploaded reports (deduped by id).
+ * This automatically reflects admin-side deletes because deleted uploads disappear
+ * from `/api/reports/uploads`.
  */
 export function useReportsCount(options: {
-    autoRefresh?: boolean;
-    refreshInterval?: number;
+  autoRefresh?: boolean;
+  refreshInterval?: number;
 } = {}) {
-    const { autoRefresh = true, refreshInterval = 60000 } = options;
+  const { autoRefresh = true, refreshInterval = 60000 } = options;
+  const [count, setCount] = useState<number>(STATIC_REPORT_COUNT);
 
-    const [count, setCount] = useState(getReportsCount());
-    const [formatted, setFormatted] = useState(getReportsCountFormatted());
+  useEffect(() => {
+    let active = true;
 
-    useEffect(() => {
-        // Function to refresh the count
-        const refreshCount = () => {
-            const newCount = getReportsCount();
-            const newFormatted = getReportsCountFormatted();
-
-            // Only update state if the count has actually changed
-            if (newCount !== count) {
-                setCount(newCount);
-                setFormatted(newFormatted);
-            }
-        };
-
-        // Set up auto-refresh interval if enabled
-        if (autoRefresh) {
-            const intervalId = setInterval(refreshCount, refreshInterval);
-
-            // Cleanup interval on component unmount
-            return () => clearInterval(intervalId);
-        }
-    }, [autoRefresh, refreshInterval, count]);
-
-    return {
-        count,
-        formatted,
+    const refresh = async () => {
+      const next = await fetchLiveReportsCount();
+      if (!active) return;
+      setCount((prev) => (prev === next ? prev : next));
     };
+
+    void refresh();
+
+    if (!autoRefresh) {
+      return () => {
+        active = false;
+      };
+    }
+
+    const intervalId = setInterval(() => {
+      void refresh();
+    }, Math.max(5000, refreshInterval));
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
+  }, [autoRefresh, refreshInterval]);
+
+  const formatted = useMemo(() => formatCount(count), [count]);
+  return { count, formatted };
 }
 
 /**
- * React hook for accessing reports count without auto-refresh
- * This is a lightweight alternative when auto-refresh is not needed
- * 
- * @returns Object containing count and formatted count
+ * Lightweight static fallback (no network call).
  */
 export function useReportsCountStatic() {
-    return {
-        count: getReportsCount(),
-        formatted: getReportsCountFormatted(),
-    };
+  return {
+    count: STATIC_REPORT_COUNT,
+    formatted: formatCount(STATIC_REPORT_COUNT),
+  };
 }
+

@@ -114,4 +114,5 @@ export interface SustainabilityReport {
   pageEnd: number | null;
   reportUrl: string | null;  // May be null for some historical reports
   publishedYear: number;
+  createdAt?: string;
 }

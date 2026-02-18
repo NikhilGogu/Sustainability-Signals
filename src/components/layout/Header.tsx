@@ -69,7 +69,14 @@ export function Header() {
           <Link to="/" className="flex items-center gap-2.5 overflow-hidden group">
             <BrandLogo
               eager
-              wrapperClassName="flex-shrink-0 w-9 h-9 rounded-lg overflow-hidden shadow-lg shadow-brand-600/20 ring-1 ring-gray-200/70 dark:ring-gray-700/70 group-hover:shadow-brand-500/35 transition-shadow duration-300"
+              wrapperClassName="flex-shrink-0 w-9 h-9 rounded-lg overflow-hidden bg-white dark:bg-gray-950 shadow-sm shadow-gray-900/10 dark:shadow-black/30 ring-1 ring-gray-200/80 dark:ring-gray-700/80 group-hover:shadow-md group-hover:shadow-gray-900/15 dark:group-hover:shadow-black/35 transition-shadow duration-300"
+              imageClassName="w-full h-full object-contain"
+              lightSrc="/logo-white-header-36.png"
+              darkSrc="/logo-dark-header-36.png"
+              lightSrcSet="/logo-white-header-36.png 1x, /logo-white-header-72.png 2x"
+              darkSrcSet="/logo-dark-header-36.png 1x, /logo-dark-header-72.png 2x"
+              width={36}
+              height={36}
             />
             <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white whitespace-nowrap truncate">
               Sustainability<span className="text-brand-600 dark:text-brand-400">Signals</span>

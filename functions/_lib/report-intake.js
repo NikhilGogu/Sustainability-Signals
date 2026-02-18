@@ -496,6 +496,37 @@ export async function sha256Hex(bytes) {
 }
 
 /**
+ * Check for the "%PDF-" file signature.
+ * @param {ArrayBuffer | Uint8Array} bytes
+ * @returns {boolean}
+ */
+export function isLikelyPdfBytes(bytes) {
+  const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || new ArrayBuffer(0));
+  return (
+    view.length >= 5 &&
+    view[0] === 0x25 &&
+    view[1] === 0x50 &&
+    view[2] === 0x44 &&
+    view[3] === 0x46 &&
+    view[4] === 0x2d
+  );
+}
+
+/**
+ * @param {ArrayBuffer} bytes
+ * @returns {Promise<number | null>}
+ */
+export async function readPdfPageCount(bytes) {
+  try {
+    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const count = doc.getPageCount();
+    return Number.isFinite(count) && count > 0 ? count : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Extract an inclusive page range from PDF bytes.
  * @param {{ bytes: ArrayBuffer; startPage: number; endPage: number }} input
  * @returns {Promise<Uint8Array>}
@@ -609,4 +640,3 @@ export async function indexMarkdown(input) {
 
   return upserted;
 }
-

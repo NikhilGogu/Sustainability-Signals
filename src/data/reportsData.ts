@@ -1,5 +1,6 @@
 import type { SustainabilityReport } from '../types';
 import reportsIndexData from './reportsIndex.json';
+import { normalizeDisplayText } from '../utils/textNormalize';
 
 interface ReportsIndexRow {
     id: string; // report-123
@@ -28,19 +29,26 @@ function slugify(name: string): string {
 // exist in our bucket (no offline / missing PDFs) and does not ship issuer URLs.
 const slugCounts = new Map<string, number>();
 export const SUSTAINABILITY_REPORTS: SustainabilityReport[] = indexRows.map((r) => {
-    const base = `${slugify(r.c)}-${r.y ?? 0}`;
+    const company = normalizeDisplayText(r.c);
+    const country = normalizeDisplayText(r.ct);
+    const sector = normalizeDisplayText(r.s);
+    const industry = normalizeDisplayText(r.i);
+    const sourceSector = normalizeDisplayText(r.ss);
+    const sourceIndustry = normalizeDisplayText(r.si);
+
+    const base = `${slugify(company)}-${r.y ?? 0}`;
     const count = slugCounts.get(base) ?? 0;
     slugCounts.set(base, count + 1);
     const slug = count === 0 ? base : `${base}-${count + 1}`;
     return {
         id: r.id,
         slug,
-        company: r.c,
-        country: r.ct,
-        sector: r.s,
-        industry: r.i,
-        sourceSector: r.ss,
-        sourceIndustry: r.si,
+        company,
+        country,
+        sector,
+        industry,
+        sourceSector: sourceSector || undefined,
+        sourceIndustry: sourceIndustry || undefined,
         pageStart: null,
         pageEnd: null,
         reportUrl: r.k ? `/r2/${r.k}` : null,
