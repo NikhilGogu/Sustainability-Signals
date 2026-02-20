@@ -3,24 +3,19 @@
 //   1. Request ID generation & propagation
 //   2. Structured logging context
 //   3. CORS handling (origin-restricted)
-//   4. API key authentication (for write/AI endpoints)
-//   5. Rate limiting
-//   6. Request timing
-//   7. Global error handling with structured error responses
+//   4. Rate limiting
+//   5. Request timing
+//   6. Global error handling with structured error responses
 
 import { generateRequestId, createLogger } from "./_lib/logging.js";
 import { resolveAllowedOrigins, handlePreflight, corsHeaders } from "./_lib/cors.js";
-import { validateApiKey } from "./_lib/auth.js";
 import { checkRateLimit, rateLimitKey, rateLimitHeaders } from "./_lib/ratelimit.js";
 import { ErrorCode, errorResponse } from "./_lib/errors.js";
 import { safeString } from "./_lib/utils.js";
 
 // ── Endpoint classification ────────────────────────────────────────────────
-// Endpoints that trigger AI inference/writes may need auth + stricter rate limits.
-// Coverage ingest endpoints are intentionally public (no API key) and protected by
-// strict validation + tighter rate limiting in their own handlers.
-const API_KEY_PROTECTED_ENDPOINTS = ["/chat", "/score/disclosure-quality", "/score/entity-extract"];
 const HEAVY_ENDPOINTS = ["/chat"];
+const WRITE_ENDPOINTS = ["/score/disclosure-quality", "/score/entity-extract"];
 
 function matchesEndpoint(pathname, endpoints) {
   return endpoints.some((ep) => pathname === ep || pathname.startsWith(ep + "/") || pathname.startsWith(ep + "?"));
@@ -31,7 +26,7 @@ const RATE_LIMITS = {
   heavy:          { windowMs: 60_000, maxRequests: 20  },  // /chat: 20 req/min
   write:          { windowMs: 60_000, maxRequests: 30  },  // /score POST: 30 req/min
   read:           { windowMs: 60_000, maxRequests: 120 },  // GET endpoints: 120 req/min
-  batch:          { windowMs: 60_000, maxRequests: 10  },  // batch: 10 req/min
+  batch:          { windowMs: 60_000, maxRequests: 20  },  // batch: 20 req/min (was 10)
   ingestSuggest:  { windowMs: 60_000, maxRequests: 6   },  // /suggest-metadata: 6 req/min
   ingestFinalize: { windowMs: 60_000, maxRequests: 12  },  // /ingest: 12 req/min
 };
@@ -42,14 +37,8 @@ function getRateLimitPreset(pathname, method) {
   if (pathname === "/api/reports/ingest" && method === "POST") return RATE_LIMITS.ingestFinalize;
   if (pathname === "/api/reports/uploads" && method === "DELETE") return RATE_LIMITS.write;
   if (matchesEndpoint(pathname, HEAVY_ENDPOINTS)) return RATE_LIMITS.heavy;
-  if (method !== "GET" && method !== "HEAD" && matchesEndpoint(pathname, API_KEY_PROTECTED_ENDPOINTS)) return RATE_LIMITS.write;
+  if (method !== "GET" && method !== "HEAD" && matchesEndpoint(pathname, WRITE_ENDPOINTS)) return RATE_LIMITS.write;
   return RATE_LIMITS.read;
-}
-
-function requiresApiKey(pathname, method) {
-  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return false;
-  if (pathname === "/api/reports/uploads") return method === "DELETE";
-  return matchesEndpoint(pathname, API_KEY_PROTECTED_ENDPOINTS);
 }
 
 // ── CORS method map ────────────────────────────────────────────────────────
@@ -125,23 +114,30 @@ async function middleware(context) {
     context._rateLimit = { ...rl, maxRequests: preset.maxRequests };
   }
 
-  // ── 3. Authentication (for protected endpoints) ──────────────────────
-  const isProtected = requiresApiKey(pathname, method);
-  if (isProtected) {
-    const auth = validateApiKey(context.request, context.env);
-    if (!auth.valid) {
-      context._log.warn("Authentication failed", { endpoint: pathname });
-      return errorResponse(401, ErrorCode.UNAUTHORIZED, "Invalid or missing API key", {
+  // ── 3. Call downstream handler ───────────────────────────────────────
+  try {
+    let response;
+    try {
+      response = await context.next();
+    } catch (handlerError) {
+      // Downstream handler threw — ensure we always return JSON, never an HTML error page
+      const msg = handlerError instanceof Error ? handlerError.message : "Unknown error";
+      const durationMs = Date.now() - start;
+
+      context._log.error("Handler threw exception", { error: msg, durationMs });
+
+      const lc = msg.toLowerCase();
+      const code = lc.includes("5021") || lc.includes("context window")
+        ? ErrorCode.AI_CONTEXT_OVERFLOW
+        : lc.includes("exceeded") || lc.includes("cpu") || lc.includes("memory") || lc.includes("time limit") || lc.includes("resource")
+          ? ErrorCode.AI_ERROR
+          : ErrorCode.INTERNAL_ERROR;
+
+      return errorResponse(500, code, msg, {
         requestId,
-        headers: { ...cors, "WWW-Authenticate": 'Bearer realm="api"' },
+        headers: cors,
       });
     }
-    context._authSource = auth.source;
-  }
-
-  // ── 4. Call downstream handler ───────────────────────────────────────
-  try {
-    const response = await context.next();
 
     // Inject standard headers into the response
     const headers = new Headers(response.headers);
@@ -185,11 +181,14 @@ async function middleware(context) {
     const msg = error instanceof Error ? error.message : "Unknown error";
     const durationMs = Date.now() - start;
 
-    context._log.error("Unhandled exception", { error: msg, durationMs });
+    context._log.error("Unhandled exception in middleware", { error: msg, durationMs });
 
-    const code = msg.includes("5021") || msg.toLowerCase().includes("context window")
+    const lc = msg.toLowerCase();
+    const code = lc.includes("5021") || lc.includes("context window")
       ? ErrorCode.AI_CONTEXT_OVERFLOW
-      : ErrorCode.INTERNAL_ERROR;
+      : lc.includes("exceeded") || lc.includes("cpu") || lc.includes("memory") || lc.includes("time limit") || lc.includes("resource")
+        ? ErrorCode.AI_ERROR
+        : ErrorCode.INTERNAL_ERROR;
 
     return errorResponse(500, code, msg, {
       requestId,

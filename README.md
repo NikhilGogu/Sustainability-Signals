@@ -119,6 +119,11 @@ npm run generate:reports-index
 In the UI:
 - Reports table has a `Disclosure Quality` toggle to surface cached Disclosure Quality scores.
 - PDF viewer has a `Quality` panel (next to `Ask AI`) with a score breakdown and evidence highlights.
+- Admin panel (`/admin`) provides a full DQ management interface with:
+  - **Reports tab** — paginated, sortable table of all index + uploaded reports with per-report scoring, detail loading, and delete actions.
+  - **Analytics tab** — aggregated stats: coverage, avg/median DQ score, band distribution histogram, subscore bars, and source/status breakdowns. Exports to CSV or JSON.
+  - **Diagnostics tab** — per-report deep-dive: score card, subscore panel, method/processing metadata, regex depth table, evidence-line provenance viewer, and improvement recommendations.
+  - **Depth Analysis tab** — corpus-wide insights: sector benchmarking, year-over-year trends, country distribution, feature-coverage heatmap, subscore correlation matrix, top/bottom performers.
 
 To trigger Cloudflare-side full-report indexing via CLI (PDF -> Markdown -> Vectorize), run:
 

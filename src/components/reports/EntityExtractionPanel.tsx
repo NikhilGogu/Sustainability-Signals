@@ -73,8 +73,8 @@ const ISSUE_TO_ENTITY_CLASSES: Record<string, string[]> = {
   Water_And_Wastewater_Management: ['water'],
   Waste_And_Hazardous_Materials_Management: ['waste'],
   Ecological_Impacts: ['biodiversity'],
-  Air_Quality: ['ghg_emissions'],
-  Physical_Impacts_Of_Climate_Change: ['climate_target', 'biodiversity'],
+  Air_Quality: ['waste'],
+  Physical_Impacts_Of_Climate_Change: ['ghg_emissions', 'climate_target', 'biodiversity'],
   Product_Design_And_Lifecycle_Management: ['waste', 'energy'],
 
   // Governance
@@ -168,6 +168,7 @@ export function EntityExtractionPanel(props: {
   computing: boolean;
   error: string | null;
   data: EntityExtractionResponse | null;
+  progress?: { pct: number; msg: string } | null;
   bertLoading?: boolean;
   bertError?: string | null;
   bertSummary?: EsgBertReportSummary | null;
@@ -204,7 +205,7 @@ export function EntityExtractionPanel(props: {
     });
   }, [entities, pillar, klass, query]);
 
-  const isEmpty = !props.loading && !props.computing && (!props.data || props.data.cached !== true || !entities);
+  const isEmpty = !props.loading && !props.computing && (!entities || entities.length === 0);
 
   return (
     <div className="space-y-5">
@@ -244,6 +245,22 @@ export function EntityExtractionPanel(props: {
         {props.error && (
           <div className="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 rounded-xl p-3 text-xs text-red-700 dark:text-red-300">
             {props.error}
+          </div>
+        )}
+
+        {/* Progress bar */}
+        {props.computing && props.progress && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-gray-600 dark:text-gray-300 font-medium truncate mr-2">{props.progress.msg}</span>
+              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-bold tabular-nums flex-shrink-0">{props.progress.pct}%</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-500 dark:bg-emerald-400 transition-all duration-700 ease-out"
+                style={{ width: `${Math.max(props.progress.pct, 2)}%` }}
+              />
+            </div>
           </div>
         )}
 
@@ -344,7 +361,7 @@ export function EntityExtractionPanel(props: {
         )}
 
         {/* Summary */}
-        {props.data?.cached === true && summary && entities ? (
+        {summary && entities && entities.length > 0 ? (
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl border border-gray-200/60 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-900/30 p-3">
               <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Total</div>
@@ -366,7 +383,7 @@ export function EntityExtractionPanel(props: {
         ) : null}
 
         {/* Meta */}
-        {props.data?.cached === true && props.data?.meta ? (
+        {props.data?.meta ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
             {typeof props.data.meta.chunks_processed === 'number' && <span className="px-2 py-1 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800/60">chunks {props.data.meta.chunks_processed}{typeof props.data.meta.total_chunks === 'number' ? `/${props.data.meta.total_chunks}` : ''}</span>}
             {typeof props.data.meta.routing_efficiency_pct === 'number' && props.data.meta.routing_efficiency_pct > 0 && <span className="px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300 font-semibold">{props.data.meta.routing_efficiency_pct}% skipped by router</span>}

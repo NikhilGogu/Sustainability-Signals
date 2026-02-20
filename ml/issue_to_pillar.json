@@ -1,6 +1,6 @@
 {
   "Business_Ethics": "G",
-  "Data_Security": "G",
+  "Data_Security": "S",
   "Access_And_Affordability": "S",
   "Business_Model_Resilience": "G",
   "Competitive_Behavior": "G",
@@ -21,7 +21,7 @@
   "Waste_And_Hazardous_Materials_Management": "E",
   "Water_And_Wastewater_Management": "E",
   "Air_Quality": "E",
-  "Customer_Privacy": "G",
+  "Customer_Privacy": "S",
   "Ecological_Impacts": "E",
   "Energy_Management": "E",
   "GHG_Emissions": "E"

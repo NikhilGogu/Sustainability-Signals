@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { FilterDropdown, ReportIngestPanel, ReportsTable } from '../components/reports';
+import type { DQFilterValue, EntityFilterValue, ReportDQStatus, ReportEntityStatus } from '../components/reports/ReportsTable';
 import { Seo } from '../components/seo';
 import { Button, PageHero } from '../components/ui';
 import { SUSTAINABILITY_REPORTS } from '../data/reportsData';
@@ -20,6 +21,99 @@ function uniqSorted(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
+/* ------------------------------------------------------------------ */
+/*  Batch status helpers                                               */
+/* ------------------------------------------------------------------ */
+
+const STATUS_BATCH_SIZE = 200;
+const STATUS_CONCURRENCY = 4;
+
+/** Split array into chunks */
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+/** Run async tasks with concurrency limit */
+async function pool<T>(items: T[], concurrency: number, fn: (item: T) => Promise<void>): Promise<void> {
+  let idx = 0;
+  const next = async (): Promise<void> => {
+    while (idx < items.length) {
+      const i = idx++;
+      await fn(items[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => next()));
+}
+
+/** Batch-check DQ cached status for a list of report IDs. Returns id→scored/unscored. */
+async function fetchDQStatusBatch(
+  ids: string[],
+  signal?: AbortSignal,
+): Promise<Record<string, ReportDQStatus>> {
+  const map: Record<string, ReportDQStatus> = {};
+  const chunks = chunk(ids, STATUS_BATCH_SIZE);
+
+  await pool(chunks, STATUS_CONCURRENCY, async (batch) => {
+    if (signal?.aborted) return;
+    try {
+      const res = await fetch('/score/disclosure-quality-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportIds: batch, summaryOnly: true }),
+        signal,
+      });
+      if (!res.ok) return;
+      const payload = (await res.json()) as { results?: Record<string, unknown> };
+      const results = payload.results ?? {};
+      for (const id of batch) {
+        const v = results[id];
+        if (v && typeof v === 'object' && !('error' in v)) {
+          map[id] = 'scored';
+        } else {
+          map[id] = 'unscored';
+        }
+      }
+    } catch {
+      // Silently skip — status stays unknown
+    }
+  });
+
+  return map;
+}
+
+/** Batch-check entity extraction cached status. Returns id→done/none. */
+async function fetchEntityStatusBatch(
+  ids: string[],
+  signal?: AbortSignal,
+): Promise<Record<string, ReportEntityStatus>> {
+  const map: Record<string, ReportEntityStatus> = {};
+  const chunks = chunk(ids, STATUS_BATCH_SIZE);
+
+  await pool(chunks, STATUS_CONCURRENCY, async (batch) => {
+    if (signal?.aborted) return;
+    try {
+      const res = await fetch('/score/entity-extract-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportIds: batch }),
+        signal,
+      });
+      if (!res.ok) return;
+      const payload = (await res.json()) as { results?: Record<string, boolean> };
+      const results = payload.results ?? {};
+      for (const id of batch) {
+        map[id] = results[id] ? 'done' : 'none';
+      }
+    } catch {
+      // Silently skip
+    }
+  });
+
+  return map;
+}
+
 export function Reports() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -33,6 +127,13 @@ export function Reports() {
   const [uploadedReports, setUploadedReports] = useState<UploadedReport[]>([]);
   const [uploadsLoading, setUploadsLoading] = useState(false);
   const [uploadsError, setUploadsError] = useState<string | null>(null);
+
+  /* ---- DQ / Entity status ---- */
+  const [dqStatus, setDqStatus] = useState<Record<string, ReportDQStatus>>({});
+  const [entityStatus, setEntityStatus] = useState<Record<string, ReportEntityStatus>>({});
+  const [dqFilter, setDqFilter] = useState<DQFilterValue>('all');
+  const [entityFilter, setEntityFilter] = useState<EntityFilterValue>('all');
+  const statusFetchRef = useRef(0);
 
   useEffect(() => {
     let mounted = true;
@@ -62,6 +163,31 @@ export function Reports() {
     for (const r of uploadedReports) byId.set(r.id, r);
     return [...byId.values()];
   }, [uploadedReports]);
+
+  /* ---- Fetch DQ / entity cached status in background ---- */
+  useEffect(() => {
+    if (allReports.length === 0) return;
+    const token = ++statusFetchRef.current;
+    const ctrl = new AbortController();
+
+    (async () => {
+      const ids = allReports.map((r) => r.id);
+
+      // Fire both checks in parallel
+      const [dq, ent] = await Promise.all([
+        fetchDQStatusBatch(ids, ctrl.signal),
+        fetchEntityStatusBatch(ids, ctrl.signal),
+      ]);
+
+      if (token !== statusFetchRef.current) return;
+      setDqStatus(dq);
+      setEntityStatus(ent);
+    })();
+
+    return () => {
+      ctrl.abort();
+    };
+  }, [allReports]);
 
   const reportCountries = useMemo(() => uniqSorted(allReports.map((r) => r.country)), [allReports]);
   const reportSectors = useMemo(() => uniqSorted(allReports.map((r) => r.sector)), [allReports]);
@@ -104,6 +230,26 @@ export function Reports() {
       result = result.filter((r) => selectedYears.includes(r.publishedYear.toString()));
     }
 
+    // DQ status filter
+    if (dqFilter !== 'all') {
+      result = result.filter((r) => {
+        const s = dqStatus[r.id];
+        if (dqFilter === 'scored') return s === 'scored';
+        if (dqFilter === 'unscored') return s === 'unscored' || !s;
+        return true;
+      });
+    }
+
+    // Entity status filter
+    if (entityFilter !== 'all') {
+      result = result.filter((r) => {
+        const s = entityStatus[r.id];
+        if (entityFilter === 'done') return s === 'done';
+        if (entityFilter === 'none') return s === 'none' || !s;
+        return true;
+      });
+    }
+
     result.sort((a, b) => {
       let aVal: string | number;
       let bVal: string | number;
@@ -139,7 +285,7 @@ export function Reports() {
     });
 
     return result;
-  }, [allReports, searchQuery, selectedCountries, selectedSectors, selectedIndustries, selectedYears, sortBy, sortOrder]);
+  }, [allReports, searchQuery, selectedCountries, selectedSectors, selectedIndustries, selectedYears, sortBy, sortOrder, dqFilter, entityFilter, dqStatus, entityStatus]);
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
@@ -163,6 +309,8 @@ export function Reports() {
     setSelectedSectors([]);
     setSelectedIndustries([]);
     setSelectedYears([]);
+    setDqFilter('all');
+    setEntityFilter('all');
   };
 
   const hasActiveFilters =
@@ -170,7 +318,9 @@ export function Reports() {
     selectedCountries.length > 0 ||
     selectedSectors.length > 0 ||
     selectedIndustries.length > 0 ||
-    selectedYears.length > 0;
+    selectedYears.length > 0 ||
+    dqFilter !== 'all' ||
+    entityFilter !== 'all';
 
   const activeChips = useMemo<ActiveChip[]>(() => {
     const chips: ActiveChip[] = [];
@@ -212,8 +362,23 @@ export function Reports() {
       });
     }
 
+    if (dqFilter !== 'all') {
+      chips.push({
+        key: 'dq',
+        label: `DQ: ${dqFilter}`,
+        onRemove: () => setDqFilter('all'),
+      });
+    }
+    if (entityFilter !== 'all') {
+      chips.push({
+        key: 'entity',
+        label: `Entities: ${entityFilter}`,
+        onRemove: () => setEntityFilter('all'),
+      });
+    }
+
     return chips;
-  }, [searchQuery, selectedCountries, selectedSectors, selectedIndustries, selectedYears]);
+  }, [searchQuery, selectedCountries, selectedSectors, selectedIndustries, selectedYears, dqFilter, entityFilter]);
 
   return (
     <>
@@ -380,7 +545,18 @@ export function Reports() {
 
           {/* Table */}
           <div className="relative min-h-[420px]">
-            <ReportsTable reports={filteredReports} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+            <ReportsTable
+              reports={filteredReports}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={handleSort}
+              dqStatus={dqStatus}
+              entityStatus={entityStatus}
+              dqFilter={dqFilter}
+              entityFilter={entityFilter}
+              onDQFilterChange={setDqFilter}
+              onEntityFilterChange={setEntityFilter}
+            />
           </div>
         </div>
       </div>

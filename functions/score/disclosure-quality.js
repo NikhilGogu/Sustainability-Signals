@@ -90,7 +90,7 @@ function normalizeForEvidence(text) {
   return s.trim();
 }
 
-function sampleHeadTail(text, { maxChars = 800_000, headChars = 420_000 } = {}) {
+function sampleHeadTail(text, { maxChars = 350_000, headChars = 200_000 } = {}) {
   const s = safeString(text);
   if (s.length <= maxChars) return s;
   const head = Math.max(0, Math.min(headChars, Math.floor(maxChars * 0.6)));
@@ -292,6 +292,8 @@ function joinWrappedLines(lines) {
   return parts.join("").trim();
 }
 
+const MAX_EVIDENCE_BLOCKS = 800;
+
 function buildEvidenceBlocks(rawText) {
   const pages = splitIntoPages(rawText);
   const boilerplate = detectBoilerplateKeys(pages);
@@ -348,6 +350,7 @@ function buildEvidenceBlocks(rawText) {
     }
 
     flushPara();
+    if (blocks.length >= MAX_EVIDENCE_BLOCKS) break;
   }
 
   return blocks;
@@ -443,9 +446,22 @@ function quoteQualityScore(quoteText, page) {
   return quality;
 }
 
-function analyzeFeature(blocks, re, { maxQuotes = 3, contextChars = 280 } = {}) {
+function analyzeFeature(blocks, re, { maxQuotes = 3, contextChars = 280, budget = null, corpus = null } = {}) {
   const reG = toGlobalRegex(re);
   if (!reG) return { found: false, occurrences: 0, pages: 0, quotes: [] };
+
+  // If a CPU budget is provided and exhausted, return early
+  if (budget && budget.exhausted) return { found: false, occurrences: 0, pages: 0, quotes: [], skipped: true };
+
+  // ── Fast corpus pre-screen ──────────────────────────────────────
+  // Test the regex against the single corpus string first.
+  // If there are zero matches, skip the expensive per-block scan entirely.
+  if (corpus) {
+    reG.lastIndex = 0;
+    if (!reG.test(corpus)) {
+      return { found: false, occurrences: 0, pages: 0, quotes: [] };
+    }
+  }
 
   const seen = new Set();
   const pages = new Set();
@@ -472,6 +488,10 @@ function analyzeFeature(blocks, re, { maxQuotes = 3, contextChars = 280 } = {}) 
     if (blockOccurrences === 0) continue;
     occurrences += blockOccurrences;
     pages.add(b.page != null ? b.page : `block-${bi}`);
+
+    // Check CPU budget every 200 blocks
+    if (budget && bi % 200 === 0) budget.check();
+    if (budget && budget.exhausted) break;
 
     if (!firstMatch || candidates.length >= candidateLimit) continue;
     const quoteText = buildQuoteFromBlock(blocks, bi, firstMatch.idx, firstMatch.len, { contextChars, maxChars: 1400 });
@@ -598,8 +618,24 @@ async function refineEvidenceQuotesWithAI(ai, result) {
 
 // ── Core scoring engine ─────────────────────────────────────────────────────
 
+function createCpuBudget(maxMs = 40) {
+  const start = Date.now();
+  return {
+    exhausted: false,
+    elapsed: 0,
+    check() {
+      this.elapsed = Date.now() - start;
+      if (this.elapsed >= maxMs) this.exhausted = true;
+    },
+  };
+}
+
 function computeDisclosureQuality(markdown, { company, year, reportId, reportKey, version }) {
   const generatedAt = new Date().toISOString();
+
+  // CPU budget: bail early if approaching CPU time limit
+  // Give 10 seconds for scoring (the rest is for I/O: AI calls, R2 reads, etc.)
+  const budget = createCpuBudget(10_000);
 
   const raw = safeString(markdown);
   const sampled = sampleHeadTail(raw);
@@ -625,7 +661,7 @@ function computeDisclosureQuality(markdown, { company, year, reportId, reportKey
 
   function detectFeature(key, re, opts = {}) {
     const { maxQuotes = 3 } = opts;
-    const scanned = analyzeFeature(blocks, re, { maxQuotes });
+    const scanned = analyzeFeature(blocks, re, { maxQuotes, budget, corpus });
     setFeature(key, scanned.found, { quotes: scanned.quotes, depth: scanned.occurrences, pages: scanned.pages });
     return scanned;
   }
@@ -685,12 +721,12 @@ function computeDisclosureQuality(markdown, { company, year, reportId, reportKey
   detectFeature("base_year", /\bbase\s+year\b|\bbaseline\s+year\b/gi);
   detectFeature("scope2_method", /\blocation[\s-]+based\b|\bmarket[\s-]+based\b/gi);
 
-  const r_scope3_cats_a = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b[^.]{0,80}(?:scope\s*3|upstream|downstream|purchased|capital|fuel|transport|business\s+travel|commut|waste|leased|franchis|investment)/gi, { maxQuotes: 3 });
+  const r_scope3_cats_a = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b[^.]{0,80}(?:scope\s*3|upstream|downstream|purchased|capital|fuel|transport|business\s+travel|commut|waste|leased|franchis|investment)/gi, { maxQuotes: 3, budget, corpus });
   const r_scope3_cats_b = r_scope3_cats_a.found
     ? { found: false, quotes: [] }
-    : analyzeFeature(blocks, /(?:scope\s*3|upstream|downstream)[^.]{0,80}\bcategory\s+\d{1,2}\b/gi, { maxQuotes: 3 });
-  const scope3Depth = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b[^.]{0,80}(?:scope\s*3|upstream|downstream)/gi, { maxQuotes: 0 });
-  const scope3Pages = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b/gi, { maxQuotes: 0 });
+    : analyzeFeature(blocks, /(?:scope\s*3|upstream|downstream)[^.]{0,80}\bcategory\s+\d{1,2}\b/gi, { maxQuotes: 3, budget, corpus });
+  const scope3Depth = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b[^.]{0,80}(?:scope\s*3|upstream|downstream)/gi, { maxQuotes: 0, budget, corpus });
+  const scope3Pages = analyzeFeature(blocks, /\bcategory\s+\d{1,2}\b/gi, { maxQuotes: 0, budget, corpus });
   setFeature("scope3_categories", r_scope3_cats_a.found || r_scope3_cats_b.found, {
     quotes: r_scope3_cats_a.found ? r_scope3_cats_a.quotes : r_scope3_cats_b.quotes,
     depth: scope3Depth.occurrences,
@@ -1006,6 +1042,8 @@ function computeDisclosureQuality(markdown, { company, year, reportId, reportKey
       corpusSampled: raw.length > sampled.length,
       pagesDetected: blocks.reduce((acc, b) => (Number.isFinite(Number(b?.page)) ? Math.max(acc, Number(b.page)) : acc), 0) || null,
       blocks: blocks.length,
+      budgetExhausted: budget.exhausted,
+      budgetElapsedMs: budget.elapsed,
     },
   };
 }
@@ -1263,17 +1301,40 @@ export async function onRequestPost(context) {
     }
 
     if (!markdown) {
-      const pdfObj = await bucket.get(reportKey);
+      let pdfObj;
+      try {
+        pdfObj = await bucket.get(reportKey);
+      } catch (r2Err) {
+        const r2Msg = r2Err instanceof Error ? r2Err.message : String(r2Err);
+        log.error("R2 GET failed for PDF", { reportKey, error: r2Msg });
+        return errorResponse(500, ErrorCode.R2_ERROR, `Failed to read PDF from storage: ${r2Msg}`, { requestId });
+      }
       if (!pdfObj) {
         return errorResponse(404, ErrorCode.NOT_FOUND, "PDF not found in R2", { requestId, details: { reportKey } });
       }
 
-      const ab = await pdfObj.arrayBuffer();
+      // Gate oversized PDFs: reject files > 60MB to avoid CPU/memory exhaustion
+      const MAX_PDF_BYTES = 60 * 1024 * 1024;
+      const pdfSize = pdfObj.size ?? 0;
+      if (pdfSize > MAX_PDF_BYTES) {
+        log.error("PDF too large for scoring", { reportKey, sizeBytes: pdfSize, maxBytes: MAX_PDF_BYTES });
+        return errorResponse(413, ErrorCode.PAYLOAD_TOO_LARGE || ErrorCode.BAD_REQUEST, `PDF is too large (${Math.round(pdfSize / 1024 / 1024)}MB). Max ${Math.round(MAX_PDF_BYTES / 1024 / 1024)}MB.`, { requestId });
+      }
+
+      let ab;
+      try {
+        ab = await pdfObj.arrayBuffer();
+      } catch (readErr) {
+        const readMsg = readErr instanceof Error ? readErr.message : String(readErr);
+        log.error("Failed to read PDF body", { reportKey, error: readMsg });
+        return errorResponse(500, ErrorCode.R2_ERROR, `Failed to read PDF body: ${readMsg}`, { requestId });
+      }
+
       const contentType = pdfObj.httpMetadata?.contentType || "application/pdf";
       const pdfBlob = new Blob([ab], { type: contentType });
       const name = fileNameFromKey(reportKey, "report.pdf");
 
-      log.info("Converting PDF to markdown", { reportKey });
+      log.info("Converting PDF to markdown", { reportKey, sizeBytes: pdfSize });
 
       const converted = await convertPdfToMarkdown({ ai, pdfBlob, name });
       if (!converted.ok) {
@@ -1301,13 +1362,20 @@ export async function onRequestPost(context) {
   }
 
   // Score
-  const result = computeDisclosureQuality(markdown, {
-    company,
-    year: publishedYear,
-    reportId,
-    reportKey,
-    version,
-  });
+  let result;
+  try {
+    result = computeDisclosureQuality(markdown, {
+      company,
+      year: publishedYear,
+      reportId,
+      reportKey,
+      version,
+    });
+  } catch (scoreErr) {
+    const scoreMsg = scoreErr instanceof Error ? scoreErr.message : String(scoreErr);
+    log.error("Scoring engine threw an exception", { reportId, error: scoreMsg });
+    return errorResponse(500, ErrorCode.INTERNAL_ERROR, `Scoring failed: ${scoreMsg}`, { requestId });
+  }
   if (mdTokens !== null) result.method.markdownTokens = mdTokens;
   result.method.textProvided = Boolean(providedText);
 

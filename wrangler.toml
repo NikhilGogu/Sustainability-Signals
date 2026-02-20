@@ -2,6 +2,11 @@ name = "sustainability-signals"
 compatibility_date = "2026-02-13"
 pages_build_output_dir = "dist"
 
+# CPU / memory limits — requires Workers Paid plan.
+# Default is 30 000 ms (30 s). Increase to 120 s for heavy scoring + AI calls.
+[limits]
+cpu_ms = 120_000
+
 # Cloudflare Pages Functions pick up bindings from this file when using Wrangler.
 # If you deploy via the Pages dashboard Git integration, add the same bindings there.
 

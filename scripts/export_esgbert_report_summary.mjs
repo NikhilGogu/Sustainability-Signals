@@ -86,12 +86,18 @@ async function main() {
     if (!reportId) continue;
     const issueScores = issueScoresRaw && typeof issueScoresRaw === "object" ? issueScoresRaw : {};
 
-    const pillarScoresRaw = byPillar?.[reportKey] && typeof byPillar[reportKey] === "object" ? byPillar[reportKey] : {};
-    const e = safeNum(pillarScoresRaw.E);
-    const s = safeNum(pillarScoresRaw.S);
-    const g = safeNum(pillarScoresRaw.G);
-    const total = e + s + g;
-    const pillar_share = total > 0 ? { E: e / total, S: s / total, G: g / total } : { E: 0, S: 0, G: 0 };
+    // Recompute pillar_share from issue scores + issueToPillar mapping.
+    // This ensures pillar shares always reflect the current issue_to_pillar.json,
+    // even if by_report_pillar_score was aggregated with an older mapping.
+    const pillarAcc = { E: 0, S: 0, G: 0 };
+    for (const [issue, score] of Object.entries(issueScores)) {
+      const p = issueToPillar?.[issue];
+      if (p === "E" || p === "S" || p === "G") {
+        pillarAcc[p] += safeNum(score);
+      }
+    }
+    const total = pillarAcc.E + pillarAcc.S + pillarAcc.G;
+    const pillar_share = total > 0 ? { E: pillarAcc.E / total, S: pillarAcc.S / total, G: pillarAcc.G / total } : { E: 0, S: 0, G: 0 };
 
     const top_issues = Object.entries(issueScores)
       .map(([issue, score]) => ({ issue: String(issue), score: safeNum(score), pillar: issueToPillar?.[issue] || null }))

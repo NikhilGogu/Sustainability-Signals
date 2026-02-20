@@ -1,41 +1,104 @@
+import { useDeferredValue, useMemo, useState, useTransition } from 'react';
 import { Link } from 'react-router';
 import type { SustainabilityReport } from '../../types';
+
+/* ------------------------------------------------------------------ */
+/*  Status types (re-exported for convenience)                         */
+/* ------------------------------------------------------------------ */
+
+export type DQFilterValue = 'all' | 'scored' | 'unscored';
+export type EntityFilterValue = 'all' | 'done' | 'none';
+export type ReportDQStatus = 'scored' | 'unscored' | 'unknown';
+export type ReportEntityStatus = 'done' | 'none' | 'unknown';
+
+/* ------------------------------------------------------------------ */
+/*  Props                                                              */
+/* ------------------------------------------------------------------ */
 
 interface ReportsTableProps {
     reports: SustainabilityReport[];
     sortBy: 'company' | 'country' | 'sector' | 'industry' | 'year';
     sortOrder: 'asc' | 'desc';
     onSort: (field: 'company' | 'country' | 'sector' | 'industry' | 'year') => void;
+    dqStatus?: Record<string, ReportDQStatus>;
+    entityStatus?: Record<string, ReportEntityStatus>;
+    dqFilter?: DQFilterValue;
+    entityFilter?: EntityFilterValue;
+    onDQFilterChange?: (v: DQFilterValue) => void;
+    onEntityFilterChange?: (v: EntityFilterValue) => void;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Pagination constants                                               */
+/* ------------------------------------------------------------------ */
+
+const PAGE_SIZES = [25, 50, 100, 250] as const;
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function formatUploadDate(report: SustainabilityReport): string {
+    // Only show a real timestamp for uploaded reports
+    if (!report.createdAt) return '';
+    const ts = Date.parse(report.createdAt);
+    if (!Number.isFinite(ts)) return '';
+    return new Date(ts).toLocaleString();
+}
+
+function dqPill(status: ReportDQStatus) {
+    if (status === 'scored')
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/50';
+    if (status === 'unscored')
+        return 'bg-gray-50 text-gray-500 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700/60';
+    return 'bg-gray-50 text-gray-400 border-gray-200/60 dark:bg-gray-900/20 dark:text-gray-500 dark:border-gray-700/40';
+}
+
+function entityPill(status: ReportEntityStatus) {
+    if (status === 'done')
+        return 'bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-300 dark:border-cyan-800/50';
+    if (status === 'none')
+        return 'bg-gray-50 text-gray-500 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700/60';
+    return 'bg-gray-50 text-gray-400 border-gray-200/60 dark:bg-gray-900/20 dark:text-gray-500 dark:border-gray-700/40';
+}
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export function ReportsTable({
     reports,
     sortBy,
     sortOrder,
     onSort,
+    dqStatus,
+    entityStatus,
+    dqFilter = 'all',
+    entityFilter = 'all',
+    onDQFilterChange,
+    onEntityFilterChange,
 }: ReportsTableProps) {
-    const formatDateTime = (report: SustainabilityReport): { value: string; note: string } => {
-        if (report.createdAt) {
-            const ts = Date.parse(report.createdAt);
-            if (Number.isFinite(ts)) {
-                return {
-                    value: new Date(ts).toLocaleString(),
-                    note: 'Uploaded',
-                };
-            }
-        }
+    /* ---- pagination ---- */
+    const [pageSize, setPageSize] = useState<number>(50);
+    const [page, setPage] = useState(0);
+    const [, startTransition] = useTransition();
 
-        const year = Number.isFinite(report.publishedYear) ? report.publishedYear : 0;
-        if (year >= 1900) {
-            const fallback = new Date(year, 0, 1, 0, 0, 0, 0);
-            return {
-                value: fallback.toLocaleString(),
-                note: 'Published year fallback',
-            };
-        }
+    const showDQ = Boolean(dqStatus && Object.keys(dqStatus).length);
+    const showEntity = Boolean(entityStatus && Object.keys(entityStatus).length);
 
-        return { value: '-', note: 'Unknown' };
-    };
+    /* ---- defer heavy renders ---- */
+    const deferredReports = useDeferredValue(reports);
+    const isStale = deferredReports !== reports;
+
+    const totalPages = Math.max(1, Math.ceil(deferredReports.length / pageSize));
+    const safePage = Math.min(page, totalPages - 1);
+    const pageItems = useMemo(
+        () => deferredReports.slice(safePage * pageSize, (safePage + 1) * pageSize),
+        [deferredReports, safePage, pageSize],
+    );
+
+    // Reset page when dataset changes
+    useMemo(() => setPage(0), [reports.length]);
 
     const SortIcon = ({ field }: { field: typeof sortBy }) => (
         <svg
@@ -51,7 +114,7 @@ export function ReportsTable({
 
     const HeaderButton = ({ field, children }: { field: typeof sortBy; children: React.ReactNode }) => (
         <button
-            onClick={() => onSort(field)}
+            onClick={() => { startTransition(() => onSort(field)); }}
             aria-label={`Sort by ${field}${sortBy === field ? `, currently sorted ${sortOrder === 'asc' ? 'ascending' : 'descending'}` : ''}`}
             className="flex items-center font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-xs uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none focus-visible:rounded"
         >
@@ -73,7 +136,82 @@ export function ReportsTable({
     }
 
     return (
-        <>
+        <div>
+            {/* ---- Filter + Pagination header ---- */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800/60">
+                <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Showing{' '}
+                        <span className="font-semibold text-gray-700 dark:text-gray-200 tabular-nums">
+                            {deferredReports.length === 0 ? 0 : safePage * pageSize + 1}
+                        </span>
+                        {' – '}
+                        <span className="font-semibold text-gray-700 dark:text-gray-200 tabular-nums">
+                            {Math.min((safePage + 1) * pageSize, deferredReports.length)}
+                        </span>{' '}
+                        of{' '}
+                        <span className="font-semibold text-gray-700 dark:text-gray-200 tabular-nums">
+                            {deferredReports.length}
+                        </span>
+                        {isStale && <span className="ml-1.5 text-amber-500 animate-pulse text-[11px]">updating…</span>}
+                    </p>
+
+                    {showDQ && onDQFilterChange && (
+                        <label className="text-xs text-gray-500 dark:text-gray-400">
+                            DQ
+                            <select
+                                value={dqFilter}
+                                onChange={(e) => { setPage(0); onDQFilterChange(e.target.value as DQFilterValue); }}
+                                className="ml-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 text-xs text-gray-700 dark:text-gray-200"
+                            >
+                                <option value="all">All</option>
+                                <option value="scored">Scored</option>
+                                <option value="unscored">Unscored</option>
+                            </select>
+                        </label>
+                    )}
+
+                    {showEntity && onEntityFilterChange && (
+                        <label className="text-xs text-gray-500 dark:text-gray-400">
+                            Entities
+                            <select
+                                value={entityFilter}
+                                onChange={(e) => { setPage(0); onEntityFilterChange(e.target.value as EntityFilterValue); }}
+                                className="ml-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 text-xs text-gray-700 dark:text-gray-200"
+                            >
+                                <option value="all">All</option>
+                                <option value="done">Done</option>
+                                <option value="none">Missing</option>
+                            </select>
+                        </label>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
+                        Per page
+                        <select
+                            value={pageSize}
+                            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+                            className="ml-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 text-xs text-gray-700 dark:text-gray-200"
+                        >
+                            {PAGE_SIZES.map((n) => (
+                                <option key={n} value={n}>{n}</option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <div className="flex items-center gap-1">
+                        <button disabled={safePage === 0} onClick={() => setPage(0)} className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="First page">&#x00AB;</button>
+                        <button disabled={safePage === 0} onClick={() => setPage((p) => Math.max(0, p - 1))} className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Previous page">&#x2039;</button>
+                        <span className="px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-200 tabular-nums">{safePage + 1} / {totalPages}</span>
+                        <button disabled={safePage >= totalPages - 1} onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Next page">&#x203A;</button>
+                        <button disabled={safePage >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Last page">&#x00BB;</button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ---- Table ---- */}
             <div className="overflow-x-auto" role="region" aria-label="Coverage table" tabIndex={0}>
                 <table className="w-full text-sm" aria-label="Coverage universe">
                     <thead>
@@ -93,16 +231,26 @@ export function ReportsTable({
                             <th scope="col" className="text-left py-3 px-4">
                                 <HeaderButton field="year">Published</HeaderButton>
                             </th>
+                            {showDQ && (
+                                <th scope="col" className="text-left py-3 px-4 hidden sm:table-cell">
+                                    <span className="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">DQ</span>
+                                </th>
+                            )}
+                            {showEntity && (
+                                <th scope="col" className="text-left py-3 px-4 hidden sm:table-cell">
+                                    <span className="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Entities</span>
+                                </th>
+                            )}
                             <th scope="col" className="text-left py-3 px-4 hidden xl:table-cell">
-                                <span className="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
-                                    Date &amp; Time
-                                </span>
+                                <span className="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Uploaded</span>
                             </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-                        {reports.map((report) => {
-                            const dateTime = formatDateTime(report);
+                        {pageItems.map((report) => {
+                            const uploadDate = formatUploadDate(report);
+                            const dq = dqStatus?.[report.id] ?? 'unknown';
+                            const ent = entityStatus?.[report.id] ?? 'unknown';
                             return (
                                 <tr
                                     key={report.id}
@@ -117,23 +265,30 @@ export function ReportsTable({
                                             {report.company}
                                         </Link>
                                     </td>
-                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                                        {report.country}
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden md:table-cell">
-                                        {report.sector}
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden lg:table-cell">
-                                        {report.industry}
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                                        {report.publishedYear}
-                                    </td>
+                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{report.country}</td>
+                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden md:table-cell">{report.sector}</td>
+                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden lg:table-cell">{report.industry}</td>
+                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{report.publishedYear}</td>
+                                    {showDQ && (
+                                        <td className="py-3 px-4 hidden sm:table-cell">
+                                            <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${dqPill(dq)}`}>
+                                                {dq === 'scored' ? 'Scored' : dq === 'unscored' ? 'No' : '—'}
+                                            </span>
+                                        </td>
+                                    )}
+                                    {showEntity && (
+                                        <td className="py-3 px-4 hidden sm:table-cell">
+                                            <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${entityPill(ent)}`}>
+                                                {ent === 'done' ? 'Done' : ent === 'none' ? 'No' : '—'}
+                                            </span>
+                                        </td>
+                                    )}
                                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden xl:table-cell">
-                                        <div className="text-xs">{dateTime.value}</div>
-                                        <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                            {dateTime.note}
-                                        </div>
+                                        {uploadDate ? (
+                                            <div className="text-xs">{uploadDate}</div>
+                                        ) : (
+                                            <span className="text-xs text-gray-300 dark:text-gray-600">—</span>
+                                        )}
                                     </td>
                                 </tr>
                             );
@@ -142,6 +297,36 @@ export function ReportsTable({
                 </table>
             </div>
 
-        </>
+            {/* ---- Pagination footer ---- */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-1 py-3 border-t border-gray-100 dark:border-gray-800/60">
+                    {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 7) {
+                            pageNum = i;
+                        } else if (safePage < 4) {
+                            pageNum = i;
+                        } else if (safePage > totalPages - 4) {
+                            pageNum = totalPages - 7 + i;
+                        } else {
+                            pageNum = safePage - 3 + i;
+                        }
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => setPage(pageNum)}
+                                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                                    pageNum === safePage
+                                        ? 'bg-brand-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                            >
+                                {pageNum + 1}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
     );
 }

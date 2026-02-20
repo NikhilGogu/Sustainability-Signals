@@ -191,6 +191,27 @@ Response body:
   - The reports table lazily fetches cached summaries in batches (`/score/disclosure-quality-batch`). (`src/pages/Reports.tsx`)
   - The PDF viewer can fetch a full score and display evidence highlights; it can also request refinement via `refine=1`. (`src/components/reports/PDFViewerModal.tsx`)
 
+## Admin Panel (`/admin`)
+
+The Admin panel provides a complete DQ management interface, implemented in `src/components/admin/` with the following modules:
+
+| File | Purpose |
+|---|---|
+| `admin-types.ts` | All shared TypeScript types: `AdminReport`, `DQEntry`, `DQSettings`, `RunProgress`, `ScoredRow`, diagnostic row types, depth analysis aggregation types |
+| `admin-utils.ts` | Pure utility functions: stats helpers (`avg`, `median`, `stddev`, `pct`), sort/filter, CSS class helpers, report merging, score parsing, CSV/JSON export, aggregation builders |
+| `AdminBatchPanel.tsx` | DQ batch run controls: concurrency/version/limit settings, progress bar, stop/clear actions, select-filtered |
+| `AdminReportsTable.tsx` | Paginated sortable table (25/50/100 per page) with per-report Load / Score & Inspect / Delete actions |
+| `AdminAnalytics.tsx` | Aggregated stats: coverage, avg/median, band distribution bar, score histogram, subscore bars, source/status breakdown; CSV + JSON export |
+| `AdminDiagnostics.tsx` | Per-report deep-dive: DQ score card, subscore panel, method/processing grid, quantitative profile grid, regex depth table, evidence-line provenance with quotes, improvement recommendations |
+| `AdminDepthAnalysis.tsx` | Corpus-wide analytics: summary stats, sector benchmarking with range bars, year-over-year trends with delta badges, country distribution, feature-coverage heatmap, subscore correlation matrix (Pearson r), top/bottom performer tables |
+
+### Key Admin Data Flows
+
+- **Merging** (`mergeReports`): static index reports (`STATIC_ADMIN_REPORTS`) are merged with user-uploaded reports; uploaded reports that match an index ID are treated as `merged` (canDelete=true), net-new uploads as `uploaded`.
+- **DQ batch run**: the batch panel drives a concurrency-limited pool (`runPool`) that fires `/score/disclosure-quality` POST for each queued report, updates `dqById` state with status/summary/detail.
+- **Detail load**: individual "Load / Refresh" fetches the full score JSON (including `featureDepth`, `evidenceQuotes`, `recommendations`) from `/score/disclosure-quality?summary=0`.
+- **Export**: `exportScoredRowsCSV` / `exportScoredRowsJSON` build and trigger browser downloads from in-memory scored rows.
+
 ## Ops Scripts (Local)
 
 These scripts call your deployed Pages Functions to do heavy work on Cloudflare instead of on your laptop:

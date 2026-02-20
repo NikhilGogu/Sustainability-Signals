@@ -73,15 +73,6 @@ export async function onRequest(context) {
       );
     }
 
-    const configuredKeys = safeString(context.env?.API_KEYS).trim();
-    if (!configuredKeys) {
-      return errorResponse(
-        403,
-        ErrorCode.FORBIDDEN,
-        "Delete endpoint is disabled until API_KEYS is configured"
-      );
-    }
-
     const reportId = safeString(url.searchParams.get("reportId")).trim();
     const idCheck = validateReportId(reportId);
     if (!idCheck.valid) {

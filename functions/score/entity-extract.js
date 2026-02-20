@@ -19,6 +19,7 @@ import {
   putJson,
   putJsonSafe,
   convertPdfToMarkdown,
+  entityExtractKey,
 } from "../_lib/index.js";
 
 import { ErrorCode, errorResponse } from "../_lib/errors.js";
@@ -30,16 +31,9 @@ const EXTRACT_METHOD_KIND = "hybrid-finbert9-langextract-v2";
 const EXTRACT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 const MAX_CHUNK_CHARS = 12000;
 const CHUNK_OVERLAP = 600;
-const MAX_ENTITIES_PER_CHUNK = 25;
-const MAX_TOTAL_ENTITIES = 200;
 const MAX_CHUNKS = 15;
 const AI_CONCURRENCY = 3;
 
-
-// ── R2 key helpers ──────────────────────────────────────────────────────────
-function entityExtractKey(reportId, version = 1) {
-  return `scores/entity_extract/v${version}/${safeString(reportId)}.json`;
-}
 
 // ── ESG extraction classes with pillar mapping ──────────────────────────────
 const EXTRACTION_CLASSES = {
@@ -195,8 +189,7 @@ function parseLLMEntities(raw) {
         extraction_text: safeString(e.text),
         attributes: e.attrs && typeof e.attrs === "object" ? e.attrs : {},
         pillar: EXTRACTION_CLASSES[e.class]?.pillar || "",
-      }))
-      .slice(0, MAX_ENTITIES_PER_CHUNK);
+      }));
   } catch {
     return [];
   }
@@ -369,7 +362,8 @@ function groundEntitiesToPages(entities, sourceText) {
   return { entities: grounded, pages_detected: pagesDetected };
 }
 
-async function extractEntities(ai, markdown, { reportId, reportKey, container, baseUrl, apiKey, debug = false } = {}) {
+async function extractEntities(ai, markdown, { reportId, reportKey, container, baseUrl, apiKey, debug = false, onProgress } = {}) {
+  const progress = typeof onProgress === "function" ? onProgress : () => {};
   const clean = normalizeForExtraction(markdown);
   if (!clean || clean.length < 100) {
     return {
@@ -417,6 +411,8 @@ async function extractEntities(ai, markdown, { reportId, reportKey, container, b
     `${routingSummary.efficiency_pct}% skipped`
   );
 
+  await progress({ pct: 25, msg: `FinBERT routing: ${routed.length}/${allChunks.length} chunks ESG-relevant` });
+
   // ── Phase 2: LangExtract on routed chunks only ─────────────────────────
   const debugSamples = [];
 
@@ -448,8 +444,7 @@ async function extractEntities(ai, markdown, { reportId, reportKey, container, b
             extraction_text: safeString(e.text),
             attributes: e.attrs && typeof e.attrs === "object" ? e.attrs : {},
             pillar: EXTRACTION_CLASSES[e.class]?.pillar || "",
-          }))
-          .slice(0, MAX_ENTITIES_PER_CHUNK);
+          }));
       } else {
         let raw = "";
         if (typeof responseData === "string") {
@@ -485,13 +480,17 @@ async function extractEntities(ai, markdown, { reportId, reportKey, container, b
 
   // Run routed chunks in parallel batches of AI_CONCURRENCY
   const allEntities = [];
+  const totalBatches = Math.ceil(routed.length / AI_CONCURRENCY);
   for (let start = 0; start < routed.length; start += AI_CONCURRENCY) {
+    const batchIdx = Math.floor(start / AI_CONCURRENCY);
     const batch = routed.slice(start, start + AI_CONCURRENCY);
     const results = await Promise.all(
       batch.map((chunkData) => processChunk(chunkData))
     );
     for (const ents of results) allEntities.push(...ents);
-    if (allEntities.length >= MAX_TOTAL_ENTITIES) break;
+    const batchPct = Math.round(25 + ((batchIdx + 1) / totalBatches) * 65);
+    const processed = Math.min(start + AI_CONCURRENCY, routed.length);
+    await progress({ pct: batchPct, msg: `Extracted entities from ${processed}/${routed.length} chunks…` });
   }
 
   // Deduplicate by extraction_text (keep first occurrence)
@@ -506,7 +505,7 @@ async function extractEntities(ai, markdown, { reportId, reportKey, container, b
   }
 
   return {
-    entities: deduped.slice(0, MAX_TOTAL_ENTITIES),
+    entities: deduped,
     chunks_processed: routed.length,
     total_chars: clean.length,
     routing: routingSummary,
@@ -603,6 +602,12 @@ async function handlePost(request, env) {
   const normalizedKey = normalizeReportKey(reportKey);
   if (!normalizedKey) {
     return errorResponse(400, ErrorCode.BAD_REQUEST, "Invalid reportKey");
+  }
+
+  // ── Streaming mode (keeps connection alive, prevents 524 timeout) ─────
+  const accept = request.headers.get("accept") || "";
+  if (accept.includes("application/x-ndjson")) {
+    return handlePostStream(env, { reportId, normalizedKey, providedText, force, debug });
   }
 
   // ── Check cache ───────────────────────────────────────────────────────
@@ -714,13 +719,154 @@ async function handlePost(request, env) {
   };
 
   // ── Cache in R2 ───────────────────────────────────────────────────────
+  let didCache = false;
   try {
     await putJson(env.REPORTS_BUCKET, cacheKey, payload);
+    didCache = true;
   } catch (err) {
     console.error("[entity-extract] cache write failed:", err);
   }
 
-  return Response.json({ ok: true, reportId, cached: false, ...payload }, { status: 200 });
+  return Response.json({ ok: true, reportId, cached: didCache, ...payload }, { status: 200 });
+}
+
+// ── Streaming POST handler (NDJSON progress events) ─────────────────────────
+// Activated when the client sends Accept: application/x-ndjson.
+// Streams {"t":"p","pct":…,"msg":"…"} progress events and a final
+// {"t":"done","data":{…}} or {"t":"err","error":"…"} event.
+// Keeps the connection alive so Cloudflare never returns a 524 timeout.
+function handlePostStream(env, { reportId, normalizedKey, providedText, force, debug }) {
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const enc = new TextEncoder();
+  const send = async (obj) => { try { await writer.write(enc.encode(JSON.stringify(obj) + "\n")); } catch {} };
+
+  (async () => {
+    try {
+      await send({ t: "p", pct: 2, msg: "Starting extraction pipeline…" });
+
+      // ── Check cache ─────────────────────────────────────────────────────
+      const cacheKey = entityExtractKey(reportId);
+      if (!force) {
+        try {
+          const obj = await env.REPORTS_BUCKET.get(cacheKey);
+          if (obj) {
+            const cached = JSON.parse(await obj.text());
+            await send({ t: "done", data: { ok: true, reportId, cached: true, ...cached } });
+            return;
+          }
+        } catch {}
+      }
+
+      // ── Get markdown ────────────────────────────────────────────────────
+      await send({ t: "p", pct: 5, msg: "Retrieving report text…" });
+      let markdown = providedText || "";
+      const mdKey = markdownCacheKeyForReportKey(normalizedKey);
+      if (!markdown) {
+        try { markdown = await getCachedText(env.REPORTS_BUCKET, mdKey); } catch {}
+      }
+
+      if (!markdown) {
+        await send({ t: "p", pct: 8, msg: "Converting PDF to text (Workers AI)…" });
+        const ai = env.AI;
+        if (!ai) throw new Error("Workers AI binding missing (AI)");
+
+        const pdfObj = await env.REPORTS_BUCKET.get(normalizedKey);
+        if (!pdfObj) throw new Error(`Report PDF not found: ${normalizedKey}`);
+
+        const ab = await pdfObj.arrayBuffer();
+        const contentType = pdfObj.httpMetadata?.contentType || "application/pdf";
+        const pdfBlob = new Blob([ab], { type: contentType });
+        const name = fileNameFromKey(normalizedKey, "report.pdf");
+
+        const converted = await convertPdfToMarkdown({ ai, pdfBlob, name });
+        if (!converted.ok) throw new Error(safeString(converted.error || "toMarkdown failed"));
+        markdown = converted.markdown;
+
+        if (markdown) {
+          await putText(env.REPORTS_BUCKET, mdKey, markdown, "text/markdown; charset=utf-8");
+          const metaKey = markdownMetaKeyForReportKey(normalizedKey);
+          await putJsonSafe(env.REPORTS_BUCKET, metaKey, {
+            reportKey: normalizedKey,
+            generatedAt: new Date().toISOString(),
+            source: "entity-extract",
+          });
+        }
+      }
+
+      if (!markdown || markdown.length < 100) throw new Error("Report text too short for extraction");
+
+      // ── Run extraction with progress ──────────────────────────────────
+      await send({ t: "p", pct: 15, msg: "Running FinBERT ESG classification…" });
+      if (!env.AI) throw new Error("Workers AI binding missing (AI)");
+
+      const t0 = Date.now();
+      const finbertContainer = env.FINBERT_CONTAINER;
+      const finbertUrl = safeString(env.FINBERT_URL || "").trim();
+      const finbertApiKey = safeString(env.FINBERT_API_KEY || "").trim();
+
+      const result = await extractEntities(env.AI, markdown, {
+        reportId,
+        reportKey: normalizedKey,
+        container: finbertContainer,
+        baseUrl: finbertUrl,
+        apiKey: finbertApiKey,
+        debug,
+        onProgress: (p) => send({ t: "p", ...p }),
+      });
+      const durationMs = Date.now() - t0;
+
+      // ── Post-process ──────────────────────────────────────────────────
+      await send({ t: "p", pct: 92, msg: "Grounding entities to pages…" });
+      const grounded = groundEntitiesToPages(result.entities, normalizeForExtraction(markdown));
+      const summary = buildSummary(grounded.entities);
+
+      const payload = {
+        reportId,
+        reportKey: normalizedKey,
+        method: { kind: EXTRACT_METHOD_KIND, model: EXTRACT_MODEL, textProvided: Boolean(providedText) },
+        summary,
+        routing: result.routing,
+        entities: grounded.entities,
+        meta: {
+          chunks_processed: result.chunks_processed,
+          total_chunks: result.routing?.total_chunks || 0,
+          total_chars: result.total_chars,
+          pages_detected: grounded.pages_detected,
+          routing_efficiency_pct: result.routing?.efficiency_pct || 0,
+          duration_ms: durationMs,
+          ts: Date.now(),
+        },
+        ...(debug && result._debug ? { _debug: result._debug } : {}),
+      };
+
+      // ── Cache ─────────────────────────────────────────────────────────
+      await send({ t: "p", pct: 96, msg: "Caching results…" });
+      let didCache = false;
+      try {
+        await putJson(env.REPORTS_BUCKET, cacheKey, payload);
+        didCache = true;
+      } catch (err) {
+        console.error("[entity-extract] cache write failed:", err);
+      }
+
+      await send({ t: "done", data: { ok: true, reportId, cached: didCache, ...payload } });
+    } catch (err) {
+      console.error("[entity-extract] stream error:", err);
+      try { await send({ t: "err", error: err?.message || String(err) }); } catch {}
+    } finally {
+      try { await writer.close(); } catch {}
+    }
+  })();
+
+  return new Response(readable, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/x-ndjson",
+      "Cache-Control": "no-cache",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 }
 
 // ── Request handler ─────────────────────────────────────────────────────────

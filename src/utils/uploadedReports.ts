@@ -213,19 +213,15 @@ export async function finalizeIngest(input: FinalizeIngestRequest): Promise<Uplo
 
 export async function deleteUploadedReport(input: {
   reportId: string;
-  apiKey: string;
 }): Promise<DeleteUploadedReportResponse> {
   const reportId = input.reportId.trim();
-  const apiKey = input.apiKey.trim();
   if (!reportId) throw new Error('Missing reportId');
-  if (!apiKey) throw new Error('Missing API key');
 
   const url = new URL('/api/reports/uploads', window.location.origin);
   url.searchParams.set('reportId', reportId);
 
   const res = await fetch(url.toString(), {
     method: 'DELETE',
-    headers: { 'X-API-Key': apiKey },
   });
   if (!res.ok) throw new Error(await parseError(res));
 

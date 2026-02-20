@@ -361,3 +361,29 @@ Top-level fields:
 - `functions/score/disclosure-quality.js`
 - `functions/score/disclosure-quality-batch.js`
 - `TECHNICAL.md` (endpoint overview)
+
+## 15) Admin Panel — DQ Management UI
+
+The Admin panel (`/admin`) exposes the full DQ pipeline to operators directly from the browser. See `TECHNICAL.md §Admin Panel` for the component breakdown.
+
+### Batch Scoring Flow
+
+1. Admin loads the Reports tab (all index + uploaded reports merged via `mergeReports`).
+2. Filters/selects the reports to score; configures version, concurrency, limit, `skipCached`, `forceRecompute`.
+3. Hits **Run DQ Batch** — `AdminBatchPanel` drives a `runPool` with the configured concurrency, POSTing to `/score/disclosure-quality` for each queued report.
+4. `dqById` state is updated live with `status`, `summary`, and any `error` per report.
+5. After the run, the **Analytics** tab shows aggregated stats (coverage, band distribution, subscores, export).
+6. For deep inspection, the **Diagnostics** tab allows selecting any scored report and viewing its full score, subscore bars, regex depth table, evidence provenance with structured quotes, and recommendations.
+7. The **Depth Analysis** tab shows corpus-wide patterns (sector benchmarks, year trends, country buckets, feature heatmap, Pearson correlation matrix, top/bottom performers), computed fully client-side from the in-memory `dqById` state.
+
+### Aggregation Builders (client-side, `admin-utils.ts`)
+
+| Function | Output |
+|---|---|
+| `buildSectorBenchmarks` | Per-GICS-sector avg/median/min/max score + avg subscores |
+| `buildYearTrends` | Per-year avg/median/band counts + year-over-year delta |
+| `buildFeatureCoverage` | Per-feature hit rate, avg occurrences, avg pages across detail-loaded reports |
+| `buildPerformers` | Top N and bottom N reports by score |
+| `buildCountryBuckets` | Per-country avg/median score + count |
+| `buildSubscoreCorrelations` | Pearson r for all C×K, C×A, C×T, K×A, K×T, A×T pairs |
+| `stddev` | Population standard deviation helper |

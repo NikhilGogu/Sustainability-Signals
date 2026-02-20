@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "generatedAt": "2026-02-13T21:29:23.097Z",
+  "generatedAt": "2026-02-20T10:43:11.904Z",
   "count": 2,
   "byReportId": {
     "report-957": {
       "reportKey": "reports/2024/prosus/sustainability-pp47-75.pdf",
       "pillar_share": {
         "E": 0.3204867987009789,
-        "S": 0.20003824995200234,
-        "G": 0.4794749513470188
+        "S": 0.36263177361580806,
+        "G": 0.3168814276832131
       },
       "top_issues": [
         {
@@ -19,7 +19,7 @@
         {
           "issue": "Data_Security",
           "score": 19.945840269327164,
-          "pillar": "G"
+          "pillar": "S"
         },
         {
           "issue": "Business_Ethics",
@@ -52,8 +52,8 @@
       "reportKey": "reports/2024/safran/sustainability-pp325-450.pdf",
       "pillar_share": {
         "E": 0.3658948206117457,
-        "S": 0.3723437925379762,
-        "G": 0.26176138685027805
+        "S": 0.4059808641545451,
+        "G": 0.22812431523370916
       },
       "top_issues": [
         {

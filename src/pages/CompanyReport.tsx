@@ -370,6 +370,8 @@ function ReportView({ report }: { report: SustainabilityReport }) {
     const [entitiesComputing, setEntitiesComputing] = useState(false);
     const [entitiesError, setEntitiesError] = useState<string | null>(null);
     const [entitiesData, setEntitiesData] = useState<EntityExtractionResponse | null>(null);
+    const entitiesAutoFetchedRef = useRef<string | null>(null);
+    const [entitiesProgress, setEntitiesProgress] = useState<{ pct: number; msg: string } | null>(null);
 
     const [bertLoading, setBertLoading] = useState(false);
     const [bertError, setBertError] = useState<string | null>(null);
@@ -387,8 +389,10 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         if (!report?.id) return;
         const cachedDq = dqCacheByReport.get(report.id);
         if (cachedDq) setDqData(cachedDq);
+        // Always update entities state on report change; clear if no cache to avoid showing stale data from a different report.
         const cachedEntities = entityCacheByReport.get(report.id);
-        if (cachedEntities) setEntitiesData(cachedEntities);
+        setEntitiesData(cachedEntities ?? null);
+        entitiesAutoFetchedRef.current = null;
         if (bertCacheByReport.has(report.id)) setBertSummary(bertCacheByReport.get(report.id) ?? null);
     }, [report?.id]);
 
@@ -410,7 +414,8 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         dqCacheByReport.set(report.id, incoming);
     }, [report?.id]);
 
-    // Entities: fetch cached extraction (or cached:false sentinel).
+    // Entities: fetch cached extraction. Only stores responses that have actual entities
+    // or are confirmed-cached — avoids overwriting good state with a "not-computed" sentinel.
     const refreshEntityExtraction = useCallback(async (signal: AbortSignal) => {
         if (!report?.id) return;
         const url = `/score/entity-extract?reportId=${encodeURIComponent(report.id)}&_ts=${Date.now()}`;
@@ -427,14 +432,18 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         }
         if (!data || typeof data !== 'object') throw new Error('Invalid Entity Extraction response');
         const incoming = data as EntityExtractionResponse;
-        setEntitiesData(incoming);
-        entityCacheByReport.set(report.id, incoming);
+        const hasEntities = incoming.entities && Array.isArray(incoming.entities) && incoming.entities.length > 0;
+        if (hasEntities || incoming.cached) {
+            setEntitiesData(incoming);
+            entityCacheByReport.set(report.id, incoming);
+        }
     }, [report?.id]);
 
     const refreshEntitiesNow = useCallback(() => {
         const controller = new AbortController();
         setEntitiesLoading(true);
         setEntitiesError(null);
+        entitiesAutoFetchedRef.current = null;
         void refreshEntityExtraction(controller.signal)
             .catch((e) => { if (controller.signal.aborted) return; setEntitiesError(e instanceof Error ? e.message : String(e)); })
             .finally(() => { if (controller.signal.aborted) return; setEntitiesLoading(false); });
@@ -460,10 +469,14 @@ function ReportView({ report }: { report: SustainabilityReport }) {
     useEffect(() => { if (dqData && report?.id) dqCacheByReport.set(report.id, dqData); }, [dqData, report?.id]);
 
     // Entities: auto-fetch when panel opens.
+    // Uses a ref guard to prevent infinite re-fetch loops when the server reports
+    // "not-computed-yet". The guard resets on report change, manual refresh, or after compute.
     useEffect(() => {
         if (!entitiesOpen || !report?.id) return;
-        const needsFetch = !entitiesData;
-        if (!needsFetch) { setEntitiesLoading(false); return; }
+        const hasEntities = entitiesData?.entities && Array.isArray(entitiesData.entities) && entitiesData.entities.length > 0;
+        if (hasEntities) { setEntitiesLoading(false); return; }
+        if (entitiesAutoFetchedRef.current === report.id) { setEntitiesLoading(false); return; }
+        entitiesAutoFetchedRef.current = report.id;
         const controller = new AbortController();
         setEntitiesLoading(true);
         setEntitiesError(null);
@@ -471,7 +484,8 @@ function ReportView({ report }: { report: SustainabilityReport }) {
             .catch((e) => { if (controller.signal.aborted) return; setEntitiesError(e instanceof Error ? e.message : String(e)); })
             .finally(() => { if (controller.signal.aborted) return; setEntitiesLoading(false); });
         return () => controller.abort();
-    }, [entitiesOpen, report?.id, entitiesData, refreshEntityExtraction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entitiesOpen, report?.id, refreshEntityExtraction]);
 
     // Entities: persist to module cache.
     useEffect(() => { if (entitiesData && report?.id) entityCacheByReport.set(report.id, entitiesData); }, [entitiesData, report?.id]);
@@ -577,85 +591,115 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         finally { setDqComputing(false); }
     }, [numPages, pdfDocument, report?.id, report?.company, report?.publishedYear, reportKey]);
 
-    // Entities: compute extraction (server-side + optional local fallback)
+    // Entities: compute extraction (streaming mode for progress + timeout prevention)
     const computeEntityExtraction = useCallback(async () => {
         if (!report?.id || !reportKey) return;
         setEntitiesComputing(true);
         setEntitiesError(null);
+        setEntitiesProgress({ pct: 0, msg: 'Starting…' });
         try {
-            const postExtract = async (body: Record<string, unknown>): Promise<EntityExtractionResponse> => {
-                const res = await fetch('/score/entity-extract', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body),
-                });
+            const body = { reportId: report.id, reportKey, force: true };
+            const res = await fetch('/score/entity-extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/x-ndjson' },
+                body: JSON.stringify(body),
+            });
+
+            // If server doesn't support streaming, fall back to JSON
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('application/x-ndjson')) {
                 const raw = await res.text();
                 let data: unknown = null;
                 try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
                 if (!res.ok) {
-                    const rawTrim = raw?.trim();
-                    let msg = rawTrim ? rawTrim.slice(0, 300) : `HTTP ${res.status}`;
-                    if (rawTrim && /<!doctype|<html/i.test(rawTrim)) msg = `HTTP ${res.status}`;
+                    let msg = `HTTP ${res.status}`;
                     if (data && typeof data === 'object' && 'error' in data) {
                         const errVal = (data as Record<string, unknown>).error;
                         if (typeof errVal === 'string' && errVal.trim()) msg = errVal.trim();
-                        else if (errVal != null) msg = String(errVal);
                     }
                     throw new Error(msg);
                 }
                 if (!data || typeof data !== 'object') throw new Error('Invalid Entity Extraction response');
-                return data as EntityExtractionResponse;
-            };
-
-            const extractFullText = async (): Promise<string> => {
-                if (!pdfDocument || !numPages) return '';
-                const cacheKey = `${report.id}:entities:all:${numPages}`;
-                const cached = contextCacheRef.current.get(cacheKey);
-                if (cached) return cached;
-
-                const MAX_CHARS = 700_000;
-                let out = '';
-                for (let p = 1; p <= numPages; p++) {
-                    const page = await pdfDocument.getPage(p);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map((item) => 'str' in item ? item.str : '').join(' ');
-                    out += `Page ${p}:\n${pageText}\n\n`;
-                    if (out.length >= MAX_CHARS) { out = out.slice(0, MAX_CHARS) + '\n\n[Context truncated]\n'; break; }
-                    if (p % 8 === 0) await new Promise((r) => setTimeout(r, 0));
-                }
-                if (out) contextCacheRef.current.set(cacheKey, out);
-                return out;
-            };
-
-            const baseBody = {
-                reportId: report.id,
-                reportKey,
-                force: true,
-            };
-
-            let computed: EntityExtractionResponse;
-            try {
-                // Preferred path: server-side markdown cache/PDF conversion.
-                computed = await postExtract(baseBody);
-            } catch (firstErr) {
-                const msg = firstErr instanceof Error ? firstErr.message : String(firstErr);
-                const retryable = /\bHTTP\s5\d\d\b|toMarkdown|Workers AI|PDF conversion|timed out|fetch failed/i.test(msg);
-                if (!retryable) throw firstErr;
-
-                // Fallback: local PDF extraction + one retry (uses the endpoint's `text` override).
-                const extractedFullText = await extractFullText().catch(() => '');
-                if (!extractedFullText) throw firstErr;
-                computed = await postExtract({ ...baseBody, text: extractedFullText });
+                const incoming = data as EntityExtractionResponse;
+                setEntitiesData(incoming);
+                entityCacheByReport.set(report.id, incoming);
+                entitiesAutoFetchedRef.current = report.id;
+                return;
             }
 
-            setEntitiesData(computed);
-            entityCacheByReport.set(report.id, computed);
+            // Stream NDJSON progress events
+            const reader = res.body!.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let finalData: EntityExtractionResponse | null = null;
+
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+
+                const lines = buffer.split('\n');
+                buffer = lines.pop()!;
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const event = JSON.parse(line);
+                        if (event.t === 'p') {
+                            setEntitiesProgress({ pct: event.pct || 0, msg: event.msg || '' });
+                        } else if (event.t === 'done') {
+                            finalData = event.data as EntityExtractionResponse;
+                            setEntitiesProgress({ pct: 100, msg: 'Complete' });
+                        } else if (event.t === 'err') {
+                            throw new Error(event.error || 'Extraction failed');
+                        }
+                    } catch (e) {
+                        if (e instanceof SyntaxError) continue;
+                        throw e;
+                    }
+                }
+            }
+
+            // Process remaining buffer
+            if (buffer.trim()) {
+                try {
+                    const event = JSON.parse(buffer);
+                    if (event.t === 'done') finalData = event.data as EntityExtractionResponse;
+                    else if (event.t === 'err') throw new Error(event.error);
+                } catch (e) {
+                    if (!(e instanceof SyntaxError)) throw e;
+                }
+            }
+
+            if (finalData) {
+                setEntitiesData(finalData);
+                entityCacheByReport.set(report.id, finalData);
+                entitiesAutoFetchedRef.current = report.id;
+            } else {
+                throw new Error('No extraction result received');
+            }
         } catch (e) {
+            // POST failed — attempt recovery GET for partial results cached in R2.
+            try {
+                const recoveryUrl = `/score/entity-extract?reportId=${encodeURIComponent(report.id)}&_ts=${Date.now()}`;
+                const recoveryRes = await fetch(recoveryUrl, { method: 'GET', cache: 'no-store' });
+                if (recoveryRes.ok) {
+                    const recoveryData = await recoveryRes.json().catch(() => null) as EntityExtractionResponse | null;
+                    if (recoveryData?.entities && Array.isArray(recoveryData.entities) && recoveryData.entities.length > 0) {
+                        setEntitiesData(recoveryData);
+                        entityCacheByReport.set(report.id, recoveryData);
+                        entitiesAutoFetchedRef.current = report.id;
+                        return;
+                    }
+                }
+            } catch { /* recovery GET also failed */ }
             setEntitiesError(e instanceof Error ? e.message : String(e));
         } finally {
             setEntitiesComputing(false);
+            setEntitiesProgress(null);
         }
-    }, [numPages, pdfDocument, report?.id, reportKey]);
+    }, [report?.id, reportKey]);
 
     /* ── Chat: text extraction for context ── */
     const pagesToExtract = useMemo(() => {
@@ -1351,6 +1395,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                                 computing={entitiesComputing}
                                 error={entitiesError}
                                 data={entitiesData}
+                                progress={entitiesProgress}
                                 bertLoading={bertLoading}
                                 bertError={bertError}
                                 bertSummary={bertSummary}

@@ -56,7 +56,14 @@ export async function onRequest(context) {
 
   await runPool(ids, R2_CONCURRENCY, async (id) => {
     const key = disclosureScoreKey(id, version);
-    const cached = await getCachedText(bucket, key);
+    let cached;
+    try {
+      cached = await getCachedText(bucket, key);
+    } catch (err) {
+      log.error("R2 read failed in batch", { id, error: err?.message || String(err) });
+      results[id] = { error: "r2_read_failed" };
+      return;
+    }
     if (!cached) {
       results[id] = null;
       return;

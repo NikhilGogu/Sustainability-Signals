@@ -54,6 +54,19 @@ export function disclosureScoreKey(reportId, version) {
 }
 
 /**
+ * Build an entity-extraction cache key.
+ * @param {string} reportId
+ * @param {number} [version=1]
+ * @returns {string}
+ */
+export function entityExtractKey(reportId, version) {
+  const id = safeString(reportId).trim();
+  if (!id) return "";
+  const v = Number.isFinite(version) ? version : 1;
+  return `scores/entity_extract/v${v}/${id}.json`;
+}
+
+/**
  * Build a vectorize marker key for a report.
  * @param {string} reportId
  * @returns {string}

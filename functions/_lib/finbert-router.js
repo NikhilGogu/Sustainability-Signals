@@ -197,15 +197,16 @@ export async function classifyChunks(texts, { container, baseUrl, apiKey, batchS
                 const globalIdx = batch.startIdx + j;
 
                 if (error || !apiResults || !apiResults[j]) {
-                    // Fallback: mark as unknown/error
+                    // Fallback: include chunk in extraction (safer than skipping).
+                    // When FinBERT is unavailable the LLM can still extract entities.
                     results[globalIdx] = {
                         index: globalIdx,
-                        category: "Non-ESG",
+                        category: "Unknown",
                         pillar: null,
                         score: 0,
-                        isESG: false,
+                        isESG: true,
                         allScores: [],
-                        error: error?.message || "Container call failed",
+                        error: error?.message || "FinBERT unavailable – chunk included by default",
                     };
                     continue;
                 }
