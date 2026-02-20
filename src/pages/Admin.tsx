@@ -229,6 +229,11 @@ export function Admin() {
   /* ---- Session auth gate ---- */
   const [authenticated, setAuthenticated] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
+    // If no password hash is configured, always deny — never restore a stale session.
+    if (!ADMIN_PASSWORD_HASH) {
+      try { sessionStorage.removeItem(ADMIN_SESSION_KEY); } catch { /* no-op */ }
+      return false;
+    }
     try { return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'; } catch { return false; }
   });
 
