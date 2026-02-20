@@ -95,8 +95,20 @@ const TABS: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
 /* ------------------------------------------------------------------ */
 
 const ADMIN_SESSION_KEY = 'ss_admin_authenticated';
-// Password is a client-side convenience gate only.
-const ADMIN_PASSWORD = '***REMOVED***';
+
+// SHA-256 hash of the admin password, injected at build time via VITE_ADMIN_PASSWORD_HASH.
+// Generate with: echo -n 'yourpassword' | sha256sum
+const ADMIN_PASSWORD_HASH = (import.meta.env.VITE_ADMIN_PASSWORD_HASH || '').trim();
+
+async function verifyPassword(input: string): Promise<boolean> {
+  if (!ADMIN_PASSWORD_HASH) return false;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  return hashHex === ADMIN_PASSWORD_HASH.toLowerCase();
+}
 
 /* ------------------------------------------------------------------ */
 /*  Login screen                                                       */
@@ -112,9 +124,10 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
     inputRef.current?.focus();
   }, []);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (value === ADMIN_PASSWORD) {
+    const valid = await verifyPassword(value);
+    if (valid) {
       try { sessionStorage.setItem(ADMIN_SESSION_KEY, '1'); } catch { /* no-op */ }
       onSuccess();
     } else {

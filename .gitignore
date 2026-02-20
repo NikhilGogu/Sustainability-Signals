@@ -26,3 +26,28 @@ S White.png
 
 # Generated slide images
 scripts/_slide_images/
+
+# Environment files (may contain secrets)
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+~$*
+
+# Python virtual environment (root)
+.venv/
+
+# Terraform / IaC state (if ever added)
+*.tfstate
+*.tfstate.*
+.terraform/
