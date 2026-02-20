@@ -1166,6 +1166,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         const handleKeyDown = (e: KeyboardEvent) => {
             const tag = (e.target as HTMLElement).tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            if (e.key === 'Escape' && sidebarExpanded) { e.preventDefault(); setSidebarExpanded(false); return; }
             switch (e.key) {
                 case 'ArrowLeft': e.preventDefault(); goToPage(currentPage - 1); break;
                 case 'ArrowRight': e.preventDefault(); goToPage(currentPage + 1); break;
@@ -1178,10 +1179,11 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentPage, numPages, goToPage]);
+    }, [currentPage, numPages, goToPage, sidebarExpanded]);
 
     /* ── sidebar tab state ── */
     const [sidebarTab, setSidebarTab] = useState<'info' | 'dq' | 'entities'>('info');
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
     const reportYearLabel = report.publishedYear && report.publishedYear > 0 ? String(report.publishedYear) : 'latest';
     const reportPath = `/reports/${report.slug || report.id}`;
     const reportSeoTitle = `${report.company} ${reportYearLabel} Disclosure Quality & Evidence | Sustainability Signals`;
@@ -1344,7 +1346,21 @@ function ReportView({ report }: { report: SustainabilityReport }) {
             {/* ── Main content ── */}
             <div className="flex flex-col lg:flex-row max-w-[1600px] mx-auto relative">
                 {/* Sidebar: company metadata + DQ */}
-                <aside aria-label="Report details" className="lg:w-80 xl:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 lg:sticky lg:top-14 lg:h-[calc(100svh_-_3.5rem)] lg:overflow-y-auto flex flex-col">
+                {sidebarExpanded && (
+                    <div
+                        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+                        onClick={() => setSidebarExpanded(false)}
+                        aria-hidden="true"
+                    />
+                )}
+                <aside
+                    aria-label="Report details"
+                    className={`shrink-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 flex flex-col transition-all duration-300 ease-in-out ${
+                        sidebarExpanded
+                            ? 'fixed inset-0 top-14 z-40 lg:static lg:z-auto lg:w-[55vw] xl:w-[50vw] 2xl:w-[45vw] lg:h-[calc(100svh_-_3.5rem)] lg:sticky lg:top-14 lg:overflow-y-auto'
+                            : 'lg:w-80 xl:w-96 lg:sticky lg:top-14 lg:h-[calc(100svh_-_3.5rem)] lg:overflow-y-auto'
+                    }`}
+                >
                     {/* Tab switcher */}
                     <div className="flex border-b border-gray-200 dark:border-gray-800 shrink-0">
                         <button onClick={() => setSidebarTab('info')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${sidebarTab === 'info' ? 'text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
@@ -1362,6 +1378,20 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                             Disclosure Quality
                             {dqData && <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold border ${dqBandStyles(dqData.band).pill}`}>{Math.round(dqData.score)}</span>}
                         </button>
+                        {(sidebarTab === 'entities' || sidebarTab === 'dq') && (
+                            <button
+                                onClick={() => setSidebarExpanded(!sidebarExpanded)}
+                                className="px-2.5 py-2.5 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 transition-colors border-l border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                                title={sidebarExpanded ? 'Collapse panel' : 'Expand panel for detailed view'}
+                                aria-label={sidebarExpanded ? 'Collapse panel' : 'Expand panel'}
+                            >
+                                {sidebarExpanded ? (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0v4m0-4h4m6 6l5 5m0 0v-4m0 4h-4" /></svg>
+                                ) : (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" /></svg>
+                                )}
+                            </button>
+                        )}
                     </div>
 
                     {/* Tab content */}
@@ -1400,6 +1430,7 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                                 bertError={bertError}
                                 bertSummary={bertSummary}
                                 canCompute={Boolean(reportKey)}
+                                expanded={sidebarExpanded}
                                 onCompute={() => void computeEntityExtraction()}
                                 onRefresh={() => refreshEntitiesNow()}
                                 onGoToPage={(p) => goToPage(p, 'auto')}

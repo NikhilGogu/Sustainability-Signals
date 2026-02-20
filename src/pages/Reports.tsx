@@ -25,8 +25,8 @@ function uniqSorted(values: string[]): string[] {
 /*  Batch status helpers                                               */
 /* ------------------------------------------------------------------ */
 
-const STATUS_BATCH_SIZE = 200;
-const STATUS_CONCURRENCY = 4;
+const STATUS_BATCH_SIZE = 2000;
+const STATUS_CONCURRENCY = 6;
 
 /** Split array into chunks */
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -51,9 +51,11 @@ async function pool<T>(items: T[], concurrency: number, fn: (item: T) => Promise
 async function fetchDQStatusBatch(
   ids: string[],
   signal?: AbortSignal,
+  onProgress?: (pct: number) => void,
 ): Promise<Record<string, ReportDQStatus>> {
   const map: Record<string, ReportDQStatus> = {};
   const chunks = chunk(ids, STATUS_BATCH_SIZE);
+  let done = 0;
 
   await pool(chunks, STATUS_CONCURRENCY, async (batch) => {
     if (signal?.aborted) return;
@@ -77,6 +79,9 @@ async function fetchDQStatusBatch(
       }
     } catch {
       // Silently skip — status stays unknown
+    } finally {
+      done++;
+      onProgress?.(Math.round((done / chunks.length) * 100));
     }
   });
 
@@ -87,9 +92,11 @@ async function fetchDQStatusBatch(
 async function fetchEntityStatusBatch(
   ids: string[],
   signal?: AbortSignal,
+  onProgress?: (pct: number) => void,
 ): Promise<Record<string, ReportEntityStatus>> {
   const map: Record<string, ReportEntityStatus> = {};
   const chunks = chunk(ids, STATUS_BATCH_SIZE);
+  let done = 0;
 
   await pool(chunks, STATUS_CONCURRENCY, async (batch) => {
     if (signal?.aborted) return;
@@ -108,6 +115,9 @@ async function fetchEntityStatusBatch(
       }
     } catch {
       // Silently skip
+    } finally {
+      done++;
+      onProgress?.(Math.round((done / chunks.length) * 100));
     }
   });
 
@@ -134,6 +144,7 @@ export function Reports() {
   const [dqFilter, setDqFilter] = useState<DQFilterValue>('all');
   const [entityFilter, setEntityFilter] = useState<EntityFilterValue>('all');
   const statusFetchRef = useRef(0);
+  const [statusFetchProgress, setStatusFetchProgress] = useState<{ dqPct: number; entPct: number; loading: boolean }>({ dqPct: 0, entPct: 0, loading: false });
 
   useEffect(() => {
     let mounted = true;
@@ -170,18 +181,27 @@ export function Reports() {
     const token = ++statusFetchRef.current;
     const ctrl = new AbortController();
 
+    setStatusFetchProgress({ dqPct: 0, entPct: 0, loading: true });
+
     (async () => {
       const ids = allReports.map((r) => r.id);
 
-      // Fire both checks in parallel
+      // Fire both checks in parallel, with progress tracking
       const [dq, ent] = await Promise.all([
-        fetchDQStatusBatch(ids, ctrl.signal),
-        fetchEntityStatusBatch(ids, ctrl.signal),
+        fetchDQStatusBatch(ids, ctrl.signal, (pct) => {
+          if (token !== statusFetchRef.current) return;
+          setStatusFetchProgress((prev) => ({ ...prev, dqPct: pct }));
+        }),
+        fetchEntityStatusBatch(ids, ctrl.signal, (pct) => {
+          if (token !== statusFetchRef.current) return;
+          setStatusFetchProgress((prev) => ({ ...prev, entPct: pct }));
+        }),
       ]);
 
       if (token !== statusFetchRef.current) return;
       setDqStatus(dq);
       setEntityStatus(ent);
+      setStatusFetchProgress({ dqPct: 100, entPct: 100, loading: false });
     })();
 
     return () => {
@@ -545,6 +565,25 @@ export function Reports() {
 
           {/* Table */}
           <div className="relative min-h-[420px]">
+            {statusFetchProgress.loading && (
+              <div className="px-5 sm:px-6 pb-3 -mt-1">
+                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="font-semibold text-gray-700 dark:text-gray-200 shrink-0">Fetching status</span>
+                    <div className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 transition-all duration-500 ease-out"
+                        style={{ width: `${Math.max(Math.round((statusFetchProgress.dqPct + statusFetchProgress.entPct) / 2), 2)}%` }}
+                      />
+                    </div>
+                    <span className="tabular-nums font-bold shrink-0">{Math.round((statusFetchProgress.dqPct + statusFetchProgress.entPct) / 2)}%</span>
+                  </div>
+                  <span className="shrink-0 text-[11px]">
+                    DQ {statusFetchProgress.dqPct}% · Entities {statusFetchProgress.entPct}%
+                  </span>
+                </div>
+              </div>
+            )}
             <ReportsTable
               reports={filteredReports}
               sortBy={sortBy}
@@ -556,6 +595,7 @@ export function Reports() {
               entityFilter={entityFilter}
               onDQFilterChange={setDqFilter}
               onEntityFilterChange={setEntityFilter}
+              statusLoading={statusFetchProgress.loading}
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 // ─── Disclosure Quality Batch Endpoint ──────────────────────────────────────
-// Bulk cached DQ score fetcher. Accepts up to 200 report IDs, reads scores
-// from R2 in parallel (concurrency 24), returns summary objects.
+// Bulk cached DQ score fetcher. Accepts up to 2000 report IDs, reads scores
+// from R2 in parallel (concurrency 30), returns summary objects.
 
 import {
   safeString,
@@ -14,8 +14,8 @@ import { ErrorCode, errorResponse } from "../_lib/errors.js";
 import { validateJsonBody, validateReportIdBatch } from "../_lib/validation.js";
 
 // ── Constants ───────────────────────────────────────────────────────────────
-const MAX_BATCH_SIZE = 200;
-const R2_CONCURRENCY = 24;
+const MAX_BATCH_SIZE = 2000;
+const R2_CONCURRENCY = 30;
 
 export async function onRequest(context) {
   // Method enforcement — OPTIONS handled by global middleware

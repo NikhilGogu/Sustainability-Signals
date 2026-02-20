@@ -1,6 +1,6 @@
 // ─── Entity Extract Batch Status Endpoint ───────────────────────────────────
 // Bulk check whether entity extraction results are cached in R2.
-// Accepts up to 500 report IDs, performs HEAD checks in parallel.
+// Accepts up to 2000 report IDs, performs HEAD checks in parallel.
 // Returns { results: { [id]: boolean } } — true = cached, false = not cached.
 
 import {
@@ -13,7 +13,7 @@ import { ErrorCode, errorResponse } from "../_lib/errors.js";
 import { validateJsonBody, validateReportIdBatch } from "../_lib/validation.js";
 
 // ── Constants ───────────────────────────────────────────────────────────────
-const MAX_BATCH_SIZE = 500;
+const MAX_BATCH_SIZE = 2000;
 const R2_CONCURRENCY = 30;
 
 export async function onRequest(context) {

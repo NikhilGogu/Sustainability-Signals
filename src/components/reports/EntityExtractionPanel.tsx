@@ -173,6 +173,7 @@ export function EntityExtractionPanel(props: {
   bertError?: string | null;
   bertSummary?: EsgBertReportSummary | null;
   canCompute: boolean;
+  expanded?: boolean;
   onCompute: () => void;
   onRefresh: () => void;
   onGoToPage: (page: number) => void;
@@ -362,7 +363,7 @@ export function EntityExtractionPanel(props: {
 
         {/* Summary */}
         {summary && entities && entities.length > 0 ? (
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className={`mt-4 grid gap-3 ${props.expanded ? 'grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'}`}>
             <div className="rounded-xl border border-gray-200/60 dark:border-gray-800/60 bg-gray-50/50 dark:bg-gray-900/30 p-3">
               <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Total</div>
               <div className="mt-1 text-lg font-extrabold text-gray-900 dark:text-white tabular-nums">{summary.total_entities ?? entities.length}</div>
@@ -463,7 +464,7 @@ export function EntityExtractionPanel(props: {
               ))}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <select
                 value={klass}
                 onChange={(e) => setKlass(e.target.value)}
@@ -480,7 +481,7 @@ export function EntityExtractionPanel(props: {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search entities..."
-                className="w-full sm:w-56 px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+                className={`px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 ${props.expanded ? 'flex-1 min-w-0' : 'w-full sm:w-56'}`}
               />
             </div>
           </div>
@@ -511,7 +512,7 @@ export function EntityExtractionPanel(props: {
           )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className={props.expanded ? 'grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3' : 'space-y-3'}>
           {filtered.map((e, idx) => {
             const attrs = e.attributes && typeof e.attributes === 'object' ? e.attributes : {};
             const attrEntries = Object.entries(attrs).filter(([, v]) => v != null && fmtAttr(v).trim());

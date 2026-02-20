@@ -26,6 +26,7 @@ interface ReportsTableProps {
     entityFilter?: EntityFilterValue;
     onDQFilterChange?: (v: DQFilterValue) => void;
     onEntityFilterChange?: (v: EntityFilterValue) => void;
+    statusLoading?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -77,14 +78,15 @@ export function ReportsTable({
     entityFilter = 'all',
     onDQFilterChange,
     onEntityFilterChange,
+    statusLoading = false,
 }: ReportsTableProps) {
     /* ---- pagination ---- */
     const [pageSize, setPageSize] = useState<number>(50);
     const [page, setPage] = useState(0);
     const [, startTransition] = useTransition();
 
-    const showDQ = Boolean(dqStatus && Object.keys(dqStatus).length);
-    const showEntity = Boolean(entityStatus && Object.keys(entityStatus).length);
+    const showDQ = Boolean(statusLoading || (dqStatus && Object.keys(dqStatus).length));
+    const showEntity = Boolean(statusLoading || (entityStatus && Object.keys(entityStatus).length));
 
     /* ---- defer heavy renders ---- */
     const deferredReports = useDeferredValue(reports);
@@ -271,16 +273,28 @@ export function ReportsTable({
                                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{report.publishedYear}</td>
                                     {showDQ && (
                                         <td className="py-3 px-4 hidden sm:table-cell">
-                                            <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${dqPill(dq)}`}>
-                                                {dq === 'scored' ? 'Scored' : dq === 'unscored' ? 'No' : '—'}
-                                            </span>
+                                            {statusLoading && dq === 'unknown' ? (
+                                                <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold bg-gray-50 text-gray-400 border-gray-200/60 dark:bg-gray-900/20 dark:text-gray-500 dark:border-gray-700/40">
+                                                    <span className="w-3 h-3 border-[1.5px] border-gray-200 border-t-gray-500 dark:border-gray-700 dark:border-t-gray-400 rounded-full animate-spin mr-1" />
+                                                </span>
+                                            ) : (
+                                                <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${dqPill(dq)}`}>
+                                                    {dq === 'scored' ? 'Scored' : dq === 'unscored' ? 'No' : '—'}
+                                                </span>
+                                            )}
                                         </td>
                                     )}
                                     {showEntity && (
                                         <td className="py-3 px-4 hidden sm:table-cell">
-                                            <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${entityPill(ent)}`}>
-                                                {ent === 'done' ? 'Done' : ent === 'none' ? 'No' : '—'}
-                                            </span>
+                                            {statusLoading && ent === 'unknown' ? (
+                                                <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold bg-gray-50 text-gray-400 border-gray-200/60 dark:bg-gray-900/20 dark:text-gray-500 dark:border-gray-700/40">
+                                                    <span className="w-3 h-3 border-[1.5px] border-gray-200 border-t-gray-500 dark:border-gray-700 dark:border-t-gray-400 rounded-full animate-spin mr-1" />
+                                                </span>
+                                            ) : (
+                                                <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${entityPill(ent)}`}>
+                                                    {ent === 'done' ? 'Done' : ent === 'none' ? 'No' : '—'}
+                                                </span>
+                                            )}
                                         </td>
                                     )}
                                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400 hidden xl:table-cell">

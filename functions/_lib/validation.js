@@ -49,7 +49,7 @@ export async function validateJsonBody(request, { maxBytes = 5_000_000 } = {}) {
  * @param {{ maxItems?: number }} [opts]
  * @returns {{ valid: boolean; ids?: string[]; error?: string }}
  */
-export function validateReportIdBatch(reportIds, { maxItems = 200 } = {}) {
+export function validateReportIdBatch(reportIds, { maxItems = 5000 } = {}) {
   if (!Array.isArray(reportIds)) {
     return { valid: false, error: "reportIds must be an array" };
   }
