@@ -9,7 +9,8 @@ export function TermsOfService() {
         description="Terms of Service for Sustainability Signals, including acceptable use, liability limitations, and educational project disclaimers."
         path="/terms"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
+        imageAlt="Sustainability Signals — Terms of Service"
+        breadcrumbs={[{ name: 'Terms of Service', path: '/terms' }]}
       />
 
       <PageHero

@@ -308,13 +308,18 @@ export function Landing() {
         path="/"
         type="website"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
+        imageAlt="Sustainability Signals — Evidence-Grounded ESG Ratings"
         keywords={[
+          'sustainability signals',
           'ESG ratings',
           'disclosure quality',
           'sustainability reports',
           'CSRD',
           'ESG entity extraction',
+          'evidence-grounded ESG',
+          'ESG scoring platform',
+          'sustainable investing tools',
+          'sustainability disclosure quality',
         ]}
         structuredData={landingSchemas}
       />

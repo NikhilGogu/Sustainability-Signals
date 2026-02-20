@@ -9,7 +9,8 @@ export function PrivacyPolicy() {
         description="Privacy Policy for Sustainability Signals, including what technical and user-provided data may be processed in this student-built prototype."
         path="/privacy"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
+        imageAlt="Sustainability Signals — Privacy Policy"
+        breadcrumbs={[{ name: 'Privacy Policy', path: '/privacy' }]}
       />
 
       <PageHero

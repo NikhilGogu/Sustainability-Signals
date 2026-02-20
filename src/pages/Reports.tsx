@@ -25,7 +25,7 @@ function uniqSorted(values: string[]): string[] {
 /*  Batch status helpers                                               */
 /* ------------------------------------------------------------------ */
 
-const STATUS_BATCH_SIZE = 2000;
+const STATUS_BATCH_SIZE = 100;
 const STATUS_CONCURRENCY = 6;
 
 /** Split array into chunks */
@@ -186,15 +186,15 @@ export function Reports() {
     (async () => {
       const ids = allReports.map((r) => r.id);
 
-      // Fire both checks in parallel, with progress tracking
+      // Fire both checks in parallel, with per-batch progress tracking
       const [dq, ent] = await Promise.all([
         fetchDQStatusBatch(ids, ctrl.signal, (pct) => {
           if (token !== statusFetchRef.current) return;
-          setStatusFetchProgress((prev) => ({ ...prev, dqPct: pct }));
+          setStatusFetchProgress((prev) => ({ ...prev, dqPct: Math.min(pct, 100) }));
         }),
         fetchEntityStatusBatch(ids, ctrl.signal, (pct) => {
           if (token !== statusFetchRef.current) return;
-          setStatusFetchProgress((prev) => ({ ...prev, entPct: pct }));
+          setStatusFetchProgress((prev) => ({ ...prev, entPct: Math.min(pct, 100) }));
         }),
       ]);
 
@@ -403,12 +403,13 @@ export function Reports() {
   return (
     <>
       <Seo
-        title="Coverage Universe | Sustainability Signals"
-        description="Explore the Sustainability Signals coverage universe and open disclosures to run Disclosure Quality scoring, evidence review, and ESG entity extraction."
+        title="Sustainability Reports Database & Disclosure Quality Scores | Sustainability Signals"
+        description="Explore the Sustainability Signals coverage universe — browse sustainability reports, run Disclosure Quality scoring, review evidence highlights, and extract ESG entities across 900+ CSRD-aligned disclosures."
         path="/reports"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
-        keywords={['sustainability reports database', 'disclosure quality score', 'ESG evidence extraction']}
+        imageAlt="Sustainability Signals — Coverage Universe"
+        keywords={['sustainability reports database', 'disclosure quality score', 'ESG evidence extraction', 'CSRD reports', 'sustainability disclosure database', 'ESG report analysis']}
+        breadcrumbs={[{ name: 'Reports', path: '/reports' }]}
       />
 
       <PageHero

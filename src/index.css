@@ -687,6 +687,53 @@
     animation: spin-slow 20s linear infinite;
   }
 
+  /* ── Details/Summary smooth expand & consistent triangle ─── */
+
+  /* Hide native marker so we never get platform-specific emoji triangles */
+  details > summary {
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  details > summary::marker {
+    content: '';
+  }
+
+  /* Add a CSS-only triangle that is consistent across all platforms */
+  details > summary::before {
+    content: '';
+    display: inline-block;
+    width: 0.4em;
+    height: 0.4em;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-right: 0.5em;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+  details[open] > summary::before {
+    transform: rotate(45deg);
+  }
+
+  /* Smooth content expand/collapse via animation */
+  details > summary ~ * {
+    overflow: hidden;
+  }
+
+  @keyframes details-expand {
+    0% { opacity: 0; max-height: 0; transform: translateY(-4px); }
+    100% { opacity: 1; max-height: 2000px; transform: translateY(0); }
+  }
+
+  details[open] > summary ~ * {
+    animation: details-expand 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
   /* ── DQ Loading Overlay animations ───────────────────────── */
   @keyframes dq-overlay-enter {
     0% { opacity: 0; }
@@ -911,6 +958,10 @@
   .ss-backdrop-pattern.signal-grid,
   .ss-backdrop-dots.dot-grid,
   .signal-dash {
+    animation: none !important;
+  }
+
+  details[open] > summary ~ * {
     animation: none !important;
   }
 

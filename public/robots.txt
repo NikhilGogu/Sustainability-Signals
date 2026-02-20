@@ -1,5 +1,17 @@
+# Sustainability Signals – robots.txt
+# https://www.sustainabilitysignals.com
+
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /api/
+Disallow: /score/
+Disallow: /chat
+Disallow: /r2/
+Disallow: /healthz
 
+# Crawl-delay for polite bots (Googlebot ignores this but others respect it)
+Crawl-delay: 2
+
+# Sitemaps
 Sitemap: https://www.sustainabilitysignals.com/sitemap.xml

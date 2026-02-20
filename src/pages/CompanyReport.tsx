@@ -1224,8 +1224,13 @@ function ReportView({ report }: { report: SustainabilityReport }) {
                 path={reportPath}
                 type="article"
                 image="/og-image.png"
-                imageAlt={`${report.company} disclosure analysis in Sustainability Signals`}
+                imageAlt={`${report.company} ${report.publishedYear} Disclosure Quality & Evidence — Sustainability Signals`}
                 structuredData={reportSchema}
+                breadcrumbs={[
+                    { name: 'Reports', path: '/reports' },
+                    { name: `${report.company} ${report.publishedYear}`, path: reportPath },
+                ]}
+                datePublished={report.publishedYear && report.publishedYear > 0 ? `${report.publishedYear}-01-01` : undefined}
             />
 
             <a href="#report-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-brand-700 focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-brand-500 focus:text-sm focus:font-semibold">

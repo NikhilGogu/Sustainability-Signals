@@ -59,8 +59,9 @@ export function About() {
         description="Learn how Sustainability Signals turns disclosures into evidence-grounded scores and entities, and how the platform is evolving toward transparent ESG ratings."
         path="/about"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
-        keywords={['about sustainability signals', 'esg methodology', 'disclosure quality scoring']}
+        imageAlt="Sustainability Signals — About the platform"
+        keywords={['about sustainability signals', 'esg methodology', 'disclosure quality scoring', 'ESG platform', 'sustainability data', 'CSRD compliance tool']}
+        breadcrumbs={[{ name: 'About', path: '/about' }]}
       />
 
       <PageHero

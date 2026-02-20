@@ -1,11 +1,14 @@
 {
   "name": "Sustainability Signals",
   "short_name": "S Signals",
-  "description": "Evidence-grounded Disclosure Quality scoring and ESG entity extraction.",
+  "description": "Evidence-grounded ESG ratings platform — Disclosure Quality scoring, entity extraction, and grounded chat across 900+ CSRD-aligned sustainability disclosures.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0b0f10",
+  "categories": ["business", "finance", "productivity"],
+  "lang": "en-US",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

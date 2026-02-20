@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 interface DQLoadingOverlayProps {
     /** Whether we're computing (POST) vs just loading (GET) */
     isComputing?: boolean;
+    /** Optional determinate progress percentage (0-100) to replace indeterminate bar */
+    progress?: number | null;
 }
 
 /* ─── constants ────────────────────────────────────────────────── */
@@ -56,7 +58,7 @@ function ScoringRing({ dimension, delay }: { dimension: (typeof DIMENSIONS)[numb
 }
 
 /* ─── main component ───────────────────────────────────────────── */
-export function DQLoadingOverlay({ isComputing = false }: DQLoadingOverlayProps) {
+export function DQLoadingOverlay({ isComputing = false, progress = null }: DQLoadingOverlayProps) {
     const [scanIdx, setScanIdx] = useState(0);
     const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
@@ -115,11 +117,23 @@ export function DQLoadingOverlay({ isComputing = false }: DQLoadingOverlayProps)
                 </div>
             )}
 
-            {/* Progress bar (indeterminate) */}
+            {/* Progress bar */}
             <div className="w-full max-w-[240px]">
                 <div className="h-1 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden border border-gray-200/40 dark:border-gray-700/30">
-                    <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-brand-500/80 to-teal-400/80 dq-indeterminate" />
+                    {typeof progress === 'number' && Number.isFinite(progress) ? (
+                        <div
+                            className="h-full rounded-full bg-gradient-to-r from-brand-500/80 to-teal-400/80 transition-all duration-500 ease-out"
+                            style={{ width: `${Math.max(Math.min(progress, 100), 2)}%` }}
+                        />
+                    ) : (
+                        <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-brand-500/80 to-teal-400/80 dq-indeterminate" />
+                    )}
                 </div>
+                {typeof progress === 'number' && Number.isFinite(progress) && (
+                    <div className="mt-1.5 text-center text-[10px] tabular-nums font-bold text-gray-400 dark:text-gray-500">
+                        {Math.round(progress)}%
+                    </div>
+                )}
             </div>
 
             {/* Detail text for computing */}

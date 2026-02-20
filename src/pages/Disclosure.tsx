@@ -9,7 +9,8 @@ export function Disclosure() {
         description="Read project disclosure, limitations, and important context for interpreting scores, entities, and AI outputs in Sustainability Signals."
         path="/disclosure"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
+        imageAlt="Sustainability Signals — Disclosure"
+        breadcrumbs={[{ name: 'Disclosure', path: '/disclosure' }]}
       />
 
       <PageHero

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -10,8 +10,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sustainability Signals | Evidence-Grounded ESG Ratings</title>
 
+    <!-- Primary Meta Tags (static fallback for non-JS crawlers, react-helmet-async overrides at runtime) -->
+    <meta name="description" content="Sustainability Signals builds transparent, auditable ESG ratings. Start with Disclosure Quality scoring, evidence-grounded chat, and entity extraction across 900+ CSRD-aligned sustainability disclosures." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Sustainability Signals" />
+    <meta name="keywords" content="ESG ratings, disclosure quality, sustainability reports, CSRD, ESG entity extraction, sustainability signals, ESG scoring, sustainable investing, sustainability disclosure quality, evidence-grounded ESG" />
+    <link rel="canonical" href="https://www.sustainabilitysignals.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Sustainability Signals" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sustainability Signals | Evidence-Grounded ESG Ratings" />
+    <meta property="og:description" content="Sustainability Signals builds transparent, auditable ESG ratings. Start with Disclosure Quality scoring, evidence-grounded chat, and entity extraction across 900+ CSRD-aligned sustainability disclosures." />
+    <meta property="og:url" content="https://www.sustainabilitysignals.com/" />
+    <meta property="og:image" content="https://www.sustainabilitysignals.com/og-image.png" />
+    <meta property="og:image:alt" content="Sustainability Signals — Evidence-Grounded ESG Ratings" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sustainability Signals | Evidence-Grounded ESG Ratings" />
+    <meta name="twitter:description" content="Transparent, auditable ESG ratings. Disclosure Quality scoring, evidence-grounded chat, and entity extraction across 900+ sustainability disclosures." />
+    <meta name="twitter:image" content="https://www.sustainabilitysignals.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Sustainability Signals — Evidence-Grounded ESG Ratings" />
+
     <!-- Theme Color -->
     <meta name="theme-color" content="#0b0f10" />
+
+    <!-- Structured Data (static fallback) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.sustainabilitysignals.com/#organization",
+          "name": "Sustainability Signals",
+          "url": "https://www.sustainabilitysignals.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.sustainabilitysignals.com/logo-white.png"
+          },
+          "description": "Building transparent, auditable ESG ratings grounded in evidence from sustainability disclosures.",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.sustainabilitysignals.com/#website",
+          "name": "Sustainability Signals",
+          "url": "https://www.sustainabilitysignals.com",
+          "publisher": { "@id": "https://www.sustainabilitysignals.com/#organization" },
+          "inLanguage": "en-US",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.sustainabilitysignals.com/reports?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://www.sustainabilitysignals.com/#webpage",
+          "name": "Sustainability Signals | Evidence-Grounded ESG Ratings",
+          "url": "https://www.sustainabilitysignals.com/",
+          "isPartOf": { "@id": "https://www.sustainabilitysignals.com/#website" },
+          "about": { "@id": "https://www.sustainabilitysignals.com/#organization" },
+          "description": "Sustainability Signals builds transparent, auditable ESG ratings. Start with Disclosure Quality scoring, evidence-grounded chat, and entity extraction across 900+ sustainability disclosures.",
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Sustainability Signals",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "description": "Evidence-grounded ESG ratings platform with Disclosure Quality scoring, entity extraction, and grounded chat across CSRD-aligned sustainability disclosures.",
+          "url": "https://www.sustainabilitysignals.com/"
+        }
+      ]
+    }
+    </script>
+
     <style>
       #ss-fallback-h1 {
         position: absolute;
@@ -25,6 +108,10 @@
         white-space: nowrap;
       }
     </style>
+
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
     <script>
       (function () {
@@ -41,7 +128,7 @@
     </script>
   </head>
   <body class="dark:bg-gray-900">
-    <h1 id="ss-fallback-h1">Sustainability Signals</h1>
+    <h1 id="ss-fallback-h1">Sustainability Signals — Evidence-Grounded ESG Ratings</h1>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

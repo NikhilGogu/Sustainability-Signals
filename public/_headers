@@ -5,3 +5,44 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-src 'self'; worker-src 'self' blob:;
+
+# Immutable hashed assets (Vite produces content-hashed filenames)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Favicons & manifest — long cache, revalidate occasionally
+/favicon.ico
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/favicon-*.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/android-chrome-*.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/site.webmanifest
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/og-image.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/logo-white.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# OG image — ensure crawlers can access it quickly
+/og-image.png
+  Access-Control-Allow-Origin: *
+
+# Sitemap & robots — short cache, crawlers should see updates quickly
+/sitemap.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Content-Type: application/xml; charset=utf-8
+/robots.txt
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# Data files (reports index, etc.)
+/data/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# HTML pages — short cache with revalidation for fresh content
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+/
+  Cache-Control: public, max-age=0, must-revalidate

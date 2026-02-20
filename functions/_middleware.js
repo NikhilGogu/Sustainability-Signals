@@ -12,6 +12,7 @@ import { resolveAllowedOrigins, handlePreflight, corsHeaders } from "./_lib/cors
 import { checkRateLimit, rateLimitKey, rateLimitHeaders } from "./_lib/ratelimit.js";
 import { ErrorCode, errorResponse } from "./_lib/errors.js";
 import { safeString } from "./_lib/utils.js";
+import { isBot, rewriteHtmlSeo } from "./_lib/seo.js";
 
 // ── Endpoint classification ────────────────────────────────────────────────
 const HEAVY_ENDPOINTS = ["/chat"];
@@ -141,6 +142,39 @@ async function middleware(context) {
 
     // Inject standard headers into the response
     const headers = new Headers(response.headers);
+
+    // ── SEO: rewrite HTML meta for bots / social-link-preview scrapers ──
+    const userAgent = context.request.headers.get("User-Agent") || "";
+    const isHtml = (response.headers.get("Content-Type") || "").includes("text/html");
+    const isPageRoute = isGetLike && isHtml && !pathname.startsWith("/api/") && !pathname.startsWith("/r2/") && !pathname.startsWith("/score/");
+
+    if (isPageRoute && isBot(userAgent)) {
+      // Replace the response with SEO-rewritten version
+      const rewritten = rewriteHtmlSeo(response, pathname);
+      const newHeaders = new Headers(rewritten.headers);
+
+      // CORS
+      for (const [k, v] of Object.entries(cors)) {
+        newHeaders.set(k, v);
+      }
+      newHeaders.set("X-Request-ID", requestId);
+      newHeaders.set("Server-Timing", `total;dur=${Date.now() - start}`);
+      newHeaders.set("X-Content-Type-Options", "nosniff");
+      newHeaders.set("X-SEO-Rewritten", "1");
+
+      if (context._rateLimit) {
+        const rlHeaders = rateLimitHeaders(context._rateLimit, context._rateLimit.maxRequests);
+        for (const [k, v] of Object.entries(rlHeaders)) {
+          if (k !== "Retry-After") newHeaders.set(k, v);
+        }
+      }
+
+      return new Response(rewritten.body, {
+        status: rewritten.status,
+        statusText: rewritten.statusText,
+        headers: newHeaders,
+      });
+    }
 
     // CORS
     for (const [k, v] of Object.entries(cors)) {

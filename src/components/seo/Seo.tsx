@@ -3,9 +3,16 @@ import { Helmet } from 'react-helmet-async';
 const SITE_NAME = 'Sustainability Signals';
 const BASE_URL = 'https://www.sustainabilitysignals.com';
 const DEFAULT_IMAGE_PATH = '/og-image.png';
-const DEFAULT_IMAGE_ALT = 'Sustainability Signals brand mark';
+const DEFAULT_IMAGE_ALT = 'Sustainability Signals — Evidence-Grounded ESG Ratings';
+const DEFAULT_IMAGE_WIDTH = 1200;
+const DEFAULT_IMAGE_HEIGHT = 630;
 
 type JsonLd = Record<string, unknown>;
+
+export interface BreadcrumbItem {
+  name: string;
+  path: string;
+}
 
 export interface SeoProps {
   title: string;
@@ -14,9 +21,16 @@ export interface SeoProps {
   type?: 'website' | 'article';
   image?: string;
   imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   noindex?: boolean;
   keywords?: string[];
   structuredData?: JsonLd | JsonLd[];
+  breadcrumbs?: BreadcrumbItem[];
+  /** ISO date string for article publish date */
+  datePublished?: string;
+  /** ISO date string for article modification date */
+  dateModified?: string;
 }
 
 function toAbsoluteUrl(pathOrUrl: string): string {
@@ -38,9 +52,14 @@ export function Seo({
   type = 'website',
   image = DEFAULT_IMAGE_PATH,
   imageAlt = DEFAULT_IMAGE_ALT,
+  imageWidth = DEFAULT_IMAGE_WIDTH,
+  imageHeight = DEFAULT_IMAGE_HEIGHT,
   noindex = false,
   keywords = [],
   structuredData,
+  breadcrumbs,
+  datePublished,
+  dateModified,
 }: SeoProps) {
   const normalizedPath = normalizePath(path);
   const canonicalUrl = toAbsoluteUrl(normalizedPath);
@@ -54,24 +73,47 @@ export function Seo({
     baseSchemas.push({
       '@context': 'https://schema.org',
       '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
       name: SITE_NAME,
       url: BASE_URL,
-      logo: toAbsoluteUrl('/logo-white.png'),
+      logo: {
+        '@type': 'ImageObject',
+        url: toAbsoluteUrl('/logo-white.png'),
+      },
     });
 
     baseSchemas.push({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
+      '@id': `${canonicalUrl}#webpage`,
       name: title,
       description,
       url: canonicalUrl,
       inLanguage: 'en-US',
       isPartOf: {
         '@type': 'WebSite',
+        '@id': `${BASE_URL}/#website`,
         name: SITE_NAME,
         url: BASE_URL,
       },
+      ...(datePublished ? { datePublished } : {}),
+      ...(dateModified ? { dateModified } : {}),
     });
+
+    // BreadcrumbList structured data
+    if (breadcrumbs && breadcrumbs.length > 0) {
+      const allCrumbs = [{ name: 'Home', path: '/' }, ...breadcrumbs];
+      baseSchemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: allCrumbs.map((crumb, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: crumb.name,
+          item: toAbsoluteUrl(crumb.path),
+        })),
+      });
+    }
   }
 
   const extraSchemas = structuredData
@@ -97,6 +139,8 @@ export function Seo({
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={imageUrl} />
       <meta property="og:image:alt" content={imageAlt} />
+      <meta property="og:image:width" content={String(imageWidth)} />
+      <meta property="og:image:height" content={String(imageHeight)} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />

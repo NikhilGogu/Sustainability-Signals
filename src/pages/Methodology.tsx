@@ -135,12 +135,13 @@ export function Methodology() {
   return (
     <>
       <Seo
-        title="Methodology | How Disclosure Quality Scoring Works"
-        description="See the end-to-end methodology: report ingestion, FinBERT ESG routing, entity extraction, and weighted Disclosure Quality scoring with evidence highlights."
+        title="Methodology | How Disclosure Quality Scoring Works — Sustainability Signals"
+        description="See the end-to-end methodology: report ingestion, FinBERT ESG routing, entity extraction, and weighted Disclosure Quality scoring with evidence highlights across sustainability disclosures."
         path="/methodology"
         image="/og-image.png"
-        imageAlt="Sustainability Signals logo on dark background"
-        keywords={['disclosure quality methodology', 'ESG scoring model', 'FinBERT ESG', 'entity extraction']}
+        imageAlt="Sustainability Signals — Disclosure Quality Methodology"
+        keywords={['disclosure quality methodology', 'ESG scoring model', 'FinBERT ESG', 'entity extraction', 'sustainability scoring methodology', 'NLP ESG analysis', 'CSRD assessment']}
+        breadcrumbs={[{ name: 'Methodology', path: '/methodology' }]}
       />
 
       <PageHero
