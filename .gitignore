@@ -51,3 +51,5 @@ Thumbs.db
 *.tfstate
 *.tfstate.*
 .terraform/
+scripts/generate_linkedin_pptx.py
+Sustainability_Signals_LinkedIn.pptx
