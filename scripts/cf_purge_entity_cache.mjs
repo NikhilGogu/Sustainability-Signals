@@ -2,117 +2,113 @@
 /**
  * Purge cached entity extraction results from Cloudflare R2.
  *
- * This removes entity extraction JSON files so they can be re-extracted
- * with updated limits (e.g., after removing the 200-entity cap).
+ * This reads the reports index to discover all report IDs, then deletes
+ * the corresponding entity extraction cache objects from R2.
+ * Run this after raising entity extraction limits to force re-extraction.
  *
  * Usage:
- *   npx wrangler r2 object list sustainability-signals --prefix "scores/entity_extract/v1/" | node scripts/cf_purge_entity_cache.mjs --dry-run
- *   node scripts/cf_purge_entity_cache.mjs --bucket sustainability-signals --version 1
- *   node scripts/cf_purge_entity_cache.mjs --bucket sustainability-signals --version 1 --dry-run
+ *   node scripts/cf_purge_entity_cache.mjs --dry-run
+ *   node scripts/cf_purge_entity_cache.mjs --yes
+ *   node scripts/cf_purge_entity_cache.mjs --bucket sustainability-signals --version 1 --yes
+ *   node scripts/cf_purge_entity_cache.mjs --index src/data/reportsIndex.json --dry-run
  *
- * The script uses `wrangler r2 object` commands to list and delete objects.
+ * Requires: wrangler configured with Cloudflare credentials.
+ * Delete syntax: `npx wrangler r2 object delete <bucket>/<key>`
  */
 
-import { execSync, spawnSync } from "node:child_process";
+import { execSync } from "node:child_process";
+import fs from "node:fs/promises";
 import process from "node:process";
+import path from "node:path";
+
+const DEFAULT_INDEX = "src/data/reportsIndex.json";
 
 const args = process.argv.slice(2);
 const flags = {
+  index: DEFAULT_INDEX,
   bucket: "sustainability-signals",
   version: 1,
   dryRun: false,
   yes: false,
+  remote: true,
 };
 
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
-  if (a === "--bucket" && args[i + 1]) flags.bucket = args[++i];
+  if (a === "--index" && args[i + 1]) flags.index = args[++i];
+  else if (a === "--bucket" && args[i + 1]) flags.bucket = args[++i];
   else if (a === "--version" && args[i + 1]) flags.version = Number(args[++i]);
   else if (a === "--dry-run") flags.dryRun = true;
   else if (a === "--yes" || a === "-y") flags.yes = true;
+  else if (a === "--local") flags.remote = false;
+  else if (a === "--remote") flags.remote = true;
 }
 
-const prefix = `scores/entity_extract/v${flags.version}/`;
-
-console.log(`\n🗑️  Entity extraction cache purge`);
-console.log(`   Bucket:  ${flags.bucket}`);
-console.log(`   Prefix:  ${prefix}`);
-console.log(`   Dry run: ${flags.dryRun}\n`);
-
-// List objects with the prefix
-console.log("Listing cached entity extractions...");
-let listOutput;
+// ── Load reports index ──────────────────────────────────────────────────────
+const indexPath = path.resolve(flags.index);
+let reports;
 try {
-  listOutput = execSync(
-    `npx wrangler r2 object list ${flags.bucket} --prefix "${prefix}"`,
-    { encoding: "utf-8", maxBuffer: 50 * 1024 * 1024 }
-  );
+  const raw = await fs.readFile(indexPath, "utf-8");
+  reports = JSON.parse(raw);
+  if (!Array.isArray(reports)) throw new Error("Expected an array");
 } catch (err) {
-  console.error("Failed to list R2 objects. Make sure wrangler is configured.");
+  console.error(`Failed to read reports index at ${indexPath}`);
   console.error(err.message);
   process.exit(1);
 }
 
-// Parse the JSON output from wrangler
-let objects = [];
-try {
-  const parsed = JSON.parse(listOutput);
-  objects = Array.isArray(parsed) ? parsed : parsed.objects || [];
-} catch {
-  // Try line-based parsing if JSON fails
-  const lines = listOutput.trim().split("\n").filter(Boolean);
-  for (const line of lines) {
-    try {
-      const obj = JSON.parse(line);
-      if (obj.key) objects.push(obj);
-    } catch {
-      // skip non-JSON lines
-    }
-  }
-}
+// Build R2 keys from report IDs
+const keys = reports
+  .map((r) => (typeof r.id === "string" ? r.id : String(r.id || "")).trim())
+  .filter((id) => /^report-\d+$/.test(id))
+  .map((id) => `scores/entity_extract/v${flags.version}/${id}.json`);
 
-if (objects.length === 0) {
-  console.log("No entity extraction caches found. Nothing to delete.");
+if (keys.length === 0) {
+  console.log("No valid report IDs found in the index. Nothing to delete.");
   process.exit(0);
 }
 
-console.log(`Found ${objects.length} cached entity extraction(s).`);
+const locationFlag = flags.remote ? "--remote" : "--local";
+
+console.log(`\n🗑️  Entity extraction cache purge`);
+console.log(`   Bucket:   ${flags.bucket}`);
+console.log(`   Version:  v${flags.version}`);
+console.log(`   Reports:  ${keys.length}`);
+console.log(`   Storage:  ${flags.remote ? "remote" : "local"}`);
+console.log(`   Dry run:  ${flags.dryRun}\n`);
 
 if (flags.dryRun) {
-  console.log("\n[DRY RUN] Would delete:");
-  for (const obj of objects) {
-    const key = typeof obj === "string" ? obj : obj.key;
-    const size = obj.size ? ` (${Math.round(obj.size / 1024)}KB)` : "";
-    console.log(`  - ${key}${size}`);
-  }
-  console.log(`\nTotal: ${objects.length} file(s). Re-run without --dry-run to delete.`);
+  console.log("[DRY RUN] Would attempt to delete:");
+  for (const key of keys.slice(0, 20)) console.log(`  - ${key}`);
+  if (keys.length > 20) console.log(`  ... and ${keys.length - 20} more`);
+  console.log(`\nTotal: ${keys.length} key(s). Re-run without --dry-run to delete.`);
   process.exit(0);
 }
 
 if (!flags.yes) {
-  console.log(`\n⚠️  About to delete ${objects.length} entity extraction cache(s) from R2.`);
+  console.log(`⚠️  About to delete up to ${keys.length} entity extraction cache(s) from R2.`);
   console.log("   Run with --yes or -y to skip this confirmation, or --dry-run to preview.\n");
   process.exit(1);
 }
 
-// Delete each object
+// Delete each object — wrangler delete is idempotent (no error if key missing)
 let deleted = 0;
 let failed = 0;
-for (const obj of objects) {
-  const key = typeof obj === "string" ? obj : obj.key;
+for (const key of keys) {
+  const objectPath = `${flags.bucket}/${key}`;
   try {
-    execSync(`npx wrangler r2 object delete ${flags.bucket} "${key}"`, {
+    execSync(`npx wrangler r2 object delete "${objectPath}" ${locationFlag}`, {
       encoding: "utf-8",
       stdio: "pipe",
     });
     deleted++;
-    if (deleted % 10 === 0 || deleted === objects.length) {
-      console.log(`  Deleted ${deleted}/${objects.length} (${Math.round((deleted / objects.length) * 100)}%)`);
+    if (deleted % 25 === 0 || deleted === keys.length) {
+      process.stdout.write(`\r  Deleted ${deleted}/${keys.length} (${Math.round((deleted / keys.length) * 100)}%)`);
     }
   } catch (err) {
     failed++;
-    console.error(`  Failed to delete ${key}: ${err.message}`);
+    if (failed <= 3) console.error(`\n  Failed: ${key} — ${err.message}`);
   }
 }
 
-console.log(`\n✅ Done. Deleted: ${deleted}, Failed: ${failed}`);
+console.log(`\n\n✅ Done. Deleted: ${deleted}, Failed: ${failed}, Skipped (not found): counted as deleted`);

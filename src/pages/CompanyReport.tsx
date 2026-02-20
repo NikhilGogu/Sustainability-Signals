@@ -1161,6 +1161,10 @@ function ReportView({ report }: { report: SustainabilityReport }) {
 
     const pages = useMemo(() => Array.from({ length: numPages }, (_, i) => i + 1), [numPages]);
 
+    /* ── sidebar tab state ── */
+    const [sidebarTab, setSidebarTab] = useState<'info' | 'dq' | 'entities'>('info');
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
     /* ── keyboard shortcuts ── */
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -1181,9 +1185,6 @@ function ReportView({ report }: { report: SustainabilityReport }) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [currentPage, numPages, goToPage, sidebarExpanded]);
 
-    /* ── sidebar tab state ── */
-    const [sidebarTab, setSidebarTab] = useState<'info' | 'dq' | 'entities'>('info');
-    const [sidebarExpanded, setSidebarExpanded] = useState(false);
     const reportYearLabel = report.publishedYear && report.publishedYear > 0 ? String(report.publishedYear) : 'latest';
     const reportPath = `/reports/${report.slug || report.id}`;
     const reportSeoTitle = `${report.company} ${reportYearLabel} Disclosure Quality & Evidence | Sustainability Signals`;
